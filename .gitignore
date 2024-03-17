@@ -1,3 +1,9 @@
+# Addition
+service-account-key-file.json
+test.py
+hello/
+old/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -123,7 +129,7 @@ celerybeat.pid
 .env
 .venv
 env/
-venv/
+*venv/
 ENV/
 env.bak/
 venv.bak/
