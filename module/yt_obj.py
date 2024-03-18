@@ -4,7 +4,7 @@ JST = timezone(timedelta(hours=+9), 'JST')
 import numpy as np
 import os
 import yt_dlp
-from dataclasses import dataclass
+from dataclasses import dataclass, field, asdict
 from PIL import Image
 
 
@@ -36,8 +36,7 @@ class YoutubeInformation:
         self.release_timestamp = info['release_timestamp']
         self.original_url = info['original_url']
         self.fps = info['fps']
-        #self.cap = info['cap']
-
+        self.cap = info['cap']
 
 class GetYoutube:
     def __init__(self, input_url, resolution='best', ydl_opts={}):
@@ -48,14 +47,14 @@ class GetYoutube:
         self.streams = None
         self.resolutions = None
         self.infos = []
-        self.get_yt()
+        self.get_yt_infos()
         #os.system('cls')
 
     def __del__(self):
         for k in list(self.__dict__.keys()):
             if k!='infos': del self.__dict__[k]
     
-    def get_yt(self):
+    def get_yt_infos(self):
         with yt_dlp.YoutubeDL(self.ydl_opts) as ydl:
             infos = ydl.extract_info(self.input_url, download=False)
         if 'entries' in infos.keys(): infos = infos['entries']
@@ -63,7 +62,7 @@ class GetYoutube:
         for self.info in infos:
             self.get_yt_streams()
             self.get_yt_caps()
-            self.infos.append(YoutubeInformation(self.info))
+            self.infos.append(asdict(YoutubeInformation(self.info)))
         self.__del__()
 
     def get_yt_streams(self):
@@ -81,15 +80,33 @@ class GetYoutube:
         if self.resolution == 'best':
             for j in range(len(self.streams)-1,-1,-1):
                 if "p" in self.streams[j].resolution:
-                    #self.info['cap'] = cv2.VideoCapture(self.streams[j].url)
+                    # self.info['cap'] = cv2.VideoCapture(self.streams[j].url)
+                    self.info['cap'] = self.streams[j].url
                     self.info['fps'] = self.streams[j].fps
                     break
         elif self.resolution not in self.resolutions:
             raise ValueError(f'Resolution {self.resolution} not available')
         else:
             res_index = np.where(self.resolutions == self.resolution)[0][0]
-            #self.info['cap'] = cv2.VideoCapture(self.streams[res_index].url)
+            # self.info['cap'] = cv2.VideoCapture(self.streams[res_index].url)
+            self.info['cap'] = self.streams[res_index].url
             self.info['fps'] = self.streams[res_index].fps
+
+    # スタティックメソッド https://qiita.com/cardene/items/14d300c1b46371e74a38
+    @staticmethod
+    def get_yt_image(info, ydl_opts={}, sec_pos=0, imw_path=None):
+        cap = cv2.VideoCapture(info["cap"])
+        cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
+        ret, img = cap.read()
+        if not ret:
+            info = GetYoutube(info["original_url"], ydl_opts=ydl_opts).infos[0]
+            cap = cv2.VideoCapture(info["cap"])
+            cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
+            ret, img = cap.read()
+        if ('.jpg' in imw_path) or ('.png' in imw_path):
+            cv2.imwrite(imw_path, img)
+        return img
+    
 
 """
 @dataclass
@@ -197,19 +214,21 @@ def get_yt_image(info, frame_pos, ydl_opts={}, dsize=None, crop=None, add_rect=N
 def get_total_sec(infos):
     total_sec=0
     for info in infos:
-        total_sec+=info.duration
+        total_sec+=info["duration"]
     return timedelta(seconds=total_sec)
 
 if __name__ == '__main__':
-    #url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zAPnbxJkz99IB_npRLLB3_'
-    url = 'https://www.youtube.com/watch?v=6aUsPo83Rsw'
-    #url = 'https://www.youtube.com/playlist?list=PLXOP1_-wmgsBJYkQcRsPfszLsRdqb9N2e'
-    ydl_opts={'cookiesfrombrowser': ('chrome',)}
-    yt = GetYoutube(url, ydl_opts=ydl_opts)
+    url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zAPnbxJkz99IB_npRLLB3_'
+    #url = 'https://www.youtube.com/watch?v=6aUsPo83Rsw'
+    ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}
+    yt_infos = GetYoutube(url, ydl_opts=ydl_opts).infos
     # for info in yt.infos:
     #     for tgt in [19928.0]:
     #         for sec in range(int(tgt-1),int(tgt+1)):
     #             cv2.imshow('19928', get_yt_image(info.cap, sec*info.fps))
     #             cv2.waitKey()
-    print(get_total_sec(yt.infos))
-    print(type(get_yt_image(yt.infos[0], yt.infos[0].fps*100, ydl_opts=ydl_opts)[1]))
+    for info in yt_infos:
+        print(GetYoutube.get_yt_image(info))
+        
+    print(get_total_sec(yt_infos))
+    #print(type(get_yt_image(yt_infos[0], yt_infos[0]["fps"]*100, ydl_opts=ydl_opts)[1]))

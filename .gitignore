@@ -1,8 +1,8 @@
 # Addition
-service-account-key-file.json
 test.py
 hello/
 old/
+*.jpg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,11 +1,11 @@
 import pandas as pd
 import streamsync as ss
-import os
 import re
 import sys
-sys.path.append(os.path.join(os.path.dirname('__file__'), '..'))
+from os.path import join, dirname
+sys.path.append(join(dirname('__file__'), '..'))
 from module.bq_db import SmashDatabase
-from module.yt_obj import GetYoutube, get_yt_image
+from module.yt_obj import GetYoutube
 
 class Test:
     def __init__(self, name):
@@ -23,17 +23,17 @@ def update_game_screen(state):
     if state["yt_url"]["radio_button"]["state_element"]!=None: 
         ydl_opts['cookiesfrombrowser'] = (state["yt_url"]["radio_button"]["state_element"],)
     yt = state["main_yt"] = _get_main_yt(state["yt_url"]["text_input"]["state_element"], ydl_opts=ydl_opts) if len(state["main_yt"])==0 else state["main_yt"]
-    # for i in range(4):
-    #     state["game_screen"]["repeater"]["object"][f'image{i}']["source"] = get_yt_image(yt, ydl_opts, sindex=i, frame_pos=yt[i].fps*10)
-    #     state["game_screen"]["repeater"]["object"][f'image{i}']["caption"] = f'{yt.infos[i].original_url}+&t=10s'
-    # print(state["game_screen"]["repeater"]["object"])
-    
+    for i in range(4):
+        GetYoutube.get_yt_image(yt[i], ydl_opts=ydl_opts, sec_pos=10, imw_path=join(dirname('__file__'), f'static/image{i}.jpg'))
+        state["game_screen"]["repeater"]["object"][f'image{i}']["caption"] = f'{yt[i]["original_url"]}+&t=10s'
+    print(state["game_screen"]["repeater"]["object"])
+
 # LOAD / GENERATE DATA
 
 def _get_main_df():
     return SmashDatabase('ssbu_dataset').select_chara_data()
 
-def _get_main_yt(url="https://www.youtube.com/watch?v=My3gyDHoGAs", ydl_opts={'verbose':True, 'format':'best'}):
+def _get_main_yt(url="https://www.youtube.com/watch?v=hFDOOCutwmk", ydl_opts={'verbose':True, 'format':'best'}):
     return GetYoutube(url, ydl_opts=ydl_opts).infos
     #return Test('ogre')
     
@@ -59,7 +59,7 @@ def _check_yt_url(state):
 initial_state = ss.init_state({
     #"test": _get_test(),
     "main_df": _get_main_df(),
-    "main_yt": _get_main_yt(),
+    "main_yt": [], #_get_main_yt(),
     "yt_url": {
         "text_input": {
             "place_holder": "https://www.youtube.com/watch?v=My3gyDHoGAs",
@@ -83,19 +83,19 @@ initial_state = ss.init_state({
         "repeater": {
             "object": {
                 "image0": {
-                    "source": None,
+                    "source": "static/image0.jpg",
                     "caption": None
                 },
                 "image1": {
-                    "source": None,
+                    "source": "static/image1.jpg",
                     "caption": None
                 },
                 "image2": {
-                    "source": None,
+                    "source": "static/image2.jpg",
                     "caption": None
                 },
                 "image3": {
-                    "source": None,
+                    "source": "static/image3.jpg",
                     "caption": None
                 }
             },

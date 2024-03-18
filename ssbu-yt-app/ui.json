@@ -223,7 +223,7 @@
             "id": "r97fnw9h0memrfir",
             "type": "column",
             "content": {
-                "width": "1"
+                "width": ""
             },
             "parentId": "10ocgo38mflhpw4z",
             "position": 1,
@@ -234,7 +234,7 @@
             "id": "yhscjixo6bizw604",
             "type": "column",
             "content": {
-                "width": "1",
+                "width": "2",
                 "title": ""
             },
             "parentId": "10ocgo38mflhpw4z",
@@ -251,8 +251,7 @@
             },
             "parentId": "yhscjixo6bizw604",
             "position": 0,
-            "handlers": {},
-            "visible": true
+            "handlers": {}
         },
         "6zzckdgynwa5ozcp": {
             "id": "6zzckdgynwa5ozcp",
@@ -271,45 +270,38 @@
             "id": "rh3gyndpnfbzfcik",
             "type": "sliderinput",
             "content": {
-                "label": "Input Label",
+                "label": "",
                 "minValue": "0",
                 "maxValue": "100",
                 "stepSize": "1"
-            },
-            "parentId": "r97fnw9h0memrfir",
-            "position": 3,
-            "handlers": {},
-            "visible": true
-        },
-        "pgsmm1kcarh2m4ni": {
-            "id": "pgsmm1kcarh2m4ni",
-            "type": "heading",
-            "content": {
-                "text": "@{itemId}"
             },
             "parentId": "r97fnw9h0memrfir",
             "position": 0,
             "handlers": {},
             "visible": true
         },
-        "53qo9pdswrmf92mx": {
-            "id": "53qo9pdswrmf92mx",
-            "type": "text",
+        "0z5i9xiju72rmxjy": {
+            "id": "0z5i9xiju72rmxjy",
+            "type": "numberinput",
             "content": {
-                "text": "@{item.type}"
+                "label": ""
             },
-            "parentId": "r97fnw9h0memrfir",
-            "position": 1,
+            "parentId": "nzsjt4q5xxm7fe6c",
+            "position": 0,
             "handlers": {},
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "item.state_element"
+            },
             "visible": true
         },
-        "6knvtdh3prbhnr6r": {
-            "id": "6knvtdh3prbhnr6r",
-            "type": "text",
+        "nzsjt4q5xxm7fe6c": {
+            "id": "nzsjt4q5xxm7fe6c",
+            "type": "column",
             "content": {
-                "text": "@{item.color}"
+                "width": "0.18"
             },
-            "parentId": "r97fnw9h0memrfir",
+            "parentId": "10ocgo38mflhpw4z",
             "position": 2,
             "handlers": {},
             "visible": true
