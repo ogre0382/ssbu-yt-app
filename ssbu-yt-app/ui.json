@@ -107,7 +107,7 @@
             "id": "8kwp16wqvuxi6s3w",
             "type": "html",
             "content": {
-                "styles": "{\n  \"padding\": \"16px\",\n  \"min-height\": \"64px\",\n  \"min-width\": \"64px\",\n  \"border-radius\": \"8px\",\n  \"background\": \"linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)\"\n}",
+                "styles": "",
                 "htmlInside": "<style>.link{color: blue;}</style>\n<span class='link'><a href=https://ssbu-db-app.onrender.com/ target='_blank'>SSBU 1on1 DataBase Viewer APP</a></span>"
             },
             "parentId": "zp3n10rr3z1uf4pm",
@@ -153,12 +153,13 @@
                 "text": "Check the game screen",
                 "icon": "check",
                 "separatorColor": "#125FA8",
-                "buttonTextColor": "#125FA8"
+                "buttonTextColor": "#125FA8",
+                "isDisabled": "@{yt_url.button.disabled}"
             },
             "parentId": "xix6kdd8lscudh3c",
             "position": 4,
             "handlers": {
-                "ss-click": "update_game_screen"
+                "ss-click": "game_screen"
             },
             "visible": "yt_url.button.visibility"
         },
@@ -264,7 +265,7 @@
             "parentId": "xix6kdd8lscudh3c",
             "position": 5,
             "handlers": {},
-            "visible": "game_screen.repeater.visibility"
+            "visible": false
         },
         "rh3gyndpnfbzfcik": {
             "id": "rh3gyndpnfbzfcik",
@@ -304,6 +305,545 @@
             "parentId": "10ocgo38mflhpw4z",
             "position": 2,
             "handlers": {},
+            "visible": true
+        },
+        "xtk3dccm57snf69y": {
+            "id": "xtk3dccm57snf69y",
+            "type": "columns",
+            "content": {},
+            "parentId": "xix6kdd8lscudh3c",
+            "position": 6,
+            "handlers": {},
+            "visible": true
+        },
+        "kq89hkmlmfju0x92": {
+            "id": "kq89hkmlmfju0x92",
+            "type": "columns",
+            "content": {},
+            "parentId": "xix6kdd8lscudh3c",
+            "position": 7,
+            "handlers": {},
+            "visible": true
+        },
+        "csp8rf1dsrr6cdo8": {
+            "id": "csp8rf1dsrr6cdo8",
+            "type": "column",
+            "content": {
+                "width": "1"
+            },
+            "parentId": "xtk3dccm57snf69y",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "t4g3b2bx4ymvlsn2": {
+            "id": "t4g3b2bx4ymvlsn2",
+            "type": "column",
+            "content": {
+                "width": "1"
+            },
+            "parentId": "xtk3dccm57snf69y",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "vf9liygrmor38it7": {
+            "id": "vf9liygrmor38it7",
+            "type": "column",
+            "content": {
+                "width": "1"
+            },
+            "parentId": "kq89hkmlmfju0x92",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "8wcwlb69tb22ypjq": {
+            "id": "8wcwlb69tb22ypjq",
+            "type": "column",
+            "content": {
+                "width": "1"
+            },
+            "parentId": "kq89hkmlmfju0x92",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "2hct98w5j1r390bm": {
+            "id": "2hct98w5j1r390bm",
+            "type": "image",
+            "content": {
+                "src": "@{game_screen.html0.image_source}",
+                "caption": ""
+            },
+            "parentId": "c6gvgueo9myzdtur",
+            "position": 1,
+            "handlers": {}
+        },
+        "nv50jkt2bkfp4q81": {
+            "id": "nv50jkt2bkfp4q81",
+            "type": "image",
+            "content": {
+                "src": "static/image1.jpg",
+                "caption": ""
+            },
+            "parentId": "srxvk7yj5a5naf34",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "c306hexbkzpn32ln": {
+            "id": "c306hexbkzpn32ln",
+            "type": "image",
+            "content": {
+                "src": "static/image2.jpg",
+                "caption": ""
+            },
+            "parentId": "7lzb68yan2zaf948",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "uj53ucbda82pex8d": {
+            "id": "uj53ucbda82pex8d",
+            "type": "image",
+            "content": {
+                "src": "static/image3.jpg",
+                "caption": ""
+            },
+            "parentId": "k6gcmhhm6acqqt31",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "dwk7pbe4jbgkxdot": {
+            "id": "dwk7pbe4jbgkxdot",
+            "type": "columns",
+            "content": {},
+            "parentId": "c6gvgueo9myzdtur",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "xmyf10edmcbdp74r": {
+            "id": "xmyf10edmcbdp74r",
+            "type": "column",
+            "content": {
+                "width": "0.6"
+            },
+            "parentId": "dwk7pbe4jbgkxdot",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "82er50quwge1iug6": {
+            "id": "82er50quwge1iug6",
+            "type": "column",
+            "content": {
+                "width": "0.23"
+            },
+            "parentId": "dwk7pbe4jbgkxdot",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "fmrsflrnk1k47ebw": {
+            "id": "fmrsflrnk1k47ebw",
+            "type": "columns",
+            "content": {},
+            "parentId": "srxvk7yj5a5naf34",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "e605kmh6n6zps1ea": {
+            "id": "e605kmh6n6zps1ea",
+            "type": "column",
+            "content": {
+                "width": "0.23"
+            },
+            "parentId": "fmrsflrnk1k47ebw",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "hhwyd1q7sgj2gq62": {
+            "id": "hhwyd1q7sgj2gq62",
+            "type": "column",
+            "content": {
+                "width": "0.6"
+            },
+            "parentId": "fmrsflrnk1k47ebw",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "w79cvehgbc1abmlb": {
+            "id": "w79cvehgbc1abmlb",
+            "type": "columns",
+            "content": {},
+            "parentId": "7lzb68yan2zaf948",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "6iimd9wgmp7evqfb": {
+            "id": "6iimd9wgmp7evqfb",
+            "type": "column",
+            "content": {
+                "width": "0.23"
+            },
+            "parentId": "w79cvehgbc1abmlb",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "hj70htozzd9u6wj5": {
+            "id": "hj70htozzd9u6wj5",
+            "type": "column",
+            "content": {
+                "width": "0.6"
+            },
+            "parentId": "w79cvehgbc1abmlb",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "5e68311sh5gtoaqx": {
+            "id": "5e68311sh5gtoaqx",
+            "type": "columns",
+            "content": {},
+            "parentId": "k6gcmhhm6acqqt31",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "rvpouhbm4mj5upf5": {
+            "id": "rvpouhbm4mj5upf5",
+            "type": "column",
+            "content": {
+                "width": "0.6"
+            },
+            "parentId": "5e68311sh5gtoaqx",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "byle63tn53w73eh6": {
+            "id": "byle63tn53w73eh6",
+            "type": "column",
+            "content": {
+                "width": "0.23"
+            },
+            "parentId": "5e68311sh5gtoaqx",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "iifg1w8y5arngzd7": {
+            "id": "iifg1w8y5arngzd7",
+            "type": "sliderinput",
+            "content": {
+                "label": "",
+                "minValue": "0",
+                "maxValue": "@{game_screen.html0.slider_number.maximum_value}",
+                "stepSize": "1",
+                "cssClasses": ""
+            },
+            "parentId": "xmyf10edmcbdp74r",
+            "position": 0,
+            "handlers": {},
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "game_screen.html0.slider_number.state_element"
+            },
+            "visible": true
+        },
+        "t69x5841niw2l5ld": {
+            "id": "t69x5841niw2l5ld",
+            "type": "sliderinput",
+            "content": {
+                "label": "",
+                "minValue": "0",
+                "maxValue": "@{game_screen.html1.slider_number.maximum_value}",
+                "stepSize": "1"
+            },
+            "parentId": "hhwyd1q7sgj2gq62",
+            "position": 0,
+            "handlers": {},
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "game_screen.html1.slider_number.state_element"
+            },
+            "visible": true
+        },
+        "opq8ze91zl33aerv": {
+            "id": "opq8ze91zl33aerv",
+            "type": "numberinput",
+            "content": {
+                "label": "",
+                "placeholder": "0",
+                "maxValue": "@{game_screen.html1.slider_number.maximum_value}",
+                "minValue": "0"
+            },
+            "parentId": "e605kmh6n6zps1ea",
+            "position": 0,
+            "handlers": {},
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "game_screen.html1.slider_number.state_element"
+            },
+            "visible": true
+        },
+        "rq66zs979qug8suu": {
+            "id": "rq66zs979qug8suu",
+            "type": "sliderinput",
+            "content": {
+                "label": "",
+                "minValue": "0",
+                "maxValue": "@{game_screen.html2.slider_number.maximum_value}",
+                "stepSize": "1"
+            },
+            "parentId": "hj70htozzd9u6wj5",
+            "position": 0,
+            "handlers": {},
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "game_screen.html2.slider_number.state_element"
+            },
+            "visible": true
+        },
+        "qd5w8mgnvu2yitgb": {
+            "id": "qd5w8mgnvu2yitgb",
+            "type": "numberinput",
+            "content": {
+                "label": "",
+                "placeholder": "0",
+                "maxValue": "@{game_screen.html2.slider_number.maximum_value}",
+                "minValue": "0"
+            },
+            "parentId": "6iimd9wgmp7evqfb",
+            "position": 0,
+            "handlers": {},
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "game_screen.html2.slider_number.state_element"
+            },
+            "visible": true
+        },
+        "ox4hxnletavu83pm": {
+            "id": "ox4hxnletavu83pm",
+            "type": "sliderinput",
+            "content": {
+                "label": "",
+                "minValue": "0",
+                "maxValue": "@{game_screen.html3.slider_number.maximum_value}",
+                "stepSize": "1"
+            },
+            "parentId": "rvpouhbm4mj5upf5",
+            "position": 0,
+            "handlers": {},
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "game_screen.html3.slider_number.state_element"
+            },
+            "visible": true
+        },
+        "vazywo7ozu6xpvz6": {
+            "id": "vazywo7ozu6xpvz6",
+            "type": "numberinput",
+            "content": {
+                "label": "",
+                "placeholder": "0",
+                "minValue": "0",
+                "maxValue": "@{game_screen.html3.slider_number.maximum_value}"
+            },
+            "parentId": "byle63tn53w73eh6",
+            "position": 0,
+            "handlers": {},
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "game_screen.html3.slider_number.state_element"
+            },
+            "visible": true
+        },
+        "c6gvgueo9myzdtur": {
+            "id": "c6gvgueo9myzdtur",
+            "type": "html",
+            "content": {
+                "styles": "",
+                "htmlInside": "<style>.link{color: blue;}</style> <span class='link'><a href=@{game_screen.html0.inside} target='_blank'>@{game_screen.html0.inside}</a></span>"
+            },
+            "parentId": "csp8rf1dsrr6cdo8",
+            "position": 0,
+            "handlers": {},
+            "visible": "game_screen.html0.visibility"
+        },
+        "srxvk7yj5a5naf34": {
+            "id": "srxvk7yj5a5naf34",
+            "type": "html",
+            "content": {
+                "styles": "",
+                "htmlInside": "<style>.link{color: blue;}</style> <span class='link'><a href=@{game_screen.html1.inside} target='_blank'>@{game_screen.html1.inside}</a></span>"
+            },
+            "parentId": "t4g3b2bx4ymvlsn2",
+            "position": 0,
+            "handlers": {},
+            "visible": "game_screen.html1.visibility"
+        },
+        "7lzb68yan2zaf948": {
+            "id": "7lzb68yan2zaf948",
+            "type": "html",
+            "content": {
+                "styles": "",
+                "htmlInside": "<style>.link{color: blue;}</style> <span class='link'><a href=@{game_screen.html2.inside} target='_blank'>@{game_screen.html2.inside}</a></span>"
+            },
+            "parentId": "8wcwlb69tb22ypjq",
+            "position": 0,
+            "handlers": {},
+            "visible": "game_screen.html2.visibility"
+        },
+        "k6gcmhhm6acqqt31": {
+            "id": "k6gcmhhm6acqqt31",
+            "type": "html",
+            "content": {
+                "styles": "",
+                "htmlInside": "<style>.link{color: blue;}</style> <span class='link'><a href=@{game_screen.html3.inside} target='_blank'>@{game_screen.html3.inside}</a></span>"
+            },
+            "parentId": "vf9liygrmor38it7",
+            "position": 0,
+            "handlers": {},
+            "visible": "game_screen.html3.visibility"
+        },
+        "8k4a0vh54dipt0xs": {
+            "id": "8k4a0vh54dipt0xs",
+            "type": "numberinput",
+            "content": {
+                "label": "",
+                "placeholder": "0",
+                "cssClasses": "",
+                "maxValue": "@{game_screen.html0.slider_number.maximum_value}",
+                "minValue": "0"
+            },
+            "parentId": "82er50quwge1iug6",
+            "position": 0,
+            "handlers": {},
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "game_screen.html0.slider_number.state_element"
+            },
+            "visible": true
+        },
+        "zswlg79gm962b6dt": {
+            "id": "zswlg79gm962b6dt",
+            "type": "button",
+            "content": {
+                "text": "update",
+                "icon": "restart",
+                "separatorColor": "#125FA8",
+                "buttonTextColor": "#125FA8",
+                "isDisabled": "@{game_screen.button.disabled}"
+            },
+            "parentId": "vtxxiobjhtx2xk4e",
+            "position": 0,
+            "handlers": {
+                "ss-click": "game_screen"
+            },
+            "visible": true
+        },
+        "9cf1asfmz7hwnv4e": {
+            "id": "9cf1asfmz7hwnv4e",
+            "type": "column",
+            "content": {
+                "width": "0.175"
+            },
+            "parentId": "dwk7pbe4jbgkxdot",
+            "position": 2,
+            "handlers": {},
+            "visible": true
+        },
+        "63nqvielwjcf5guh": {
+            "id": "63nqvielwjcf5guh",
+            "type": "button",
+            "content": {
+                "text": "update",
+                "icon": "restart",
+                "separatorColor": "#125FA8",
+                "buttonTextColor": "#125FA8",
+                "isDisabled": "@{game_screen.button.disabled}"
+            },
+            "parentId": "9cf1asfmz7hwnv4e",
+            "position": 0,
+            "handlers": {
+                "ss-click": "game_screen"
+            },
+            "visible": true
+        },
+        "vtxxiobjhtx2xk4e": {
+            "id": "vtxxiobjhtx2xk4e",
+            "type": "column",
+            "content": {
+                "width": "0.175"
+            },
+            "parentId": "fmrsflrnk1k47ebw",
+            "position": 2,
+            "handlers": {},
+            "visible": true
+        },
+        "etsqy7bbqguilqml": {
+            "id": "etsqy7bbqguilqml",
+            "type": "column",
+            "content": {
+                "width": "0.175"
+            },
+            "parentId": "w79cvehgbc1abmlb",
+            "position": 2,
+            "handlers": {},
+            "visible": true
+        },
+        "1u0s7lto3goxyut5": {
+            "id": "1u0s7lto3goxyut5",
+            "type": "column",
+            "content": {
+                "width": "0.175"
+            },
+            "parentId": "5e68311sh5gtoaqx",
+            "position": 2,
+            "handlers": {},
+            "visible": true
+        },
+        "gzaglp8t5xogtjzc": {
+            "id": "gzaglp8t5xogtjzc",
+            "type": "button",
+            "content": {
+                "text": "update",
+                "icon": "restart",
+                "separatorColor": "#125FA8",
+                "buttonTextColor": "#125FA8",
+                "isDisabled": "@{game_screen.button.disabled}"
+            },
+            "parentId": "etsqy7bbqguilqml",
+            "position": 0,
+            "handlers": {
+                "ss-click": "game_screen"
+            },
+            "visible": true
+        },
+        "j95vflvalwrsm0fh": {
+            "id": "j95vflvalwrsm0fh",
+            "type": "button",
+            "content": {
+                "text": "update",
+                "icon": "restart",
+                "separatorColor": "#125FA8",
+                "buttonTextColor": "#125FA8",
+                "isDisabled": "@{game_screen.button.disabled}"
+            },
+            "parentId": "1u0s7lto3goxyut5",
+            "position": 0,
+            "handlers": {
+                "ss-click": "game_screen"
+            },
             "visible": true
         }
     }
