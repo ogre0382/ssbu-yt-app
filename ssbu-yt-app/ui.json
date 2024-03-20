@@ -144,7 +144,7 @@
                 "eventType": "ss-change",
                 "stateRef": "yt_url.text_input.state_element"
             },
-            "visible": true
+            "visible": "yt_url.text_input.visibility"
         },
         "pl83nldq34191kir": {
             "id": "pl83nldq34191kir",
@@ -154,14 +154,14 @@
                 "icon": "check",
                 "separatorColor": "#125FA8",
                 "buttonTextColor": "#125FA8",
-                "isDisabled": "@{yt_url.button.disabled}"
+                "isDisabled": "@{game_screen.button.disabled}"
             },
             "parentId": "xix6kdd8lscudh3c",
             "position": 4,
             "handlers": {
                 "ss-click": "game_screen"
             },
-            "visible": "yt_url.button.visibility"
+            "visible": "game_screen.button.visibility"
         },
         "7z7osnxdv3fva0an": {
             "id": "7z7osnxdv3fva0an",
@@ -180,7 +180,7 @@
                 "eventType": "ss-options-change",
                 "stateRef": "yt_url.check_box.state_element"
             },
-            "visible": true
+            "visible": "yt_url.check_box.visibility"
         },
         "tgr7bzmnvozms9o6": {
             "id": "tgr7bzmnvozms9o6",
@@ -211,108 +211,12 @@
             "handlers": {},
             "visible": "yt_url.text.visibility"
         },
-        "10ocgo38mflhpw4z": {
-            "id": "10ocgo38mflhpw4z",
-            "type": "columns",
-            "content": {},
-            "parentId": "6zzckdgynwa5ozcp",
-            "position": 0,
-            "handlers": {},
-            "visible": true
-        },
-        "r97fnw9h0memrfir": {
-            "id": "r97fnw9h0memrfir",
-            "type": "column",
-            "content": {
-                "width": ""
-            },
-            "parentId": "10ocgo38mflhpw4z",
-            "position": 1,
-            "handlers": {},
-            "visible": true
-        },
-        "yhscjixo6bizw604": {
-            "id": "yhscjixo6bizw604",
-            "type": "column",
-            "content": {
-                "width": "2",
-                "title": ""
-            },
-            "parentId": "10ocgo38mflhpw4z",
-            "position": 0,
-            "handlers": {},
-            "visible": true
-        },
-        "kqwqgk9em4vphn4l": {
-            "id": "kqwqgk9em4vphn4l",
-            "type": "image",
-            "content": {
-                "caption": "@{item.caption}",
-                "src": "@{item.source}"
-            },
-            "parentId": "yhscjixo6bizw604",
-            "position": 0,
-            "handlers": {}
-        },
-        "6zzckdgynwa5ozcp": {
-            "id": "6zzckdgynwa5ozcp",
-            "type": "repeater",
-            "content": {
-                "keyVariable": "itemId",
-                "valueVariable": "item",
-                "repeaterObject": "@{game_screen.repeater.object}"
-            },
-            "parentId": "xix6kdd8lscudh3c",
-            "position": 5,
-            "handlers": {},
-            "visible": false
-        },
-        "rh3gyndpnfbzfcik": {
-            "id": "rh3gyndpnfbzfcik",
-            "type": "sliderinput",
-            "content": {
-                "label": "",
-                "minValue": "0",
-                "maxValue": "100",
-                "stepSize": "1"
-            },
-            "parentId": "r97fnw9h0memrfir",
-            "position": 0,
-            "handlers": {},
-            "visible": true
-        },
-        "0z5i9xiju72rmxjy": {
-            "id": "0z5i9xiju72rmxjy",
-            "type": "numberinput",
-            "content": {
-                "label": ""
-            },
-            "parentId": "nzsjt4q5xxm7fe6c",
-            "position": 0,
-            "handlers": {},
-            "binding": {
-                "eventType": "ss-number-change",
-                "stateRef": "item.state_element"
-            },
-            "visible": true
-        },
-        "nzsjt4q5xxm7fe6c": {
-            "id": "nzsjt4q5xxm7fe6c",
-            "type": "column",
-            "content": {
-                "width": "0.18"
-            },
-            "parentId": "10ocgo38mflhpw4z",
-            "position": 2,
-            "handlers": {},
-            "visible": true
-        },
         "xtk3dccm57snf69y": {
             "id": "xtk3dccm57snf69y",
             "type": "columns",
             "content": {},
             "parentId": "xix6kdd8lscudh3c",
-            "position": 6,
+            "position": 5,
             "handlers": {},
             "visible": true
         },
@@ -321,7 +225,7 @@
             "type": "columns",
             "content": {},
             "parentId": "xix6kdd8lscudh3c",
-            "position": 7,
+            "position": 6,
             "handlers": {},
             "visible": true
         },
@@ -384,7 +288,7 @@
             "id": "nv50jkt2bkfp4q81",
             "type": "image",
             "content": {
-                "src": "static/image1.jpg",
+                "src": "@{game_screen.html1.image_source}",
                 "caption": ""
             },
             "parentId": "srxvk7yj5a5naf34",
@@ -396,7 +300,7 @@
             "id": "c306hexbkzpn32ln",
             "type": "image",
             "content": {
-                "src": "static/image2.jpg",
+                "src": "@{game_screen.html2.image_source}",
                 "caption": ""
             },
             "parentId": "7lzb68yan2zaf948",
@@ -408,7 +312,7 @@
             "id": "uj53ucbda82pex8d",
             "type": "image",
             "content": {
-                "src": "static/image3.jpg",
+                "src": "@{game_screen.html3.image_source}",
                 "caption": ""
             },
             "parentId": "k6gcmhhm6acqqt31",
@@ -546,18 +450,20 @@
             "content": {
                 "label": "",
                 "minValue": "0",
-                "maxValue": "@{game_screen.html0.slider_number.maximum_value}",
+                "maxValue": "@{game_screen.html0.slider_number.max_value}",
                 "stepSize": "1",
                 "cssClasses": ""
             },
             "parentId": "xmyf10edmcbdp74r",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-number-change": "game_screen"
+            },
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "game_screen.html0.slider_number.state_element"
             },
-            "visible": true
+            "visible": "game_screen.html0.slider_number.visibility"
         },
         "t69x5841niw2l5ld": {
             "id": "t69x5841niw2l5ld",
@@ -565,17 +471,19 @@
             "content": {
                 "label": "",
                 "minValue": "0",
-                "maxValue": "@{game_screen.html1.slider_number.maximum_value}",
+                "maxValue": "@{game_screen.html1.slider_number.max_value}",
                 "stepSize": "1"
             },
             "parentId": "hhwyd1q7sgj2gq62",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-number-change": "game_screen"
+            },
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "game_screen.html1.slider_number.state_element"
             },
-            "visible": true
+            "visible": "game_screen.html1.slider_number.visibility"
         },
         "opq8ze91zl33aerv": {
             "id": "opq8ze91zl33aerv",
@@ -588,12 +496,14 @@
             },
             "parentId": "e605kmh6n6zps1ea",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-number-change": "game_screen"
+            },
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "game_screen.html1.slider_number.state_element"
             },
-            "visible": true
+            "visible": "game_screen.html1.slider_number.visibility"
         },
         "rq66zs979qug8suu": {
             "id": "rq66zs979qug8suu",
@@ -601,17 +511,19 @@
             "content": {
                 "label": "",
                 "minValue": "0",
-                "maxValue": "@{game_screen.html2.slider_number.maximum_value}",
+                "maxValue": "@{game_screen.html2.slider_number.max_value}",
                 "stepSize": "1"
             },
             "parentId": "hj70htozzd9u6wj5",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-number-change": "game_screen"
+            },
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "game_screen.html2.slider_number.state_element"
             },
-            "visible": true
+            "visible": "game_screen.html2.slider_number.visibility"
         },
         "qd5w8mgnvu2yitgb": {
             "id": "qd5w8mgnvu2yitgb",
@@ -624,12 +536,14 @@
             },
             "parentId": "6iimd9wgmp7evqfb",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-number-change": "game_screen"
+            },
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "game_screen.html2.slider_number.state_element"
             },
-            "visible": true
+            "visible": "game_screen.html2.slider_number.visibility"
         },
         "ox4hxnletavu83pm": {
             "id": "ox4hxnletavu83pm",
@@ -637,17 +551,19 @@
             "content": {
                 "label": "",
                 "minValue": "0",
-                "maxValue": "@{game_screen.html3.slider_number.maximum_value}",
+                "maxValue": "@{game_screen.html3.slider_number.max_value}",
                 "stepSize": "1"
             },
             "parentId": "rvpouhbm4mj5upf5",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-number-change": "game_screen"
+            },
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "game_screen.html3.slider_number.state_element"
             },
-            "visible": true
+            "visible": "game_screen.html3.slider_number.visibility"
         },
         "vazywo7ozu6xpvz6": {
             "id": "vazywo7ozu6xpvz6",
@@ -660,12 +576,14 @@
             },
             "parentId": "byle63tn53w73eh6",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-number-change": "game_screen"
+            },
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "game_screen.html3.slider_number.state_element"
             },
-            "visible": true
+            "visible": "game_screen.html3.slider_number.visibility"
         },
         "c6gvgueo9myzdtur": {
             "id": "c6gvgueo9myzdtur",
@@ -727,12 +645,14 @@
             },
             "parentId": "82er50quwge1iug6",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-number-change": "game_screen"
+            },
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "game_screen.html0.slider_number.state_element"
             },
-            "visible": true
+            "visible": "game_screen.html0.slider_number.visibility"
         },
         "zswlg79gm962b6dt": {
             "id": "zswlg79gm962b6dt",
@@ -742,7 +662,7 @@
                 "icon": "restart",
                 "separatorColor": "#125FA8",
                 "buttonTextColor": "#125FA8",
-                "isDisabled": "@{game_screen.button.disabled}"
+                "isDisabled": "@{game_screen.html1.button_disabled}"
             },
             "parentId": "vtxxiobjhtx2xk4e",
             "position": 0,
@@ -770,14 +690,13 @@
                 "icon": "restart",
                 "separatorColor": "#125FA8",
                 "buttonTextColor": "#125FA8",
-                "isDisabled": "@{game_screen.button.disabled}"
+                "isDisabled": "@{game_screen.html0.button_disabled}"
             },
             "parentId": "9cf1asfmz7hwnv4e",
             "position": 0,
             "handlers": {
                 "ss-click": "game_screen"
-            },
-            "visible": true
+            }
         },
         "vtxxiobjhtx2xk4e": {
             "id": "vtxxiobjhtx2xk4e",
@@ -820,7 +739,7 @@
                 "icon": "restart",
                 "separatorColor": "#125FA8",
                 "buttonTextColor": "#125FA8",
-                "isDisabled": "@{game_screen.button.disabled}"
+                "isDisabled": "@{game_screen.html2.button_disabled}"
             },
             "parentId": "etsqy7bbqguilqml",
             "position": 0,
@@ -837,7 +756,7 @@
                 "icon": "restart",
                 "separatorColor": "#125FA8",
                 "buttonTextColor": "#125FA8",
-                "isDisabled": "@{game_screen.button.disabled}"
+                "isDisabled": "@{game_screen.html3.button_disabled}"
             },
             "parentId": "1u0s7lto3goxyut5",
             "position": 0,
@@ -845,6 +764,283 @@
                 "ss-click": "game_screen"
             },
             "visible": true
+        },
+        "4hmt3hiucuqlvvdl": {
+            "id": "4hmt3hiucuqlvvdl",
+            "type": "radioinput",
+            "content": {
+                "label": "(As a result of crop,) Is the game screen full size?",
+                "options": "{\n  \"yes\": \"yes\",\n  \"no\": \"no\"\n}",
+                "orientation": "horizontal"
+            },
+            "parentId": "xix6kdd8lscudh3c",
+            "position": 7,
+            "handlers": {
+                "ss-option-change": "crop"
+            },
+            "binding": {
+                "eventType": "ss-option-change",
+                "stateRef": "game_screen.radio_button.state_element"
+            },
+            "visible": "game_screen.radio_button.visibility"
+        },
+        "t03hvquhmjmcabo2": {
+            "id": "t03hvquhmjmcabo2",
+            "type": "columns",
+            "content": {},
+            "parentId": "xix6kdd8lscudh3c",
+            "position": 8,
+            "handlers": {},
+            "visible": true
+        },
+        "e6f3f7eto5esu8uc": {
+            "id": "e6f3f7eto5esu8uc",
+            "type": "column",
+            "content": {
+                "width": "0.3"
+            },
+            "parentId": "t03hvquhmjmcabo2",
+            "position": 2,
+            "handlers": {},
+            "visible": true
+        },
+        "emd59k0fw4ipa80y": {
+            "id": "emd59k0fw4ipa80y",
+            "type": "column",
+            "content": {
+                "width": "0.1"
+            },
+            "parentId": "t03hvquhmjmcabo2",
+            "position": 3,
+            "handlers": {},
+            "visible": true
+        },
+        "eilvy8r5cncf8ruu": {
+            "id": "eilvy8r5cncf8ruu",
+            "type": "column",
+            "content": {
+                "width": "0.1"
+            },
+            "parentId": "t03hvquhmjmcabo2",
+            "position": 4,
+            "handlers": {},
+            "visible": true
+        },
+        "pgn4l4jf2650mchm": {
+            "id": "pgn4l4jf2650mchm",
+            "type": "numberinput",
+            "content": {
+                "label": "<-",
+                "minValue": "1280",
+                "maxValue": "1920",
+                "placeholder": "1280"
+            },
+            "parentId": "emd59k0fw4ipa80y",
+            "position": 0,
+            "handlers": {
+                "ss-number-change": "crop"
+            },
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "crop.width.state_element"
+            },
+            "visible": "crop.width.visibility"
+        },
+        "psa9xc21oyr05rrr": {
+            "id": "psa9xc21oyr05rrr",
+            "type": "numberinput",
+            "content": {
+                "label": "<-",
+                "minValue": "720",
+                "maxValue": "1080",
+                "placeholder": "720"
+            },
+            "parentId": "emd59k0fw4ipa80y",
+            "position": 1,
+            "handlers": {
+                "ss-number-change": "crop"
+            },
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "crop.height.state_element"
+            },
+            "visible": "crop.height.visibility"
+        },
+        "2fd3psqtax8tr8ui": {
+            "id": "2fd3psqtax8tr8ui",
+            "type": "button",
+            "content": {
+                "text": "check",
+                "buttonTextColor": "#125FA8",
+                "icon": "crop",
+                "separatorColor": "#125FA8",
+                "isDisabled": "@{crop.check_button.disabled}"
+            },
+            "parentId": "eilvy8r5cncf8ruu",
+            "position": 0,
+            "handlers": {
+                "ss-click": "crop"
+            },
+            "visible": "crop.check_button.visibility"
+        },
+        "52knty4turoqe3j5": {
+            "id": "52knty4turoqe3j5",
+            "type": "button",
+            "content": {
+                "text": "crop",
+                "buttonTextColor": "#125FA8",
+                "icon": "scissors",
+                "separatorColor": "#125FA8",
+                "isDisabled": "@{crop.crop_button.disabled}"
+            },
+            "parentId": "eilvy8r5cncf8ruu",
+            "position": 1,
+            "handlers": {
+                "ss-click": "crop"
+            },
+            "visible": "crop.crop_button.visibility"
+        },
+        "fhs79h97z94xg13z": {
+            "id": "fhs79h97z94xg13z",
+            "type": "sliderinput",
+            "content": {
+                "label": "width",
+                "minValue": "1280",
+                "maxValue": "1920",
+                "stepSize": ""
+            },
+            "parentId": "e6f3f7eto5esu8uc",
+            "position": 0,
+            "handlers": {
+                "ss-number-change": "crop"
+            },
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "crop.width.state_element"
+            },
+            "visible": "crop.width.visibility"
+        },
+        "cv0hlpq9r7mvin07": {
+            "id": "cv0hlpq9r7mvin07",
+            "type": "column",
+            "content": {
+                "width": "0.1"
+            },
+            "parentId": "t03hvquhmjmcabo2",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "8vann4wt8nt1f9dc": {
+            "id": "8vann4wt8nt1f9dc",
+            "type": "column",
+            "content": {
+                "width": "0.3"
+            },
+            "parentId": "t03hvquhmjmcabo2",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "c5whely00hio47v9": {
+            "id": "c5whely00hio47v9",
+            "type": "sliderinput",
+            "content": {
+                "label": "left",
+                "minValue": "0",
+                "maxValue": "640",
+                "stepSize": "1"
+            },
+            "parentId": "8vann4wt8nt1f9dc",
+            "position": 0,
+            "handlers": {
+                "ss-number-change": "crop"
+            },
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "crop.left.state_element"
+            },
+            "visible": "crop.left.visibility"
+        },
+        "6wku0pi04zfjiii4": {
+            "id": "6wku0pi04zfjiii4",
+            "type": "numberinput",
+            "content": {
+                "label": "<-",
+                "placeholder": "0",
+                "minValue": "0",
+                "maxValue": "360"
+            },
+            "parentId": "cv0hlpq9r7mvin07",
+            "position": 1,
+            "handlers": {
+                "ss-number-change": "crop"
+            },
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "crop.top.state_element"
+            },
+            "visible": "crop.top.visibility"
+        },
+        "gagqes0jc0099nyo": {
+            "id": "gagqes0jc0099nyo",
+            "type": "sliderinput",
+            "content": {
+                "label": "height",
+                "minValue": "720",
+                "maxValue": "1080",
+                "stepSize": ""
+            },
+            "parentId": "e6f3f7eto5esu8uc",
+            "position": 1,
+            "handlers": {
+                "ss-number-change": "crop"
+            },
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "crop.height.state_element"
+            },
+            "visible": "crop.height.visibility"
+        },
+        "uzb3l1aps15716vf": {
+            "id": "uzb3l1aps15716vf",
+            "type": "sliderinput",
+            "content": {
+                "label": "top",
+                "minValue": "0",
+                "maxValue": "360",
+                "stepSize": "1"
+            },
+            "parentId": "8vann4wt8nt1f9dc",
+            "position": 1,
+            "handlers": {
+                "ss-number-change": "crop"
+            },
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "crop.top.state_element"
+            },
+            "visible": "crop.top.visibility"
+        },
+        "z7iff26yvw4sfalw": {
+            "id": "z7iff26yvw4sfalw",
+            "type": "numberinput",
+            "content": {
+                "label": "<-",
+                "placeholder": "0",
+                "minValue": "0",
+                "maxValue": "640"
+            },
+            "parentId": "cv0hlpq9r7mvin07",
+            "position": 0,
+            "handlers": {
+                "ss-number-change": "crop"
+            },
+            "binding": {
+                "eventType": "ss-number-change",
+                "stateRef": "crop.left.state_element"
+            },
+            "visible": "crop.left.visibility"
         }
     }
 }
