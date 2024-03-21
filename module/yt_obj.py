@@ -107,8 +107,9 @@ class GetYoutube:
         if ('.jpg' in imw_path) or ('.png' in imw_path): cv2.imwrite(imw_path, img)
         return img
     
-    def set_yt_image(rect=None, crop=None, dsize=(1920,1080), imw_path=None):
-        img = cv2.imread(imw_path)
+    @staticmethod
+    def set_yt_image(rect=None, crop=None, dsize=(1920,1080), imr_path=None, imw_path=None):
+        img = cv2.imread(imr_path)
         if rect!=None:
             for key in rect.keys():
                 img = cv2.rectangle(img, pt1=rect[key]['pt1'], pt2=rect[key]['pt2'], color=rect[key]['color'], thickness=rect[key]['thickness'])

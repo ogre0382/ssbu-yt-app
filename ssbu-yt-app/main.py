@@ -6,6 +6,7 @@ from glob import glob as _glob
 from os.path import join as _join
 from os.path import dirname as _dirname
 from os import remove as _remove
+from os import rename as _rename
 sys.path.append(_join(_dirname('__file__'), '..'))
 from module.bq_db import SmashDatabase
 from module.yt_obj import GetYoutube
@@ -31,7 +32,18 @@ def game_screen(state, payload):
 def crop(state, payload):
     if state["game_screen"]["radio_button"]["state_element"]=="no":
         _set_visibility(state, "crop", state["crop"].to_dict(), True)
-    _update_cropper(state)
+        for i in range(state["sub_yt_num"]): 
+            imr_file = state["game_screen"][f"html{i}"]["image_source"]
+            imw_file = state["game_screen"][f"html{i}"]["image_source"][:-4]+"_1rect.jpg"
+            if "1rect" not in imr_file:
+                _rename(_join(_dirname('__file__'), imr_file), _join(_dirname('__file__'), imw_file))
+                state["game_screen"][f"html{i}"]["image_source"] = imw_file
+    elif type(payload)==float: _update_cropper(state)
+    else: _update_game_screen(state, False)
+    
+def crop_button(state):
+    _update_game_screen(state, True)
+    
     
 # LOAD / GENERATE DATA
 
@@ -58,7 +70,7 @@ def _get_game_screen(state):
     
 # UPDATES
 
-def _set_visibility(state, key, state_dict, sw):
+def _set_visibility(state, key, state_dict, sw, ):
     for k in state_dict.keys():
         state[key][k]["visibility"] = sw
 
@@ -85,21 +97,47 @@ def _disable_game_screen(state):
             state["game_screen"][f"html{i}"]["button_disabled"] = "yes"
             state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = False
 
-def _update_game_screen(state):
-    screen = state["game_screen"]
+def _update_game_screen(state, crop=False):
+    px = dict()
+    for k in ["left", "top", "width", "height"]: px[k] = int(state["crop"][k]["state_element"])
+    pt1 = (px["left"], px["top"])
+    pt2 = (px["left"]+px["width"], px["top"]+px["height"])
     for i in range(state["sub_yt_num"]):
+        num = state["game_screen"][f"html{i}"]["slider_number"]["state_element"]
+        bnum = state["game_screen"][f"html{i}"]["slider_number"]["buf_state_element"]
         state["game_screen"][f"html{i}"]["button_disabled"] = "yes"
-        if screen[f"html{i}"]["slider_number"]["state_element"]!=screen[f"html{i}"]["slider_number"]["buf_state_element"]:
+        if num!=bnum:
             state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = False
-            state["game_screen"][f"html{i}"]["slider_number"]["buf_state_element"] = screen[f"html{i}"]["slider_number"]["state_element"]
-            sec = int(screen[f"html{i}"]["slider_number"]["state_element"])
-            index = i
-            break
-    yt = state["main_yt"]
-    GetYoutube.get_yt_image(yt[index], ydl_opts=state["ydl_opts"], sec_pos=sec, imw_path=_join(_dirname('__file__'), f'static/image{index}_{sec}.jpg'))
-    if state["game_screen"][f"html{index}"]["image_source"]!=f'static/image{index}.jpg': _remove(_join(_dirname('__file__'), state["game_screen"][f"html{index}"]["image_source"]))
-    state["game_screen"][f"html{index}"]["image_source"] = f'static/image{index}_{sec}.jpg'
-    state["game_screen"][f"html{index}"]["inside"] = f'{yt[index]["original_url"]}+&t={sec}s'
+            state["game_screen"][f"html{i}"]["slider_number"]["buf_state_element"] = num
+            sec = int(num)
+            yt = state["main_yt"]
+            GetYoutube.get_yt_image(yt[i], ydl_opts=state["ydl_opts"], sec_pos=sec, imw_path=_join(_dirname('__file__'), f'static/image{i}_{sec}.jpg'))
+            if state["game_screen"][f"html{i}"]["image_source"]!=f'static/image{i}.jpg': _remove(_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]))
+            state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{sec}.jpg'
+            state["game_screen"][f"html{i}"]["inside"] = f'{yt[i]["original_url"]}+&t={sec}s'
+        if "1rect" in state["game_screen"][f"html{i}"]["image_source"]:
+            if i==0: state["crop"]["crop_button"]["disabled"] = "yes"
+            state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = False
+            _remove(_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]))
+            GetYoutube.set_yt_image(
+                rect={'check':{'pt1':pt1, 'pt2':pt2, 'color':(255, 0, 0), 'thickness':3}}, 
+                imr_path=_join(_dirname('__file__'), f'static/image{i}_{int(num)}.jpg'),
+                imw_path=_join(_dirname('__file__'), f'static/image{i}_{int(num)}_1rect.jpg')
+            )
+            state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{int(num)}_1rect.jpg'
+            if i==3: state["crop"]["crop_button"]["disabled"] = "no"
+        if crop:
+            if i==0:
+                state["crop"]["crop_button"]["disabled"] = state["check"]["crop_button"]["disabled"] = "yes"
+                state["game_screen"]["radio_button"]["state_element"] = None
+                _set_visibility(state, "crop", state["crop"].to_dict(), False)
+            GetYoutube.set_yt_image(
+                rect={'check':{'pt1':pt1, 'pt2':pt2, 'color':(255, 0, 0), 'thickness':3}}, 
+                imr_path=_join(_dirname('__file__'), f'static/image{i}_{int(num)}.jpg'),
+                imw_path=_join(_dirname('__file__'), f'static/image{i}_{int(num)}_crop.jpg')
+            )
+            state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{int(num)}_crop.jpg'
+            _remove(_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]))
     for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = True
     
 def _update_cropper(state):
@@ -112,7 +150,7 @@ def _update_cropper(state):
             state["crop"]["check_button"]["disabled"] = "no"
             if k=="height": state["crop"]["width"]["buf_state_element"] = state["crop"]["width"]["state_element"] = int(num["height"]*16/9)
             if k=="width": state["crop"]["height"]["buf_state_element"] = state["crop"]["height"]["state_element"] = int(num["width"]*9/16)
-        state["crop"][k]["buf_state_element"] = state["crop"][k]["state_element"]
+            state["crop"][k]["buf_state_element"] = state["crop"][k]["state_element"]
 
 # STATE INIT
 
@@ -156,7 +194,7 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": "static/image0.jpg",
+            "image_source": None,
             "inside": "url",
             "visibility": False
         },
@@ -168,7 +206,7 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": "static/image1.jpg",
+            "image_source": None,
             "inside": "url",
             "visibility": False
         },
@@ -180,7 +218,7 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": "static/image2.jpg",
+            "image_source": None,
             "inside": "url",
             "visibility": False
         },
@@ -192,7 +230,7 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": "static/image3.jpg",
+            "image_source": None,
             "inside": "url",
             "visibility": False,
         },
@@ -202,7 +240,6 @@ initial_state = ss.init_state({
         }
     },
     "crop": {
-        
         "left": {
             "state_element": 0,
             "buf_state_element": 0,
@@ -238,9 +275,9 @@ initial_state = ss.init_state({
 
 def _dev_init_state(sw=True):
     # game_screen
-    for i in range(4): initial_state["game_screen"][f"html{i}"]["visibility"] = sw
-    initial_state["game_screen"]["radio_button"]["visibility"] = sw
-    file_list = _glob(_join(_dirname('__file__'),'static/image*_*.jpg'))
+    # for i in range(4): initial_state["game_screen"][f"html{i}"]["visibility"] = sw
+    # initial_state["game_screen"]["radio_button"]["visibility"] = sw
+    file_list = _glob(_join(_dirname('__file__'),'static/image*.jpg'))
     for file in file_list: _remove(file)
     # crop
     # _set_visibility(initial_state, "crop", initial_state["crop"].to_dict(), True)

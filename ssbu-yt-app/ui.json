@@ -281,7 +281,7 @@
                 "caption": ""
             },
             "parentId": "c6gvgueo9myzdtur",
-            "position": 1,
+            "position": 0,
             "handlers": {}
         },
         "nv50jkt2bkfp4q81": {
@@ -292,7 +292,7 @@
                 "caption": ""
             },
             "parentId": "srxvk7yj5a5naf34",
-            "position": 1,
+            "position": 0,
             "handlers": {},
             "visible": true
         },
@@ -304,7 +304,7 @@
                 "caption": ""
             },
             "parentId": "7lzb68yan2zaf948",
-            "position": 1,
+            "position": 0,
             "handlers": {},
             "visible": true
         },
@@ -316,7 +316,7 @@
                 "caption": ""
             },
             "parentId": "k6gcmhhm6acqqt31",
-            "position": 1,
+            "position": 0,
             "handlers": {},
             "visible": true
         },
@@ -325,7 +325,7 @@
             "type": "columns",
             "content": {},
             "parentId": "c6gvgueo9myzdtur",
-            "position": 0,
+            "position": 1,
             "handlers": {},
             "visible": true
         },
@@ -356,7 +356,7 @@
             "type": "columns",
             "content": {},
             "parentId": "srxvk7yj5a5naf34",
-            "position": 0,
+            "position": 1,
             "handlers": {},
             "visible": true
         },
@@ -387,7 +387,7 @@
             "type": "columns",
             "content": {},
             "parentId": "7lzb68yan2zaf948",
-            "position": 0,
+            "position": 1,
             "handlers": {},
             "visible": true
         },
@@ -418,7 +418,7 @@
             "type": "columns",
             "content": {},
             "parentId": "k6gcmhhm6acqqt31",
-            "position": 0,
+            "position": 1,
             "handlers": {},
             "visible": true
         },
@@ -896,7 +896,7 @@
             "parentId": "eilvy8r5cncf8ruu",
             "position": 1,
             "handlers": {
-                "ss-click": "crop"
+                "ss-click": "crop_button"
             },
             "visible": "crop.crop_button.visibility"
         },
