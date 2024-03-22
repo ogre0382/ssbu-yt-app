@@ -39,7 +39,7 @@ class YoutubeInformation:
         self.cap = info['cap']
 
 class GetYoutube:
-    def __init__(self, input_url, resolution='best', ydl_opts={}):
+    def __init__(self, input_url, resolution='best', ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}, ):
         self.input_url = input_url
         self.resolution = resolution
         self.ydl_opts = ydl_opts
@@ -94,7 +94,7 @@ class GetYoutube:
 
     # スタティックメソッド https://qiita.com/cardene/items/14d300c1b46371e74a38
     @staticmethod
-    def get_yt_image(info, ydl_opts={}, sec_pos=0, dsize=(1920,1080), imw_path=None):
+    def get_yt_image(info, sec_pos=0, dsize=(1920,1080), imw_path=None, ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}, ):
         cap = cv2.VideoCapture(info["cap"])
         cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
         ret, img = cap.read()
@@ -230,7 +230,8 @@ def get_total_sec(infos):
     return timedelta(seconds=total_sec)
 
 if __name__ == '__main__':
-    url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zAPnbxJkz99IB_npRLLB3_'
+    # url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zAPnbxJkz99IB_npRLLB3_'
+    url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf'
     #url = 'https://www.youtube.com/watch?v=6aUsPo83Rsw'
     ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}
     yt_infos = GetYoutube(url, ydl_opts=ydl_opts).infos
@@ -239,8 +240,9 @@ if __name__ == '__main__':
     #         for sec in range(int(tgt-1),int(tgt+1)):
     #             cv2.imshow('19928', get_yt_image(info.cap, sec*info.fps))
     #             cv2.waitKey()
-    for info in yt_infos:
-        print(GetYoutube.get_yt_image(info))
+    print(yt_infos)
+    # for info in yt_infos:
+    #     print(GetYoutube.get_yt_image(info))
         
-    print(get_total_sec(yt_infos))
+    # print(get_total_sec(yt_infos))
     #print(type(get_yt_image(yt_infos[0], yt_infos[0]["fps"]*100, ydl_opts=ydl_opts)[1]))

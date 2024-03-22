@@ -2,6 +2,7 @@ import pandas as pd
 import streamsync as ss
 import re
 import sys
+import webbrowser
 from glob import glob as _glob
 from os.path import join as _join
 from os.path import dirname as _dirname
@@ -11,34 +12,32 @@ sys.path.append(_join(_dirname('__file__'), '..'))
 from module.bq_db import SmashDatabase
 from module.yt_obj import GetYoutube
 
-class Test:
-    def __init__(self, name):
-        self.name = name
-
 # EVENT HANDLERS
 
 def yt_url(state):
     _update_yt_url(state)
     _check_yt_url(state)
 
-def game_screen(state, payload):
+def start_game_screen(state):
+    state["game_screen"]["button"]["disabled"] = "yes"
     _set_visibility(state, "yt_url", state["yt_url"].to_dict(), False)
-    if len(state["main_yt"])==0:
-        _get_game_screen(state)
-    else:
-        if type(payload)==float: _disable_game_screen(state)
-        else: _update_game_screen(state)
-        
+    _get_game_screen(state)
+    
+def change_game_screen(state, payload):
+    if type(payload)==float: _disable_game_screen(state)
+    else: _update_game_screen(state)
+
+def start_crop(state):
+    _set_visibility(state, "crop", state["crop"].to_dict(), True)
+    for i in range(state["sub_yt_num"]): 
+        imr_file = state["game_screen"][f"html{i}"]["image_source"]
+        imw_file = state["game_screen"][f"html{i}"]["image_source"][:-4]+"_1rect.jpg"
+        if "1rect" not in imr_file:
+            _rename(_join(_dirname('__file__'), imr_file), _join(_dirname('__file__'), imw_file))
+            state["game_screen"][f"html{i}"]["image_source"] = imw_file
+
 def crop(state, payload):
-    if state["game_screen"]["radio_button"]["state_element"]=="no":
-        _set_visibility(state, "crop", state["crop"].to_dict(), True)
-        for i in range(state["sub_yt_num"]): 
-            imr_file = state["game_screen"][f"html{i}"]["image_source"]
-            imw_file = state["game_screen"][f"html{i}"]["image_source"][:-4]+"_1rect.jpg"
-            if "1rect" not in imr_file:
-                _rename(_join(_dirname('__file__'), imr_file), _join(_dirname('__file__'), imw_file))
-                state["game_screen"][f"html{i}"]["image_source"] = imw_file
-    elif type(payload)==float: _update_cropper(state)
+    if type(payload)==float: _update_cropper(state)
     else: _update_game_screen(state, False)
     
 def crop_button(state):
@@ -50,18 +49,15 @@ def crop_button(state):
 def _get_main_df():
     return SmashDatabase('ssbu_dataset').select_chara_data()
 
-def _get_main_yt(url="https://www.youtube.com/watch?v=hFDOOCutwmk", ydl_opts={'verbose':True, 'format':'best'}):
-    return GetYoutube(url, ydl_opts=ydl_opts).infos
+def _get_main_yt(url):
+    return GetYoutube(url).infos
     
 def _get_game_screen(state):
-    state["game_screen"]["button"]["disabled"]="yes"
-    if state["yt_url"]["radio_button"]["state_element"]!=None: 
-        state["ydl_ops"]['cookiesfrombrowser'] = (state["yt_url"]["radio_button"]["state_element"],)
-    yt = state["main_yt"] = _get_main_yt(state["yt_url"]["text_input"]["state_element"], ydl_opts=state["ydl_ops"])
+    yt = state["main_yt"] = _get_main_yt(state["yt_url"]["text_input"]["state_element"])
     if len(yt)>state["sub_yt_num"]: state["main_yt_num"] = len(yt)
     else: state["sub_yt_num"] = state["main_yt_num"] = len(yt)
     for i in range(state["sub_yt_num"]):
-        GetYoutube.get_yt_image(yt[i], ydl_opts=state["ydl_ops"], sec_pos=0, imw_path=_join(_dirname('__file__'), f'static/image{i}.jpg'))
+        GetYoutube.get_yt_image(yt[i], sec_pos=0, imw_path=_join(_dirname('__file__'), f'static/image{i}.jpg'))
         state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}.jpg'
         state["game_screen"][f"html{i}"]["inside"] = yt[i]["original_url"]
         state["game_screen"][f"html{i}"]["slider_number"]["max_value"] = yt[i]["duration"]
@@ -78,7 +74,6 @@ def _update_yt_url(state):
     playlist = "https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf"
     watch = "https://www.youtube.com/watch?v=My3gyDHoGAs"
     state["yt_url"]["text_input"]["place_holder"] = playlist if "playlist" in state["yt_url"]["check_box"]["state_element"] else watch
-    state["yt_url"]["radio_button"]["visibility"] = True if "members-only" in state["yt_url"]["check_box"]["state_element"] else False
 
 def _check_yt_url(state):
     if len(state["yt_url"]["text_input"]["place_holder"])==len(state["yt_url"]["text_input"]["state_element"]):
@@ -89,19 +84,35 @@ def _check_yt_url(state):
         state["yt_url"]["text"]["visibility"] = True
 
 def _disable_game_screen(state):
-    screen = state["game_screen"]
     for i in range(state["sub_yt_num"]):
-        if screen[f"html{i}"]["slider_number"]["state_element"]!=screen[f"html{i}"]["slider_number"]["buf_state_element"]:
+        num = state["game_screen"][f"html{i}"]["slider_number"]["state_element"]
+        bnum = state["game_screen"][f"html{i}"]["slider_number"]["buf_state_element"]
+        if num!=bnum:
             state["game_screen"][f"html{i}"]["button_disabled"] = "no"
+            state["game_screen"][f"html{i}"]["slider_number"]["buf_state_element"] = num
+            state["game_screen"]["ch"] = i
         else:
-            state["game_screen"][f"html{i}"]["button_disabled"] = "yes"
             state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = False
 
-def _update_game_screen(state, crop=False):
+def _update_game_screen(state):
+    ch = state["game_screen"]["ch"]
+    state["game_screen"][f"html{ch}"]["button_disabled"] = "yes"
+    state["game_screen"][f"html{ch}"]["slider_number"]["visibility"] = False
+    sec = int(state["game_screen"][f"html{ch}"]["slider_number"]["state_element"])
+    yt = state["main_yt"]
+    GetYoutube.get_yt_image(yt[ch], sec_pos=sec, imw_path=_join(_dirname('__file__'), f'static/image{ch}_{sec}.jpg'))
+    _remove(_join(_dirname('__file__'), state["game_screen"][f"html{ch}"]["image_source"]))
+    state["game_screen"][f"html{ch}"]["image_source"] = f'static/image{ch}_{sec}.jpg'
+    state["game_screen"][f"html{ch}"]["inside"] = f'{yt[ch]["original_url"]}+&t={sec}s'
+    for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = True
+
+def __update_game_screen(state, crop=False):
+    # 1rect+crop
     px = dict()
     for k in ["left", "top", "width", "height"]: px[k] = int(state["crop"][k]["state_element"])
     pt1 = (px["left"], px["top"])
     pt2 = (px["left"]+px["width"], px["top"]+px["height"])
+    # gs
     for i in range(state["sub_yt_num"]):
         num = state["game_screen"][f"html{i}"]["slider_number"]["state_element"]
         bnum = state["game_screen"][f"html{i}"]["slider_number"]["buf_state_element"]
@@ -115,6 +126,7 @@ def _update_game_screen(state, crop=False):
             if state["game_screen"][f"html{i}"]["image_source"]!=f'static/image{i}.jpg': _remove(_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]))
             state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{sec}.jpg'
             state["game_screen"][f"html{i}"]["inside"] = f'{yt[i]["original_url"]}+&t={sec}s'
+        # 1rect
         if "1rect" in state["game_screen"][f"html{i}"]["image_source"]:
             if i==0: state["crop"]["crop_button"]["disabled"] = "yes"
             state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = False
@@ -126,6 +138,7 @@ def _update_game_screen(state, crop=False):
             )
             state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{int(num)}_1rect.jpg'
             if i==3: state["crop"]["crop_button"]["disabled"] = "no"
+        # crop
         if crop:
             if i==0:
                 state["crop"]["crop_button"]["disabled"] = state["check"]["crop_button"]["disabled"] = "yes"
@@ -138,6 +151,7 @@ def _update_game_screen(state, crop=False):
             )
             state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{int(num)}_crop.jpg'
             _remove(_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]))
+    # all
     for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = True
     
 def _update_cropper(state):
@@ -151,6 +165,9 @@ def _update_cropper(state):
             if k=="height": state["crop"]["width"]["buf_state_element"] = state["crop"]["width"]["state_element"] = int(num["height"]*16/9)
             if k=="width": state["crop"]["height"]["buf_state_element"] = state["crop"]["height"]["state_element"] = int(num["width"]*9/16)
             state["crop"][k]["buf_state_element"] = state["crop"][k]["state_element"]
+            
+def _rename_image(state):
+    pass
 
 # STATE INIT
 
@@ -159,10 +176,6 @@ initial_state = ss.init_state({
     "main_yt": [], #_get_main_yt(),
     "main_yt_num": None,
     "sub_yt_num": 4,
-    "ydl_opts": {
-        'verbose':True,
-        'format':'best'
-    },
     "yt_url": {
         "text_input": {
             "place_holder": "https://www.youtube.com/watch?v=My3gyDHoGAs",
@@ -173,10 +186,6 @@ initial_state = ss.init_state({
             "state_element": [None],
             "visibility": True
         },
-        "radio_button": {
-            "state_element":None,
-            "visibility": False
-        },
         "text": {
             "visibility": False
         },
@@ -186,6 +195,7 @@ initial_state = ss.init_state({
             "disabled": "no",
             "visibility": False
         },
+        "ch": None,
         "html0": {
             "slider_number": {
                 "max_value": 25252,
@@ -281,5 +291,11 @@ def _dev_init_state(sw=True):
     for file in file_list: _remove(file)
     # crop
     # _set_visibility(initial_state, "crop", initial_state["crop"].to_dict(), True)
+    
+def _start():
+    # 任意のブラウザで開いてもpythonの実行を止めない https://qiita.com/benisho_ga/items/4844920a002f9d07c9c1
+    browser = webbrowser.get('"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" %s &')
+    browser.open("http://localhost:20000")
 
 _dev_init_state()
+#_start()

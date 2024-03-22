@@ -159,7 +159,7 @@
             "parentId": "xix6kdd8lscudh3c",
             "position": 4,
             "handlers": {
-                "ss-click": "game_screen"
+                "ss-click": "start_game_screen"
             },
             "visible": "game_screen.button.visibility"
         },
@@ -168,7 +168,7 @@
             "type": "checkboxinput",
             "content": {
                 "label": "",
-                "options": "{\n  \"playlist\": \"playlist (max 10 videos)\",\n  \"members-only\": \"members-only\"\n}",
+                "options": "{\n  \"playlist\": \"playlist (max 10 videos)\"\n}",
                 "orientation": "horizontal"
             },
             "parentId": "xix6kdd8lscudh3c",
@@ -457,7 +457,7 @@
             "parentId": "xmyf10edmcbdp74r",
             "position": 0,
             "handlers": {
-                "ss-number-change": "game_screen"
+                "ss-number-change": "change_game_screen"
             },
             "binding": {
                 "eventType": "ss-number-change",
@@ -477,7 +477,7 @@
             "parentId": "hhwyd1q7sgj2gq62",
             "position": 0,
             "handlers": {
-                "ss-number-change": "game_screen"
+                "ss-number-change": "change_game_screen"
             },
             "binding": {
                 "eventType": "ss-number-change",
@@ -497,7 +497,7 @@
             "parentId": "e605kmh6n6zps1ea",
             "position": 0,
             "handlers": {
-                "ss-number-change": "game_screen"
+                "ss-number-change": "change_game_screen"
             },
             "binding": {
                 "eventType": "ss-number-change",
@@ -517,7 +517,7 @@
             "parentId": "hj70htozzd9u6wj5",
             "position": 0,
             "handlers": {
-                "ss-number-change": "game_screen"
+                "ss-number-change": "change_game_screen"
             },
             "binding": {
                 "eventType": "ss-number-change",
@@ -537,7 +537,7 @@
             "parentId": "6iimd9wgmp7evqfb",
             "position": 0,
             "handlers": {
-                "ss-number-change": "game_screen"
+                "ss-number-change": "change_game_screen"
             },
             "binding": {
                 "eventType": "ss-number-change",
@@ -557,7 +557,7 @@
             "parentId": "rvpouhbm4mj5upf5",
             "position": 0,
             "handlers": {
-                "ss-number-change": "game_screen"
+                "ss-number-change": "change_game_screen"
             },
             "binding": {
                 "eventType": "ss-number-change",
@@ -577,7 +577,7 @@
             "parentId": "byle63tn53w73eh6",
             "position": 0,
             "handlers": {
-                "ss-number-change": "game_screen"
+                "ss-number-change": "change_game_screen"
             },
             "binding": {
                 "eventType": "ss-number-change",
@@ -646,7 +646,7 @@
             "parentId": "82er50quwge1iug6",
             "position": 0,
             "handlers": {
-                "ss-number-change": "game_screen"
+                "ss-number-change": "change_game_screen"
             },
             "binding": {
                 "eventType": "ss-number-change",
@@ -667,7 +667,7 @@
             "parentId": "vtxxiobjhtx2xk4e",
             "position": 0,
             "handlers": {
-                "ss-click": "game_screen"
+                "ss-click": "change_game_screen"
             },
             "visible": true
         },
@@ -695,7 +695,7 @@
             "parentId": "9cf1asfmz7hwnv4e",
             "position": 0,
             "handlers": {
-                "ss-click": "game_screen"
+                "ss-click": "change_game_screen"
             }
         },
         "vtxxiobjhtx2xk4e": {
@@ -744,7 +744,7 @@
             "parentId": "etsqy7bbqguilqml",
             "position": 0,
             "handlers": {
-                "ss-click": "game_screen"
+                "ss-click": "change_game_screen"
             },
             "visible": true
         },
@@ -761,7 +761,7 @@
             "parentId": "1u0s7lto3goxyut5",
             "position": 0,
             "handlers": {
-                "ss-click": "game_screen"
+                "ss-click": "change_game_screen"
             },
             "visible": true
         },
