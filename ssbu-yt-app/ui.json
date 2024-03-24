@@ -85,7 +85,7 @@
             "id": "183th6u1xmd10iq4",
             "type": "tab",
             "content": {
-                "name": "Process"
+                "name": "Output"
             },
             "parentId": "e6xfv4lv93u7hicf",
             "position": 1,
@@ -96,7 +96,7 @@
             "id": "zp3n10rr3z1uf4pm",
             "type": "tab",
             "content": {
-                "name": "Output"
+                "name": "Search"
             },
             "parentId": "e6xfv4lv93u7hicf",
             "position": 2,
@@ -157,7 +157,7 @@
                 "isDisabled": "@{game_screen.button.disabled}"
             },
             "parentId": "xix6kdd8lscudh3c",
-            "position": 4,
+            "position": 5,
             "handlers": {
                 "ss-click": "start_game_screen"
             },
@@ -191,7 +191,7 @@
                 "orientation": "horizontal"
             },
             "parentId": "xix6kdd8lscudh3c",
-            "position": 2,
+            "position": 3,
             "handlers": {},
             "binding": {
                 "eventType": "ss-option-change",
@@ -207,7 +207,7 @@
                 "primaryTextColor": "#ff0000"
             },
             "parentId": "xix6kdd8lscudh3c",
-            "position": 3,
+            "position": 4,
             "handlers": {},
             "visible": "yt_url.text.visibility"
         },
@@ -216,7 +216,7 @@
             "type": "columns",
             "content": {},
             "parentId": "xix6kdd8lscudh3c",
-            "position": 5,
+            "position": 6,
             "handlers": {},
             "visible": true
         },
@@ -225,7 +225,7 @@
             "type": "columns",
             "content": {},
             "parentId": "xix6kdd8lscudh3c",
-            "position": 6,
+            "position": 7,
             "handlers": {},
             "visible": true
         },
@@ -774,7 +774,7 @@
                 "orientation": "horizontal"
             },
             "parentId": "xix6kdd8lscudh3c",
-            "position": 7,
+            "position": 8,
             "handlers": {
                 "ss-option-change": "start_stop_crop_3rect"
             },
@@ -789,7 +789,7 @@
             "type": "columns",
             "content": {},
             "parentId": "xix6kdd8lscudh3c",
-            "position": 8,
+            "position": 9,
             "handlers": {},
             "visible": true
         },
@@ -1051,15 +1051,15 @@
                 "orientation": "horizontal"
             },
             "parentId": "xix6kdd8lscudh3c",
-            "position": 10,
-            "binding": {
-                "eventType": "ss-option-change",
-                "stateRef": "collect.radio_button.state_element"
-            },
-            "visible": "collect.radio_button.visibility",
+            "position": 11,
             "handlers": {
                 "ss-option-change": "collect"
-            }
+            },
+            "binding": {
+                "eventType": "ss-option-change",
+                "stateRef": "option.radio_button.state_element"
+            },
+            "visible": "option.radio_button.visibility"
         },
         "ni83kfnd6zsexfin": {
             "id": "ni83kfnd6zsexfin",
@@ -1068,9 +1068,356 @@
                 "text": "If there are extra objects in the red rectangle on the game screen, the recognition accuracy of character names and game results will decrease. "
             },
             "parentId": "xix6kdd8lscudh3c",
-            "position": 9,
+            "position": 10,
             "handlers": {},
             "visible": "collect.radio_button.visibility"
+        },
+        "0pq0so688k8vict3": {
+            "id": "0pq0so688k8vict3",
+            "type": "repeater",
+            "content": {
+                "keyVariable": "itemId",
+                "valueVariable": "item",
+                "repeaterObject": "@{proc.repeater}"
+            },
+            "parentId": "183th6u1xmd10iq4",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "gicm0ufca7rdcu8z": {
+            "id": "gicm0ufca7rdcu8z",
+            "type": "message",
+            "content": {
+                "message": "@{item.text}"
+            },
+            "parentId": "0pq0so688k8vict3",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "5jys64r6ufyit8tp": {
+            "id": "5jys64r6ufyit8tp",
+            "type": "button",
+            "content": {
+                "text": "Stop to collect",
+                "buttonTextColor": "#125FA8",
+                "separatorColor": "#125FA8",
+                "isDisabled": "@{proc.button.disabled}"
+            },
+            "parentId": "183th6u1xmd10iq4",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "uxxnp8m1xfa7toxy": {
+            "id": "uxxnp8m1xfa7toxy",
+            "type": "repeater",
+            "content": {
+                "keyVariable": "itemId",
+                "valueVariable": "item",
+                "repeaterObject": "@{item.repeater}"
+            },
+            "parentId": "0pq0so688k8vict3",
+            "position": 2,
+            "handlers": {},
+            "visible": "item.visibility"
+        },
+        "dgpvzwibyh75vfeu": {
+            "id": "dgpvzwibyh75vfeu",
+            "type": "columns",
+            "content": {},
+            "parentId": "uxxnp8m1xfa7toxy",
+            "position": 0,
+            "handlers": {},
+            "visible": ""
+        },
+        "kl5t7tsd55n3i4d1": {
+            "id": "kl5t7tsd55n3i4d1",
+            "type": "column",
+            "content": {
+                "width": "1"
+            },
+            "parentId": "dgpvzwibyh75vfeu",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "ihiqfijt4ub1eewj": {
+            "id": "ihiqfijt4ub1eewj",
+            "type": "column",
+            "content": {
+                "width": "1"
+            },
+            "parentId": "dgpvzwibyh75vfeu",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "ssvrwfqv6a5qk8fr": {
+            "id": "ssvrwfqv6a5qk8fr",
+            "type": "html",
+            "content": {
+                "styles": "",
+                "htmlInside": ""
+            },
+            "parentId": "kl5t7tsd55n3i4d1",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "3zg47pzsvybg0678": {
+            "id": "3zg47pzsvybg0678",
+            "type": "html",
+            "content": {
+                "styles": ""
+            },
+            "parentId": "ihiqfijt4ub1eewj",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "3312zcnawelby1qg": {
+            "id": "3312zcnawelby1qg",
+            "type": "image",
+            "content": {
+                "caption": "",
+                "src": "@{item.start_html.image_source}"
+            },
+            "parentId": "ssvrwfqv6a5qk8fr",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "g70w9f0x4ejvspk3": {
+            "id": "g70w9f0x4ejvspk3",
+            "type": "image",
+            "content": {
+                "caption": "",
+                "src": "@{item.end_html.image_source}"
+            },
+            "parentId": "3zg47pzsvybg0678",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "jbkfyehotfb7f1eo": {
+            "id": "jbkfyehotfb7f1eo",
+            "type": "tab",
+            "content": {
+                "name": "Repeater Test"
+            },
+            "parentId": "e6xfv4lv93u7hicf",
+            "position": 3,
+            "handlers": {},
+            "visible": true
+        },
+        "bjh5aw19sc7kc4q4": {
+            "id": "bjh5aw19sc7kc4q4",
+            "type": "repeater",
+            "content": {
+                "repeaterObject": "@{articles}",
+                "keyVariable": "itemId",
+                "valueVariable": "item"
+            },
+            "parentId": "jbkfyehotfb7f1eo",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "vc8hkyhy4pztewv2": {
+            "id": "vc8hkyhy4pztewv2",
+            "type": "columns",
+            "content": {},
+            "parentId": "bjh5aw19sc7kc4q4",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "u6ui4c94wp5ki0we": {
+            "id": "u6ui4c94wp5ki0we",
+            "type": "column",
+            "content": {
+                "width": "1"
+            },
+            "parentId": "vc8hkyhy4pztewv2",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "jfyilaays4can47m": {
+            "id": "jfyilaays4can47m",
+            "type": "column",
+            "content": {
+                "width": "1"
+            },
+            "parentId": "vc8hkyhy4pztewv2",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "065y7kc8qr4g24gk": {
+            "id": "065y7kc8qr4g24gk",
+            "type": "image",
+            "content": {
+                "caption": "Image Caption"
+            },
+            "parentId": "u6ui4c94wp5ki0we",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "o0z60egnf1xv2ic6": {
+            "id": "o0z60egnf1xv2ic6",
+            "type": "heading",
+            "content": {
+                "text": "@{itemId}"
+            },
+            "parentId": "jfyilaays4can47m",
+            "position": 0,
+            "handlers": {},
+            "visible": true
+        },
+        "mvid5ahmz6jxyoh3": {
+            "id": "mvid5ahmz6jxyoh3",
+            "type": "text",
+            "content": {
+                "text": "@{item.colour}"
+            },
+            "parentId": "jfyilaays4can47m",
+            "position": 2,
+            "handlers": {},
+            "visible": true
+        },
+        "yw9c0axsrevn466k": {
+            "id": "yw9c0axsrevn466k",
+            "type": "text",
+            "content": {
+                "text": "@{item.type}"
+            },
+            "parentId": "jfyilaays4can47m",
+            "position": 1,
+            "handlers": {},
+            "visible": true
+        },
+        "u2y0khxjqb0bhwe6": {
+            "id": "u2y0khxjqb0bhwe6",
+            "type": "checkboxinput",
+            "content": {
+                "label": "",
+                "options": "{\n  \"view\": \"view results\"\n}"
+            },
+            "parentId": "0pq0so688k8vict3",
+            "position": 1,
+            "handlers": {
+                "ss-options-change": "view_results"
+            },
+            "visible": true
+        },
+        "v7wkrvn1hhq00r78": {
+            "id": "v7wkrvn1hhq00r78",
+            "type": "checkboxinput",
+            "parentId": "xix6kdd8lscudh3c",
+            "content": {
+                "label": "",
+                "options": "{\n  \"auto\": \"auto input (recommend)\"\n}",
+                "orientation": "horizontal"
+            },
+            "handlers": {},
+            "position": 14,
+            "visible": true
+        },
+        "6vy2xfhop3sx2pt4": {
+            "id": "6vy2xfhop3sx2pt4",
+            "type": "textinput",
+            "parentId": "xix6kdd8lscudh3c",
+            "content": {
+                "label": "Input player name",
+                "placeholder": "Ly"
+            },
+            "handlers": {},
+            "position": 13,
+            "visible": true
+        },
+        "mvhe2qs6edanqdd9": {
+            "id": "mvhe2qs6edanqdd9",
+            "type": "multiselectinput",
+            "parentId": "xix6kdd8lscudh3c",
+            "content": {
+                "label": "Select fighters player use"
+            },
+            "handlers": {},
+            "position": 16,
+            "visible": true
+        },
+        "1bkm5sobkcroe9un": {
+            "id": "1bkm5sobkcroe9un",
+            "type": "radioinput",
+            "parentId": "xix6kdd8lscudh3c",
+            "content": {
+                "label": "Select YouTube title category",
+                "options": "{\n  \"vip\": \"vip\",\n  \"smashmate\": \"smashmate\",\n  \"other\": \"other\"\n}",
+                "orientation": "horizontal"
+            },
+            "handlers": {},
+            "position": 18,
+            "visible": true
+        },
+        "ezx55m99s7mu90x9": {
+            "id": "ezx55m99s7mu90x9",
+            "type": "separator",
+            "parentId": "xix6kdd8lscudh3c",
+            "content": {
+                "separatorColor": "#000000"
+            },
+            "handlers": {},
+            "position": 17,
+            "visible": true
+        },
+        "xmxujnfsh5njkbt8": {
+            "id": "xmxujnfsh5njkbt8",
+            "type": "separator",
+            "parentId": "xix6kdd8lscudh3c",
+            "content": {
+                "separatorColor": "#000000"
+            },
+            "handlers": {},
+            "position": 12,
+            "visible": true
+        },
+        "avptukdutepembhh": {
+            "id": "avptukdutepembhh",
+            "type": "separator",
+            "parentId": "xix6kdd8lscudh3c",
+            "content": {
+                "separatorColor": "#000000"
+            },
+            "handlers": {},
+            "position": 15,
+            "visible": true
+        },
+        "bstatzsm0fyfi6j8": {
+            "id": "bstatzsm0fyfi6j8",
+            "type": "separator",
+            "parentId": "xix6kdd8lscudh3c",
+            "content": {
+                "separatorColor": "#000000"
+            },
+            "handlers": {},
+            "position": 2,
+            "visible": true
+        },
+        "pcvv14cg7ll2stnx": {
+            "id": "pcvv14cg7ll2stnx",
+            "type": "checkboxinput",
+            "parentId": "xix6kdd8lscudh3c",
+            "content": {
+                "label": "",
+                "options": "{\n  \"auto\": \"auto select (recommend)\"\n}"
+            },
+            "handlers": {},
+            "position": 19,
+            "visible": true
         }
     }
 }

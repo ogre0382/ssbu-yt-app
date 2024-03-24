@@ -33,15 +33,16 @@ def change_game_screen(state, payload):
 
 def start_stop_crop_3rect(state):
     _set_visibility(state, "game_screen", state["game_screen"].to_dict(), False, "slider_number", ['button','ch','radio_button'])
+    state["game_screen"]["radio_button"]["visibility"] = False
     if state["game_screen"]["radio_button"]["state_element"]=="no":
         _set_visibility(state, "crop", state["crop"].to_dict(), True)
         for i in range(state["sub_yt_num"]):
             sec = int(state["game_screen"][f"html{i}"]["slider_number"]["state_element"])
             state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{sec}.jpg'
     else:
-        state["game_screen"]["radio_button"]["visibility"]=False
         _update_3rect_game_screen(state)
-        state["collect"]["radio_button"]["visibility"] = True
+        state["option"]["radio_button"]["state_element"] = None
+        state["option"]["radio_button"]["visibility"] = True
     
 def check_crop(state, payload):
     if type(payload)==float: _update_cropper(state)
@@ -54,13 +55,41 @@ def execute_crop(state):
         state["crop"]["crop_button"]["disabled"] = "yes"
         _update_crop_game_screen(state)
         state["game_screen"]["radio_button"]["state_element"] = None
+        state["game_screen"]["radio_button"]["visibility"] = True
         
 def collect(state):
-    if state["collect"]["radio_button"]["state_element"]=="no":
+    if state["option"]["radio_button"]["state_element"]=="no":
         _init_state(state)
     else:
-        pass
+        state["proc"]["button"]["disabled"] = "no"
+
+# Event context https://www.streamsync.cloud/repeater.html
+def view_results(state, payload, context):
+    id = context["item"]["id"]
+    # print(context["item"])
+    # print(state["proc"]["repeater"][f"message{id}"])
+    state["proc"]["repeater"][f"message{id}"]["visibility"] = True if "view" in payload else False
+    # print(state["proc"]["repeater"][f"message{id}"])
+        
+    # state["main_yt_num"] = 4 # test
+    # for i in range(state["main_yt_num"] if state["main_yt_num"]<10 else 10):
+    #     print(state["proc"]["repeater"][f"message{i}"]["check_box_element"])
+    #     if state["proc"]["repeater"][f"message{i}"]["check_box_element"]=="view":
+    #         state["proc"]["repeater"][f"message{i}"]["visibility"]=True
+
+# def view_results(state):
+#     for lne
     
+# https://github.com/streamsync-cloud/streamsync/issues/82#issuecomment-1684926896
+def start_process(state):
+    import time
+    for i in range(10):
+        state["short_text"] = "% Loading..." + str(i*10) + "%"
+        time.sleep(0.5)
+    state["short_text"] = "+Completed"
+
+
+
 # LOAD / GENERATE DATA
 
 def _get_main_df():
@@ -218,14 +247,12 @@ def _update_3rect_game_screen(state):
         )
         state["game_screen"][f"html{i}"]["image_source"] = state["game_screen"][f"html{i}"]["image_source"][:-4]+'_3rect.jpg'
 
-def _init_state(state):
-    # game_screen
-    # for i in range(4): initial_state["game_screen"][f"html{i}"]["visibility"] = sw
-    # initial_state["game_screen"]["radio_button"]["visibility"] = sw
-    file_list = _glob(_join(_dirname('__file__'),'static/image*.jpg'))
-    for file in file_list: _remove(file)
-    state["collection"]["radio_button"]["state_element"] = None
-    state["collect"]["radio_button"]["visibility"] = False
+def _init_state(state, sw=True):
+    for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["visibility"] = sw
+    state["game_screen"]["radio_button"]["visibility"] = sw
+    # file_list = _glob(_join(_dirname('__file__'),'static/image*.jpg'))
+    # for file in file_list: _remove(file)
+    state["option"]["radio_button"]["visibility"] = False
     _set_visibility(state, "game_screen", state["game_screen"].to_dict(), True, "slider_number", ['button','ch','radio_button'])
     _set_visibility(state, "game_screen", state["game_screen"].to_dict(), False, ekeys=['button','ch','radio_button'])
     _set_visibility(state, "yt_url", state["yt_url"].to_dict(), True)
@@ -236,8 +263,11 @@ def _init_state(state):
     # state["yt_url"]["check_box"]["state_element"] = [None]
     # crop
     # _set_visibility(initial_state, "crop", initial_state["crop"].to_dict(), True)
+    return state
 
 # STATE INIT
+
+rel = False
 
 initial_state = ss.init_state({
     "main_df": _get_main_df(),
@@ -272,9 +302,9 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": None,
+            "image_source": "static/image0_0.jpg",
             "inside": "url",
-            "visibility": False
+            "visibility": False if rel else True
         },
         "html1": {
             "slider_number": {
@@ -284,9 +314,9 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": None,
+            "image_source": "static/image1_0.jpg",
             "inside": "url",
-            "visibility": False
+            "visibility": False if rel else True
         },
         "html2": {
             "slider_number": {
@@ -296,9 +326,9 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": None,
+            "image_source": "static/image2_0.jpg",
             "inside": "url",
-            "visibility": False
+            "visibility": False if rel else True
         },
         "html3": {
             "slider_number": {
@@ -308,9 +338,9 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": None,
+            "image_source": "static/image3_0.jpg",
             "inside": "url",
-            "visibility": False,
+            "visibility": False if rel else True,
         },
         "radio_button": {
             "state_element": None,
@@ -347,10 +377,203 @@ initial_state = ss.init_state({
             "visibility": False
         }
     },
-    "collect": {
+    "option": {
         "radio_button": {
             "state_element": None,
-            "visibility": False
+            "visibility": False if rel else True
+        },
+    },
+    "proc": {
+        "button": {
+            "disabled": "yes"
+        },
+        "repeater": {
+            "message0": {
+                "id": 0,
+                "text": "Not started",
+                "visibility": False,
+                "repeater": {
+                    "images0": {
+                        "start_html": {
+                            "image_source": "static/image0_0.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image0_0.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images1": {
+                        "start_html": {
+                            "image_source": "static/image0_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image0_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images2": {
+                        "start_html": {
+                            "image_source": "static/image0_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image0_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    }
+                }
+            },
+            "message1": {
+                "id": 1,
+                "text": "Not started",
+                "visibility": False,
+                "repeater": {
+                    "images0": {
+                        "start_html": {
+                            "image_source": "static/image1_0.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image1_0.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images1": {
+                        "start_html": {
+                            "image_source": "static/image1_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image1_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images2": {
+                        "start_html": {
+                            "image_source": "static/image1_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image1_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    }
+                }
+            },
+            "message2": {
+                "id": 2,
+                "text": "Not started",
+                "visibility": False,
+                "repeater": {
+                    "images0": {
+                        "start_html": {
+                            "image_source": "static/image2_0.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image2_0.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images1": {
+                        "start_html": {
+                            "image_source": "static/image2_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image2_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images2": {
+                        "start_html": {
+                            "image_source": "static/image2_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image2_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    }
+                }
+            },
+            "message3": {
+                "id": 2,
+                "text": "Not started",
+                "visibility": False,
+                "repeater": {
+                    "images0": {
+                        "start_html": {
+                            "image_source": "static/image3_0.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image3_0.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images1": {
+                        "start_html": {
+                            "image_source": "static/image3_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image3_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images2": {
+                        "start_html": {
+                            "image_source": "static/image3_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image3_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "articles": {
+        "Banana": {
+            "type": "fruit",
+            "colour": "yellow"
+        },
+        "Lettuce": {
+            "type": "vegetable",
+            "colour": "green"
+        },
+        "Spinach": {
+            "type": "vegetable",
+            "colour": "green"
         }
     }
 })
@@ -358,10 +581,11 @@ initial_state = ss.init_state({
 #{'left':0,'width':1280,'top':0,'height':720}
     
 def _start():
-    # �C�ӂ̃u���E�U�ŊJ���Ă�python�̎��s���~�߂Ȃ� https://qiita.com/benisho_ga/items/4844920a002f9d07c9c1
+    # 任意のブラウザで開いてもpythonの実行を止めない https://qiita.com/benisho_ga/items/4844920a002f9d07c9c1
     browser = webbrowser.get('"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" %s &')
     browser.open("http://localhost:20000")
 
-_init_state()
+#initial_state = _init_state(initial_state)
 #_start()
+
 
