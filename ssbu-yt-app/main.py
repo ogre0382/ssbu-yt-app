@@ -69,15 +69,6 @@ def view_results(state, payload, context):
     # print(state["proc"]["repeater"][f"message{id}"])
     state["proc"]["repeater"][f"message{id}"]["visibility"] = True if "view" in payload else False
     # print(state["proc"]["repeater"][f"message{id}"])
-        
-    # state["main_yt_num"] = 4 # test
-    # for i in range(state["main_yt_num"] if state["main_yt_num"]<10 else 10):
-    #     print(state["proc"]["repeater"][f"message{i}"]["check_box_element"])
-    #     if state["proc"]["repeater"][f"message{i}"]["check_box_element"]=="view":
-    #         state["proc"]["repeater"][f"message{i}"]["visibility"]=True
-
-# def view_results(state):
-#     for lne
     
 # https://github.com/streamsync-cloud/streamsync/issues/82#issuecomment-1684926896
 def start_process(state):
@@ -504,7 +495,7 @@ initial_state = ss.init_state({
                 }
             },
             "message3": {
-                "id": 2,
+                "id": 3,
                 "text": "Not started",
                 "visibility": False,
                 "repeater": {
