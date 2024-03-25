@@ -14,14 +14,13 @@ from module.yt_obj import GetYoutube
 
 # EVENT HANDLERS
 
-
 def yt_url(state):
     _update_yt_url(state)
     _check_yt_url(state)
 
 def start_game_screen(state):
-    state["game_screen"]["button"]["disabled"] = "yes"
-    _set_visibility(state, "yt_url", state["yt_url"].to_dict(), False)
+    state["yt_url"]["visibility"] = False
+    state["game_screen"]["visibility"] = True
     _get_game_screen(state)
     
 def change_game_screen(state, payload):
@@ -32,10 +31,10 @@ def change_game_screen(state, payload):
         _update_game_screen(state)
 
 def start_stop_crop_3rect(state):
-    _set_visibility(state, "game_screen", state["game_screen"].to_dict(), False, "slider_number", ['button','ch','radio_button'])
+    _set_visibility(state, "game_screen", state["game_screen"].to_dict(), False, "slider_number", ['button','ch','radio_button', 'visibility'])
     state["game_screen"]["radio_button"]["visibility"] = False
     if state["game_screen"]["radio_button"]["state_element"]=="no":
-        _set_visibility(state, "crop", state["crop"].to_dict(), True)
+        state["crop"]["visibility"] = True
         for i in range(state["sub_yt_num"]):
             sec = int(state["game_screen"][f"html{i}"]["slider_number"]["state_element"])
             state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{sec}.jpg'
@@ -50,8 +49,8 @@ def check_crop(state, payload):
     
 def execute_crop(state):
     if state["game_screen"]["radio_button"]["state_element"]=="no":
-        _set_visibility(state, "crop", state["crop"].to_dict(), False)
-        _set_visibility(state, "game_screen", state["game_screen"].to_dict(), True, "slider_number", ['button','ch','radio_button'])
+        state["crop"]["visibility"] = False
+        _set_visibility(state, "game_screen", state["game_screen"].to_dict(), True, "slider_number", ['button','ch','radio_button', 'visibility'])
         state["crop"]["crop_button"]["disabled"] = "yes"
         _update_crop_game_screen(state)
         state["game_screen"]["radio_button"]["state_element"] = None
@@ -108,7 +107,6 @@ def _get_game_screen(state):
         state["game_screen"][f"html{i}"]["inside"] = f'{yt[i]["original_url"]}&t={0}s'
         state["game_screen"][f"html{i}"]["slider_number"]["max_value"] = yt[i]["duration"]
         state["game_screen"][f"html{i}"]["visibility"] = True
-    state["game_screen"]["radio_button"]["visibility"] = True
     
 def _get_crop_pt(state):
     px = dict()
@@ -129,15 +127,15 @@ def _set_visibility(state, key, state_dict, sw, key2=None, ekeys=[]):
 def _update_yt_url(state):
     playlist = "https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf"
     watch = "https://www.youtube.com/watch?v=My3gyDHoGAs"
-    state["yt_url"]["text_input"]["place_holder"] = playlist if "playlist" in state["yt_url"]["check_box"]["state_element"] else watch
+    state["yt_url"]["text_input"]["place_holder"] = playlist if "playlist" in state["yt_url"]["check_box_state_element"] else watch
 
 def _check_yt_url(state):
     if len(state["yt_url"]["text_input"]["place_holder"])==len(state["yt_url"]["text_input"]["state_element"]):
-        state["game_screen"]["button"]["visibility"] = True
-        state["yt_url"]["text"]["visibility"] = False
+        state["yt_url"]["button_visibility"] = True
+        state["yt_url"]["text_visibility"] = False
     else: 
-        state["game_screen"]["button"]["visibility"] = False
-        state["yt_url"]["text"]["visibility"] = True
+        state["yt_url"]["button_visibility"] = False
+        state["yt_url"]["text_visibility"] = True
 
 def _secnum_game_screen(state):
     for i in range(state["sub_yt_num"]):
@@ -248,18 +246,18 @@ def _update_3rect_game_screen(state):
         state["game_screen"][f"html{i}"]["image_source"] = state["game_screen"][f"html{i}"]["image_source"][:-4]+'_3rect.jpg'
 
 def _init_state(state, sw=True):
-    for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["visibility"] = sw
-    state["game_screen"]["radio_button"]["visibility"] = sw
-    # file_list = _glob(_join(_dirname('__file__'),'static/image*.jpg'))
-    # for file in file_list: _remove(file)
-    state["option"]["radio_button"]["visibility"] = False
-    _set_visibility(state, "game_screen", state["game_screen"].to_dict(), True, "slider_number", ['button','ch','radio_button'])
-    _set_visibility(state, "game_screen", state["game_screen"].to_dict(), False, ekeys=['button','ch','radio_button'])
-    _set_visibility(state, "yt_url", state["yt_url"].to_dict(), True)
-    state["game_screen"]["button"]["disabled"] = "no"
-    state["game_screen"]["button"]["visibility"] = False
-    state["game_screen"]["radio_button"]["state_element"] = None
-    state["yt_url"]["text_input"]["state_element"] = [None]
+    # for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["visibility"] = sw
+    # state["game_screen"]["radio_button"]["visibility"] = sw
+    file_list = _glob(_join(_dirname('__file__'),'static/image*.jpg'))
+    for file in file_list: _remove(file)
+    # state["option"]["radio_button"]["visibility"] = False
+    # _set_visibility(state, "game_screen", state["game_screen"].to_dict(), True, "slider_number", ['button','ch','radio_button'])
+    # _set_visibility(state, "game_screen", state["game_screen"].to_dict(), False, ekeys=['button','ch','radio_button'])
+    # _set_visibility(state, "yt_url", state["yt_url"].to_dict(), True)
+    # state["game_screen"]["button"]["disabled"] = "no"
+    # state["game_screen"]["button"]["visibility"] = False
+    # state["game_screen"]["radio_button"]["state_element"] = None
+    # state["yt_url"]["text_input"]["state_element"] = [None]
     # state["yt_url"]["check_box"]["state_element"] = [None]
     # crop
     # _set_visibility(initial_state, "crop", initial_state["crop"].to_dict(), True)
@@ -267,7 +265,7 @@ def _init_state(state, sw=True):
 
 # STATE INIT
 
-rel = False
+rel = True
 
 initial_state = ss.init_state({
     "main_df": _get_main_df(),
@@ -278,21 +276,13 @@ initial_state = ss.init_state({
         "text_input": {
             "place_holder": "https://www.youtube.com/watch?v=My3gyDHoGAs",
             "state_element": [None],
-            "visibility": True
         },
-        "check_box": {
-            "state_element": [None],
-            "visibility": True
-        },
-        "text": {
-            "visibility": False
-        },
+        "check_box_state_element": [None],
+        "text_visibility": False,
+        "button_visibility": False,
+        "visibility": True
     },
     "game_screen": {
-        "button": {
-            "disabled": "no",
-            "visibility": False
-        },
         "ch": None,
         "html0": {
             "slider_number": {
@@ -344,38 +334,34 @@ initial_state = ss.init_state({
         },
         "radio_button": {
             "state_element": None,
-            "visibility": False
-        }
+            "visibility": False,
+        },
+        "visibility": False
     },
     "crop": {
         "left": {
             "state_element": 0,
             "buf_state_element": 0,
-            "visibility": False
         },
         "top": {
             "state_element": 0,
             "buf_state_element": 0,
-            "visibility": False
         },
         "width": {
             "state_element": 1920,
             "buf_state_element": 1920,
-            "visibility": False
         },
         "height": {
             "state_element": 1080,
             "buf_state_element": 1080,
-            "visibility": False
         },
         "check_button": {
             "disabled": "yes",
-            "visibility": False
         },
         "crop_button": {
             "disabled": "yes",
-            "visibility": False
-        }
+        },
+        "visibility": False
     },
     "option": {
         "radio_button": {
@@ -585,7 +571,7 @@ def _start():
     browser = webbrowser.get('"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" %s &')
     browser.open("http://localhost:20000")
 
-#initial_state = _init_state(initial_state)
+_init_state(initial_state)
 #_start()
 
 

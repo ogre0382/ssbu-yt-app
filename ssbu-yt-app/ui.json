@@ -131,11 +131,11 @@
             "id": "t1rmzpe6gs8gfqgv",
             "type": "textinput",
             "content": {
-                "label": "Input YouTube URL",
+                "label": "",
                 "placeholder": "@{yt_url.text_input.place_holder}",
                 "passwordMode": ""
             },
-            "parentId": "xix6kdd8lscudh3c",
+            "parentId": "urz2wefg8kk2frs8",
             "position": 0,
             "handlers": {
                 "ss-change-finish": "yt_url"
@@ -143,25 +143,24 @@
             "binding": {
                 "eventType": "ss-change",
                 "stateRef": "yt_url.text_input.state_element"
-            },
-            "visible": "yt_url.text_input.visibility"
+            }
         },
         "pl83nldq34191kir": {
             "id": "pl83nldq34191kir",
             "type": "button",
             "content": {
-                "text": "Check the game screen",
+                "text": "Check game screens",
                 "icon": "check",
                 "separatorColor": "#125FA8",
                 "buttonTextColor": "#125FA8",
-                "isDisabled": "@{game_screen.button.disabled}"
+                "isDisabled": ""
             },
-            "parentId": "xix6kdd8lscudh3c",
-            "position": 5,
+            "parentId": "urz2wefg8kk2frs8",
+            "position": 3,
             "handlers": {
                 "ss-click": "start_game_screen"
             },
-            "visible": "game_screen.button.visibility"
+            "visible": "yt_url.button_visibility"
         },
         "7z7osnxdv3fva0an": {
             "id": "7z7osnxdv3fva0an",
@@ -171,33 +170,15 @@
                 "options": "{\n  \"playlist\": \"playlist (max 10 videos)\"\n}",
                 "orientation": "horizontal"
             },
-            "parentId": "xix6kdd8lscudh3c",
+            "parentId": "urz2wefg8kk2frs8",
             "position": 1,
             "handlers": {
                 "ss-options-change": "yt_url"
             },
             "binding": {
                 "eventType": "ss-options-change",
-                "stateRef": "yt_url.check_box.state_element"
-            },
-            "visible": "yt_url.check_box.visibility"
-        },
-        "tgr7bzmnvozms9o6": {
-            "id": "tgr7bzmnvozms9o6",
-            "type": "radioinput",
-            "content": {
-                "label": "Unused browser type (Unlocked cookie type) in your windows PC",
-                "options": "{\n  \"chrome\": \"chrome\",\n  \"edge\": \"edge\"\n}",
-                "orientation": "horizontal"
-            },
-            "parentId": "xix6kdd8lscudh3c",
-            "position": 3,
-            "handlers": {},
-            "binding": {
-                "eventType": "ss-option-change",
-                "stateRef": "yt_url.radio_button.state_element"
-            },
-            "visible": "yt_url.radio_button.visibility"
+                "stateRef": "yt_url.check_box_state_element"
+            }
         },
         "fs0vmqwj5niwmzre": {
             "id": "fs0vmqwj5niwmzre",
@@ -206,17 +187,17 @@
                 "text": "Please input a correct \"YouTube URL\"",
                 "primaryTextColor": "#ff0000"
             },
-            "parentId": "xix6kdd8lscudh3c",
-            "position": 4,
+            "parentId": "urz2wefg8kk2frs8",
+            "position": 2,
             "handlers": {},
-            "visible": "yt_url.text.visibility"
+            "visible": "yt_url.text_visibility"
         },
         "xtk3dccm57snf69y": {
             "id": "xtk3dccm57snf69y",
             "type": "columns",
             "content": {},
-            "parentId": "xix6kdd8lscudh3c",
-            "position": 6,
+            "parentId": "l1gqrzvzzjjh1hr1",
+            "position": 0,
             "handlers": {},
             "visible": true
         },
@@ -224,8 +205,8 @@
             "id": "kq89hkmlmfju0x92",
             "type": "columns",
             "content": {},
-            "parentId": "xix6kdd8lscudh3c",
-            "position": 7,
+            "parentId": "l1gqrzvzzjjh1hr1",
+            "position": 1,
             "handlers": {},
             "visible": true
         },
@@ -773,8 +754,8 @@
                 "options": "{\n  \"yes\": \"yes\",\n  \"no\": \"no\"\n}",
                 "orientation": "horizontal"
             },
-            "parentId": "xix6kdd8lscudh3c",
-            "position": 8,
+            "parentId": "l1gqrzvzzjjh1hr1",
+            "position": 2,
             "handlers": {
                 "ss-option-change": "start_stop_crop_3rect"
             },
@@ -782,14 +763,14 @@
                 "eventType": "ss-option-change",
                 "stateRef": "game_screen.radio_button.state_element"
             },
-            "visible": "game_screen.radio_button.visibility"
+            "visible": ""
         },
         "t03hvquhmjmcabo2": {
             "id": "t03hvquhmjmcabo2",
             "type": "columns",
             "content": {},
-            "parentId": "xix6kdd8lscudh3c",
-            "position": 9,
+            "parentId": "7la98vas1k4c71m3",
+            "position": 0,
             "handlers": {},
             "visible": true
         },
@@ -843,8 +824,7 @@
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "crop.width.state_element"
-            },
-            "visible": "crop.width.visibility"
+            }
         },
         "psa9xc21oyr05rrr": {
             "id": "psa9xc21oyr05rrr",
@@ -863,8 +843,7 @@
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "crop.height.state_element"
-            },
-            "visible": "crop.height.visibility"
+            }
         },
         "2fd3psqtax8tr8ui": {
             "id": "2fd3psqtax8tr8ui",
@@ -880,8 +859,7 @@
             "position": 0,
             "handlers": {
                 "ss-click": "check_crop"
-            },
-            "visible": "crop.check_button.visibility"
+            }
         },
         "52knty4turoqe3j5": {
             "id": "52knty4turoqe3j5",
@@ -897,8 +875,7 @@
             "position": 1,
             "handlers": {
                 "ss-click": "execute_crop"
-            },
-            "visible": "crop.crop_button.visibility"
+            }
         },
         "fhs79h97z94xg13z": {
             "id": "fhs79h97z94xg13z",
@@ -917,8 +894,7 @@
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "crop.width.state_element"
-            },
-            "visible": "crop.width.visibility"
+            }
         },
         "cv0hlpq9r7mvin07": {
             "id": "cv0hlpq9r7mvin07",
@@ -959,8 +935,7 @@
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "crop.left.state_element"
-            },
-            "visible": "crop.left.visibility"
+            }
         },
         "6wku0pi04zfjiii4": {
             "id": "6wku0pi04zfjiii4",
@@ -979,8 +954,7 @@
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "crop.top.state_element"
-            },
-            "visible": "crop.top.visibility"
+            }
         },
         "gagqes0jc0099nyo": {
             "id": "gagqes0jc0099nyo",
@@ -999,8 +973,7 @@
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "crop.height.state_element"
-            },
-            "visible": "crop.height.visibility"
+            }
         },
         "uzb3l1aps15716vf": {
             "id": "uzb3l1aps15716vf",
@@ -1019,8 +992,7 @@
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "crop.top.state_element"
-            },
-            "visible": "crop.top.visibility"
+            }
         },
         "z7iff26yvw4sfalw": {
             "id": "z7iff26yvw4sfalw",
@@ -1039,19 +1011,18 @@
             "binding": {
                 "eventType": "ss-number-change",
                 "stateRef": "crop.left.state_element"
-            },
-            "visible": "crop.left.visibility"
+            }
         },
         "jc2ca8hpp3puftf8": {
             "id": "jc2ca8hpp3puftf8",
             "type": "radioinput",
             "content": {
-                "label": "Do you collect data from YouTube?",
+                "label": "",
                 "options": "{\n  \"yes\": \"yes\",\n  \"no\": \"no\"\n}",
                 "orientation": "horizontal"
             },
-            "parentId": "xix6kdd8lscudh3c",
-            "position": 11,
+            "parentId": "orr4w5ss78bsgqm8",
+            "position": 0,
             "handlers": {
                 "ss-option-change": "collect"
             },
@@ -1068,7 +1039,7 @@
                 "text": "If there are extra objects in the red rectangle on the game screen, the recognition accuracy of character names and game results will decrease. "
             },
             "parentId": "xix6kdd8lscudh3c",
-            "position": 10,
+            "position": 3,
             "handlers": {},
             "visible": "collect.radio_button.visibility"
         },
@@ -1317,106 +1288,139 @@
         "v7wkrvn1hhq00r78": {
             "id": "v7wkrvn1hhq00r78",
             "type": "checkboxinput",
-            "parentId": "xix6kdd8lscudh3c",
             "content": {
                 "label": "",
                 "options": "{\n  \"auto\": \"auto input (recommend)\"\n}",
                 "orientation": "horizontal"
             },
+            "parentId": "b1bjqugqincvidvm",
+            "position": 1,
             "handlers": {},
-            "position": 14,
             "visible": true
         },
         "6vy2xfhop3sx2pt4": {
             "id": "6vy2xfhop3sx2pt4",
             "type": "textinput",
-            "parentId": "xix6kdd8lscudh3c",
             "content": {
-                "label": "Input player name",
+                "label": "",
                 "placeholder": "Ly"
             },
+            "parentId": "b1bjqugqincvidvm",
+            "position": 0,
             "handlers": {},
-            "position": 13,
             "visible": true
         },
         "mvhe2qs6edanqdd9": {
             "id": "mvhe2qs6edanqdd9",
             "type": "multiselectinput",
-            "parentId": "xix6kdd8lscudh3c",
             "content": {
-                "label": "Select fighters player use"
+                "label": ""
             },
+            "parentId": "qr8iagpg00twjcxo",
+            "position": 0,
             "handlers": {},
-            "position": 16,
             "visible": true
         },
         "1bkm5sobkcroe9un": {
             "id": "1bkm5sobkcroe9un",
             "type": "radioinput",
-            "parentId": "xix6kdd8lscudh3c",
             "content": {
-                "label": "Select YouTube title category",
+                "label": "",
                 "options": "{\n  \"vip\": \"vip\",\n  \"smashmate\": \"smashmate\",\n  \"other\": \"other\"\n}",
                 "orientation": "horizontal"
             },
+            "parentId": "4dljxy7oj9loxx5h",
+            "position": 0,
             "handlers": {},
-            "position": 18,
-            "visible": true
-        },
-        "ezx55m99s7mu90x9": {
-            "id": "ezx55m99s7mu90x9",
-            "type": "separator",
-            "parentId": "xix6kdd8lscudh3c",
-            "content": {
-                "separatorColor": "#000000"
-            },
-            "handlers": {},
-            "position": 17,
-            "visible": true
-        },
-        "xmxujnfsh5njkbt8": {
-            "id": "xmxujnfsh5njkbt8",
-            "type": "separator",
-            "parentId": "xix6kdd8lscudh3c",
-            "content": {
-                "separatorColor": "#000000"
-            },
-            "handlers": {},
-            "position": 12,
-            "visible": true
-        },
-        "avptukdutepembhh": {
-            "id": "avptukdutepembhh",
-            "type": "separator",
-            "parentId": "xix6kdd8lscudh3c",
-            "content": {
-                "separatorColor": "#000000"
-            },
-            "handlers": {},
-            "position": 15,
-            "visible": true
-        },
-        "bstatzsm0fyfi6j8": {
-            "id": "bstatzsm0fyfi6j8",
-            "type": "separator",
-            "parentId": "xix6kdd8lscudh3c",
-            "content": {
-                "separatorColor": "#000000"
-            },
-            "handlers": {},
-            "position": 2,
             "visible": true
         },
         "pcvv14cg7ll2stnx": {
             "id": "pcvv14cg7ll2stnx",
             "type": "checkboxinput",
-            "parentId": "xix6kdd8lscudh3c",
             "content": {
                 "label": "",
                 "options": "{\n  \"auto\": \"auto select (recommend)\"\n}"
             },
+            "parentId": "4dljxy7oj9loxx5h",
+            "position": 1,
             "handlers": {},
-            "position": 19,
+            "visible": true
+        },
+        "urz2wefg8kk2frs8": {
+            "id": "urz2wefg8kk2frs8",
+            "type": "section",
+            "content": {
+                "title": "Input YouTube URL"
+            },
+            "parentId": "xix6kdd8lscudh3c",
+            "position": 0,
+            "handlers": {},
+            "visible": "yt_url.visibility"
+        },
+        "l1gqrzvzzjjh1hr1": {
+            "id": "l1gqrzvzzjjh1hr1",
+            "type": "section",
+            "content": {
+                "title": "Check game screens"
+            },
+            "parentId": "xix6kdd8lscudh3c",
+            "position": 1,
+            "handlers": {},
+            "visible": "game_screen.visibility"
+        },
+        "7la98vas1k4c71m3": {
+            "id": "7la98vas1k4c71m3",
+            "type": "section",
+            "content": {
+                "title": "Crop game screens"
+            },
+            "parentId": "xix6kdd8lscudh3c",
+            "position": 2,
+            "handlers": {},
+            "visible": "crop.visibility"
+        },
+        "orr4w5ss78bsgqm8": {
+            "id": "orr4w5ss78bsgqm8",
+            "type": "section",
+            "parentId": "xix6kdd8lscudh3c",
+            "content": {
+                "title": "Do you collect data from YouTube?"
+            },
+            "handlers": {},
+            "position": 4,
+            "visible": true
+        },
+        "b1bjqugqincvidvm": {
+            "id": "b1bjqugqincvidvm",
+            "type": "section",
+            "parentId": "orr4w5ss78bsgqm8",
+            "content": {
+                "title": "Input player name"
+            },
+            "handlers": {},
+            "position": 1,
+            "visible": true
+        },
+        "qr8iagpg00twjcxo": {
+            "id": "qr8iagpg00twjcxo",
+            "type": "section",
+            "parentId": "orr4w5ss78bsgqm8",
+            "content": {
+                "title": "Select fighters player use"
+            },
+            "handlers": {},
+            "position": 2,
+            "visible": true
+        },
+        "4dljxy7oj9loxx5h": {
+            "id": "4dljxy7oj9loxx5h",
+            "type": "section",
+            "parentId": "orr4w5ss78bsgqm8",
+            "content": {
+                "title": "Select YouTube title category"
+            },
+            "handlers": {},
+            "position": 3,
             "visible": true
         }
     }
