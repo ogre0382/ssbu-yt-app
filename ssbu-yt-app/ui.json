@@ -197,7 +197,7 @@
             "type": "columns",
             "content": {},
             "parentId": "l1gqrzvzzjjh1hr1",
-            "position": 0,
+            "position": 1,
             "handlers": {},
             "visible": true
         },
@@ -206,7 +206,7 @@
             "type": "columns",
             "content": {},
             "parentId": "l1gqrzvzzjjh1hr1",
-            "position": 1,
+            "position": 2,
             "handlers": {},
             "visible": true
         },
@@ -755,7 +755,7 @@
                 "orientation": "horizontal"
             },
             "parentId": "l1gqrzvzzjjh1hr1",
-            "position": 2,
+            "position": 3,
             "handlers": {
                 "ss-option-change": "start_stop_crop_3rect"
             },
@@ -763,7 +763,7 @@
                 "eventType": "ss-option-change",
                 "stateRef": "game_screen.radio_button.state_element"
             },
-            "visible": ""
+            "visible": "game_screen.radio_button.visibility"
         },
         "t03hvquhmjmcabo2": {
             "id": "t03hvquhmjmcabo2",
@@ -1022,7 +1022,7 @@
                 "orientation": "horizontal"
             },
             "parentId": "orr4w5ss78bsgqm8",
-            "position": 0,
+            "position": 1,
             "handlers": {
                 "ss-option-change": "collect"
             },
@@ -1038,10 +1038,10 @@
             "content": {
                 "text": "If there are extra objects in the red rectangle on the game screen, the recognition accuracy of character names and game results will decrease. "
             },
-            "parentId": "xix6kdd8lscudh3c",
-            "position": 3,
+            "parentId": "orr4w5ss78bsgqm8",
+            "position": 0,
             "handlers": {},
-            "visible": "collect.radio_button.visibility"
+            "visible": "game_screen.text_visibility"
         },
         "0pq0so688k8vict3": {
             "id": "0pq0so688k8vict3",
@@ -1172,105 +1172,6 @@
             "handlers": {},
             "visible": true
         },
-        "jbkfyehotfb7f1eo": {
-            "id": "jbkfyehotfb7f1eo",
-            "type": "tab",
-            "content": {
-                "name": "Repeater Test"
-            },
-            "parentId": "e6xfv4lv93u7hicf",
-            "position": 3,
-            "handlers": {},
-            "visible": true
-        },
-        "bjh5aw19sc7kc4q4": {
-            "id": "bjh5aw19sc7kc4q4",
-            "type": "repeater",
-            "content": {
-                "repeaterObject": "@{articles}",
-                "keyVariable": "itemId",
-                "valueVariable": "item"
-            },
-            "parentId": "jbkfyehotfb7f1eo",
-            "position": 0,
-            "handlers": {},
-            "visible": true
-        },
-        "vc8hkyhy4pztewv2": {
-            "id": "vc8hkyhy4pztewv2",
-            "type": "columns",
-            "content": {},
-            "parentId": "bjh5aw19sc7kc4q4",
-            "position": 0,
-            "handlers": {},
-            "visible": true
-        },
-        "u6ui4c94wp5ki0we": {
-            "id": "u6ui4c94wp5ki0we",
-            "type": "column",
-            "content": {
-                "width": "1"
-            },
-            "parentId": "vc8hkyhy4pztewv2",
-            "position": 0,
-            "handlers": {},
-            "visible": true
-        },
-        "jfyilaays4can47m": {
-            "id": "jfyilaays4can47m",
-            "type": "column",
-            "content": {
-                "width": "1"
-            },
-            "parentId": "vc8hkyhy4pztewv2",
-            "position": 1,
-            "handlers": {},
-            "visible": true
-        },
-        "065y7kc8qr4g24gk": {
-            "id": "065y7kc8qr4g24gk",
-            "type": "image",
-            "content": {
-                "caption": "Image Caption"
-            },
-            "parentId": "u6ui4c94wp5ki0we",
-            "position": 0,
-            "handlers": {},
-            "visible": true
-        },
-        "o0z60egnf1xv2ic6": {
-            "id": "o0z60egnf1xv2ic6",
-            "type": "heading",
-            "content": {
-                "text": "@{itemId}"
-            },
-            "parentId": "jfyilaays4can47m",
-            "position": 0,
-            "handlers": {},
-            "visible": true
-        },
-        "mvid5ahmz6jxyoh3": {
-            "id": "mvid5ahmz6jxyoh3",
-            "type": "text",
-            "content": {
-                "text": "@{item.colour}"
-            },
-            "parentId": "jfyilaays4can47m",
-            "position": 2,
-            "handlers": {},
-            "visible": true
-        },
-        "yw9c0axsrevn466k": {
-            "id": "yw9c0axsrevn466k",
-            "type": "text",
-            "content": {
-                "text": "@{item.type}"
-            },
-            "parentId": "jfyilaays4can47m",
-            "position": 1,
-            "handlers": {},
-            "visible": true
-        },
         "u2y0khxjqb0bhwe6": {
             "id": "u2y0khxjqb0bhwe6",
             "type": "checkboxinput",
@@ -1350,7 +1251,8 @@
             "id": "urz2wefg8kk2frs8",
             "type": "section",
             "content": {
-                "title": "Input YouTube URL"
+                "title": "Input YouTube URL",
+                "separatorColor": "#125FA8"
             },
             "parentId": "xix6kdd8lscudh3c",
             "position": 0,
@@ -1361,7 +1263,8 @@
             "id": "l1gqrzvzzjjh1hr1",
             "type": "section",
             "content": {
-                "title": "Check game screens"
+                "title": "Check game screens",
+                "separatorColor": "#125FA8"
             },
             "parentId": "xix6kdd8lscudh3c",
             "position": 1,
@@ -1372,7 +1275,8 @@
             "id": "7la98vas1k4c71m3",
             "type": "section",
             "content": {
-                "title": "Crop game screens"
+                "title": "Crop game screens",
+                "separatorColor": "#125FA8"
             },
             "parentId": "xix6kdd8lscudh3c",
             "position": 2,
@@ -1382,46 +1286,58 @@
         "orr4w5ss78bsgqm8": {
             "id": "orr4w5ss78bsgqm8",
             "type": "section",
-            "parentId": "xix6kdd8lscudh3c",
             "content": {
-                "title": "Do you collect data from YouTube?"
+                "title": "Do you collect data from YouTube?",
+                "separatorColor": "#125FA8"
             },
+            "parentId": "xix6kdd8lscudh3c",
+            "position": 3,
             "handlers": {},
-            "position": 4,
-            "visible": true
+            "visible": "option.radio_button.visibility"
         },
         "b1bjqugqincvidvm": {
             "id": "b1bjqugqincvidvm",
             "type": "section",
-            "parentId": "orr4w5ss78bsgqm8",
             "content": {
                 "title": "Input player name"
             },
+            "parentId": "orr4w5ss78bsgqm8",
+            "position": 2,
             "handlers": {},
-            "position": 1,
-            "visible": true
+            "visible": "option.visibility"
         },
         "qr8iagpg00twjcxo": {
             "id": "qr8iagpg00twjcxo",
             "type": "section",
-            "parentId": "orr4w5ss78bsgqm8",
             "content": {
                 "title": "Select fighters player use"
             },
+            "parentId": "orr4w5ss78bsgqm8",
+            "position": 3,
             "handlers": {},
-            "position": 2,
-            "visible": true
+            "visible": "option.visibility"
         },
         "4dljxy7oj9loxx5h": {
             "id": "4dljxy7oj9loxx5h",
             "type": "section",
-            "parentId": "orr4w5ss78bsgqm8",
             "content": {
                 "title": "Select YouTube title category"
             },
+            "parentId": "orr4w5ss78bsgqm8",
+            "position": 4,
             "handlers": {},
-            "position": 3,
-            "visible": true
+            "visible": "option.visibility"
+        },
+        "u0perd7xurymm93j": {
+            "id": "u0perd7xurymm93j",
+            "type": "message",
+            "content": {
+                "message": "@{game_screen.message.text}"
+            },
+            "parentId": "l1gqrzvzzjjh1hr1",
+            "position": 0,
+            "handlers": {},
+            "visible": "game_screen.message.visibility"
         }
     }
 }

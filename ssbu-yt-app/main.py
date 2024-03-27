@@ -1,14 +1,14 @@
 import pandas as pd
 import streamsync as ss
 import re
-import sys
 import webbrowser
 from glob import glob as _glob
-from os.path import join as _join
 from os.path import dirname as _dirname
+from os.path import join as _join
 from os import remove as _remove
 from os import rename as _rename
-sys.path.append(_join(_dirname('__file__'), '..'))
+from sys import path
+path.append(_join(_dirname('__file__'), '..'))
 from module.bq_db import SmashDatabase
 from module.yt_obj import GetYoutube
 
@@ -21,17 +21,20 @@ def yt_url(state):
 def start_game_screen(state):
     state["yt_url"]["visibility"] = False
     state["game_screen"]["visibility"] = True
+    state["game_screen"]["message"]["visibility"] = True
     _get_game_screen(state)
+    state["game_screen"]["message"]["visibility"] = False
+    state["game_screen"]["radio_button"]["visibility"] = True
     
 def change_game_screen(state, payload):
     if type(payload)==float:
         _secnum_game_screen(state)
     else: 
-        _set_visibility(state, "game_screen", state["game_screen"].to_dict(), False, "slider_number", ['button','ch','radio_button'])
+        for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = False
         _update_game_screen(state)
 
 def start_stop_crop_3rect(state):
-    _set_visibility(state, "game_screen", state["game_screen"].to_dict(), False, "slider_number", ['button','ch','radio_button', 'visibility'])
+    for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = False
     state["game_screen"]["radio_button"]["visibility"] = False
     if state["game_screen"]["radio_button"]["state_element"]=="no":
         state["crop"]["visibility"] = True
@@ -40,7 +43,7 @@ def start_stop_crop_3rect(state):
             state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{sec}.jpg'
     else:
         _update_3rect_game_screen(state)
-        state["option"]["radio_button"]["state_element"] = None
+        state["game_screen"]["text_visibility"] = True
         state["option"]["radio_button"]["visibility"] = True
     
 def check_crop(state, payload):
@@ -50,17 +53,18 @@ def check_crop(state, payload):
 def execute_crop(state):
     if state["game_screen"]["radio_button"]["state_element"]=="no":
         state["crop"]["visibility"] = False
-        _set_visibility(state, "game_screen", state["game_screen"].to_dict(), True, "slider_number", ['button','ch','radio_button', 'visibility'])
+        for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = True    
         state["crop"]["crop_button"]["disabled"] = "yes"
         _update_crop_game_screen(state)
         state["game_screen"]["radio_button"]["state_element"] = None
         state["game_screen"]["radio_button"]["visibility"] = True
         
 def collect(state):
-    if state["option"]["radio_button"]["state_element"]=="no":
-        _init_state(state)
+    if state["option"]["radio_button"]["state_element"]=="yes":
+        #state["proc"]["button"]["disabled"] = "no"
+        state["option"]["visibility"] = True
     else:
-        state["proc"]["button"]["disabled"] = "no"
+        _init_state(state)
 
 # Event context https://www.streamsync.cloud/repeater.html
 def view_results(state, payload, context):
@@ -69,16 +73,6 @@ def view_results(state, payload, context):
     # print(state["proc"]["repeater"][f"message{id}"])
     state["proc"]["repeater"][f"message{id}"]["visibility"] = True if "view" in payload else False
     # print(state["proc"]["repeater"][f"message{id}"])
-    
-# https://github.com/streamsync-cloud/streamsync/issues/82#issuecomment-1684926896
-def start_process(state):
-    import time
-    for i in range(10):
-        state["short_text"] = "% Loading..." + str(i*10) + "%"
-        time.sleep(0.5)
-    state["short_text"] = "+Completed"
-
-
 
 # LOAD / GENERATE DATA
 
@@ -274,6 +268,10 @@ initial_state = ss.init_state({
         "visibility": True
     },
     "game_screen": {
+        "message": {
+            "text": "% Now Loading ...",
+            "visibility": False
+        },
         "ch": None,
         "html0": {
             "slider_number": {
@@ -283,7 +281,7 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": "static/image0_0.jpg",
+            "image_source": None if rel else "static/image0_0.jpg",
             "inside": "url",
             "visibility": False if rel else True
         },
@@ -295,7 +293,7 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": "static/image1_0.jpg",
+            "image_source": None if rel else "static/image1_0.jpg",
             "inside": "url",
             "visibility": False if rel else True
         },
@@ -307,7 +305,7 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": "static/image2_0.jpg",
+            "image_source": None if rel else "static/image2_0.jpg",
             "inside": "url",
             "visibility": False if rel else True
         },
@@ -319,7 +317,7 @@ initial_state = ss.init_state({
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": "static/image3_0.jpg",
+            "image_source": None if rel else "static/image3_0.jpg",
             "inside": "url",
             "visibility": False if rel else True,
         },
@@ -327,6 +325,7 @@ initial_state = ss.init_state({
             "state_element": None,
             "visibility": False,
         },
+        "text_visibility": False,
         "visibility": False
     },
     "crop": {
@@ -359,6 +358,7 @@ initial_state = ss.init_state({
             "state_element": None,
             "visibility": False if rel else True
         },
+        "visibility": False
     },
     "proc": {
         "button": {
@@ -538,20 +538,6 @@ initial_state = ss.init_state({
                 }
             }
         }
-    },
-    "articles": {
-        "Banana": {
-            "type": "fruit",
-            "colour": "yellow"
-        },
-        "Lettuce": {
-            "type": "vegetable",
-            "colour": "green"
-        },
-        "Spinach": {
-            "type": "vegetable",
-            "colour": "green"
-        }
     }
 })
 
@@ -562,7 +548,7 @@ def _start():
     browser = webbrowser.get('"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" %s &')
     browser.open("http://localhost:20000")
 
-_init_state(initial_state)
+if rel: _init_state(initial_state)
 #_start()
 
 
