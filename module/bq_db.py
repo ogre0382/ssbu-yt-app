@@ -202,7 +202,7 @@ class SmashDatabase(BigqueryDatabase):
             'id INT64', 'chara_id_1p INT64', 'chara_name_1p STRING', 'chara_id_2p INT64', 'chara_name_2p STRING', 
             'target_player_name STRING', 'target_player_is_1p BOOL', 'target_player_is_win BOOL', 
             'game_start_datetime DATETIME', 'game_start_url STRING','game_end_datetime DATETIME', 'game_end_url STRING', 
-            'title STRING', 'category STRING',
+            'title STRING', 'category STRING', #'analysis_duration INT64',
         )
         self.analysis_item = tuple([item.split()[0] for item in self.analysis_item_type])
         self.drop_analysis_item = self.analysis_item[0:10]+self.analysis_item[12:]
