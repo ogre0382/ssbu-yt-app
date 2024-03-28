@@ -113,19 +113,11 @@ def _get_crop_pt(state):
     
 # UPDATES
 
-<<<<<<< HEAD
 # def _set_visibility(state, key, state_dict, sw, key2=None, ekeys=[]):
 #     for k in state_dict.keys():
 #         if k not in ekeys:
 #             if key2==None: state[key][k]["visibility"] = sw
 #             else: state[key][k][key2]["visibility"] = sw
-=======
-#def _set_visibility(state, key, state_dict, sw, key2=None, ekeys=[]):
-    #for k in state_dict.keys():
-        #if k not in ekeys:
-            #if key2==None: state[key][k]["visibility"] = sw
-            #else: state[key][k][key2]["visibility"] = sw
->>>>>>> cf9f5e55a2efad0218233d40684e14eaa6b6c246
 
 def _update_yt_url(state):
     playlist = "https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf"
