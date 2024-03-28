@@ -1041,7 +1041,7 @@
             "parentId": "orr4w5ss78bsgqm8",
             "position": 0,
             "handlers": {},
-            "visible": "game_screen.text_visibility"
+            "visible": "option.radio_button.visibility"
         },
         "0pq0so688k8vict3": {
             "id": "0pq0so688k8vict3",
@@ -1196,7 +1196,13 @@
             },
             "parentId": "b1bjqugqincvidvm",
             "position": 1,
-            "handlers": {},
+            "handlers": {
+                "ss-options-change": "collect_option"
+            },
+            "binding": {
+                "eventType": "ss-options-change",
+                "stateRef": "option.text_input.check_box_state_element"
+            },
             "visible": true
         },
         "6vy2xfhop3sx2pt4": {
@@ -1209,7 +1215,7 @@
             "parentId": "b1bjqugqincvidvm",
             "position": 0,
             "handlers": {},
-            "visible": true
+            "visible": "option.text_input.visibility"
         },
         "mvhe2qs6edanqdd9": {
             "id": "mvhe2qs6edanqdd9",
@@ -1233,7 +1239,7 @@
             "parentId": "4dljxy7oj9loxx5h",
             "position": 0,
             "handlers": {},
-            "visible": true
+            "visible": "option.radio_button2.visibility"
         },
         "pcvv14cg7ll2stnx": {
             "id": "pcvv14cg7ll2stnx",
@@ -1244,8 +1250,13 @@
             },
             "parentId": "4dljxy7oj9loxx5h",
             "position": 1,
-            "handlers": {},
-            "visible": true
+            "handlers": {
+                "ss-options-change": "collect_option"
+            },
+            "binding": {
+                "eventType": "ss-options-change",
+                "stateRef": "option.radio_button2.check_box_state_element"
+            }
         },
         "urz2wefg8kk2frs8": {
             "id": "urz2wefg8kk2frs8",
@@ -1310,10 +1321,11 @@
             "id": "qr8iagpg00twjcxo",
             "type": "section",
             "content": {
-                "title": "Select fighters player use"
+                "title": "Select fighters player use",
+                "contentPadding": "15px 15px 100px 15px"
             },
             "parentId": "orr4w5ss78bsgqm8",
-            "position": 3,
+            "position": 4,
             "handlers": {},
             "visible": "option.visibility"
         },
@@ -1324,7 +1336,7 @@
                 "title": "Select YouTube title category"
             },
             "parentId": "orr4w5ss78bsgqm8",
-            "position": 4,
+            "position": 3,
             "handlers": {},
             "visible": "option.visibility"
         },
@@ -1338,6 +1350,17 @@
             "position": 0,
             "handlers": {},
             "visible": "game_screen.message.visibility"
+        },
+        "wg35p194sglyzilc": {
+            "id": "wg35p194sglyzilc",
+            "type": "button",
+            "content": {
+                "text": "Button Text"
+            },
+            "parentId": "orr4w5ss78bsgqm8",
+            "position": 5,
+            "handlers": {},
+            "visible": true
         }
     }
 }

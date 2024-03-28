@@ -43,7 +43,6 @@ def start_stop_crop_3rect(state):
             state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{sec}.jpg'
     else:
         _update_3rect_game_screen(state)
-        state["game_screen"]["text_visibility"] = True
         state["option"]["radio_button"]["visibility"] = True
     
 def check_crop(state, payload):
@@ -63,8 +62,19 @@ def collect(state):
     if state["option"]["radio_button"]["state_element"]=="yes":
         #state["proc"]["button"]["disabled"] = "no"
         state["option"]["visibility"] = True
+        state["game_screen"]["visibility"] = False
     else:
         _init_state(state)
+        
+def collect_option(state):
+    if "auto" in state["option"]["text_input"]["check_box_state_element"]:
+        state["option"]["text_input"]["visibility"] = False
+    else: 
+        state["option"]["text_input"]["visibility"] = True
+    if "auto" in state["option"]["radio_button2"]["check_box_state_element"]:
+        state["option"]["radio_button2"]["visibility"] = False
+    else:
+        state["option"]["radio_button2"]["visibility"] = True
 
 # Event context https://www.streamsync.cloud/repeater.html
 def view_results(state, payload, context):
@@ -91,7 +101,7 @@ def _get_game_screen(state):
         state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_0.jpg'
         state["game_screen"][f"html{i}"]["inside"] = f'{yt[i]["original_url"]}&t={0}s'
         state["game_screen"][f"html{i}"]["slider_number"]["max_value"] = yt[i]["duration"]
-        state["game_screen"][f"html{i}"]["visibility"] = True
+    for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["visibility"] = True
     
 def _get_crop_pt(state):
     px = dict()
@@ -103,11 +113,11 @@ def _get_crop_pt(state):
     
 # UPDATES
 
-def _set_visibility(state, key, state_dict, sw, key2=None, ekeys=[]):
-    for k in state_dict.keys():
-        if k not in ekeys:
-            if key2==None: state[key][k]["visibility"] = sw
-            else: state[key][k][key2]["visibility"] = sw
+# def _set_visibility(state, key, state_dict, sw, key2=None, ekeys=[]):
+#     for k in state_dict.keys():
+#         if k not in ekeys:
+#             if key2==None: state[key][k]["visibility"] = sw
+#             else: state[key][k][key2]["visibility"] = sw
 
 def _update_yt_url(state):
     playlist = "https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf"
@@ -250,7 +260,7 @@ def _init_state(state, sw=True):
 
 # STATE INIT
 
-rel = True
+rel = False
 
 initial_state = ss.init_state({
     "main_df": _get_main_df(),
@@ -260,12 +270,12 @@ initial_state = ss.init_state({
     "yt_url": {
         "text_input": {
             "place_holder": "https://www.youtube.com/watch?v=My3gyDHoGAs",
-            "state_element": [None],
+            "state_element": None if rel else "https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf", #[None],
         },
         "check_box_state_element": [None],
         "text_visibility": False,
         "button_visibility": False,
-        "visibility": True
+        "visibility": True if rel else False
     },
     "game_screen": {
         "message": {
@@ -325,8 +335,7 @@ initial_state = ss.init_state({
             "state_element": None,
             "visibility": False,
         },
-        "text_visibility": False,
-        "visibility": False
+        "visibility": False if rel else True
     },
     "crop": {
         "left": {
@@ -357,6 +366,19 @@ initial_state = ss.init_state({
         "radio_button": {
             "state_element": None,
             "visibility": False if rel else True
+        },
+        "text_input": {
+            "state_element": None,
+            "visibility": True,
+            "check_box_state_element": [None]
+        },
+        "radio_button2": {
+            "state_element": None,
+            "visibility": True,
+            "check_box_state_element": [None]
+        },
+        "Multiselect": {
+            "state_element": None
         },
         "visibility": False
     },
