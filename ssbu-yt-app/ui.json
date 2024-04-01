@@ -1021,8 +1021,8 @@
                 "options": "{\n  \"yes\": \"yes\",\n  \"no\": \"no\"\n}",
                 "orientation": "horizontal"
             },
-            "parentId": "orr4w5ss78bsgqm8",
-            "position": 1,
+            "parentId": "xfdwe042i65ra6oa",
+            "position": 0,
             "handlers": {
                 "ss-option-change": "collect"
             },
@@ -1036,10 +1036,10 @@
             "id": "ni83kfnd6zsexfin",
             "type": "text",
             "content": {
-                "text": "If there are extra objects in the red rectangle on the game screen, the recognition accuracy of character names and game results will decrease. "
+                "text": "If there are extra objects in the blue rectangle on the game screen, the image recognition accuracy of fighter names and game results may decrease. "
             },
             "parentId": "orr4w5ss78bsgqm8",
-            "position": 0,
+            "position": 1,
             "handlers": {},
             "visible": "option.radio_button.visibility"
         },
@@ -1074,12 +1074,12 @@
                 "text": "Stop to collect",
                 "buttonTextColor": "#125FA8",
                 "separatorColor": "#125FA8",
-                "isDisabled": "@{proc.button.disabled}"
+                "isDisabled": "@{stop_button.disabled}"
             },
             "parentId": "183th6u1xmd10iq4",
             "position": 0,
             "handlers": {},
-            "visible": true
+            "visible": "stop_button.visibility"
         },
         "uxxnp8m1xfa7toxy": {
             "id": "uxxnp8m1xfa7toxy",
@@ -1214,18 +1214,31 @@
             },
             "parentId": "b1bjqugqincvidvm",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-change-finish": "collect_option"
+            },
+            "binding": {
+                "eventType": "ss-change",
+                "stateRef": "option.text_input.state_element"
+            },
             "visible": "option.text_input.visibility"
         },
         "mvhe2qs6edanqdd9": {
             "id": "mvhe2qs6edanqdd9",
             "type": "multiselectinput",
             "content": {
-                "label": ""
+                "label": "",
+                "options": "@{option.multiselect.options}"
             },
             "parentId": "qr8iagpg00twjcxo",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-options-change": "collect_option"
+            },
+            "binding": {
+                "eventType": "ss-options-change",
+                "stateRef": "option.multiselect.state_element"
+            },
             "visible": true
         },
         "1bkm5sobkcroe9un": {
@@ -1238,7 +1251,13 @@
             },
             "parentId": "4dljxy7oj9loxx5h",
             "position": 0,
-            "handlers": {},
+            "handlers": {
+                "ss-option-change": "collect_option"
+            },
+            "binding": {
+                "eventType": "ss-option-change",
+                "stateRef": "option.radio_button2.state_element"
+            },
             "visible": "option.radio_button2.visibility"
         },
         "pcvv14cg7ll2stnx": {
@@ -1298,8 +1317,10 @@
             "id": "orr4w5ss78bsgqm8",
             "type": "section",
             "content": {
-                "title": "Do you collect data from YouTube?",
-                "separatorColor": "#125FA8"
+                "title": "Do you collect data from the following YouTube you input?",
+                "separatorColor": "#125FA8",
+                "buttonTextColor": "#125FA8",
+                "accentColor": "#125FA8"
             },
             "parentId": "xix6kdd8lscudh3c",
             "position": 3,
@@ -1322,7 +1343,7 @@
             "type": "section",
             "content": {
                 "title": "Select fighters player use",
-                "contentPadding": "15px 15px 100px 15px"
+                "contentPadding": "15px 15px 215px 15px"
             },
             "parentId": "orr4w5ss78bsgqm8",
             "position": 4,
@@ -1355,10 +1376,25 @@
             "id": "wg35p194sglyzilc",
             "type": "button",
             "content": {
-                "text": "Button Text"
+                "text": "Start to collect",
+                "buttonTextColor": "#125FA8",
+                "separatorColor": "#125FA8",
+                "isDisabled": "@{start_button.disabled}"
+            },
+            "parentId": "xix6kdd8lscudh3c",
+            "position": 4,
+            "handlers": {},
+            "visible": "start_button.visibility"
+        },
+        "xfdwe042i65ra6oa": {
+            "id": "xfdwe042i65ra6oa",
+            "type": "html",
+            "content": {
+                "styles": "",
+                "htmlInside": "<style>.link{color: blue;}</style>\n<span class='link'><a href=@{yt_url.text_input.state_element} target='_blank'>@{yt_url.text_input.state_element}</a></span>"
             },
             "parentId": "orr4w5ss78bsgqm8",
-            "position": 5,
+            "position": 0,
             "handlers": {},
             "visible": true
         }

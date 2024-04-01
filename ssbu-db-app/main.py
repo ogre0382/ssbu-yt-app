@@ -15,8 +15,7 @@ def update(state):
 # LOAD DATA
 
 def _get_main_df():
-    ssbu_db = SmashDatabase('ssbu_dataset')
-    return ssbu_db.select_analysis_data()
+    return SmashDatabase('ssbu_dataset').select_analysis_data()
 
 def _merge_df(main_df, filter_columns=[[]], querys=[], new_column=[]):
     select_dfs = []
