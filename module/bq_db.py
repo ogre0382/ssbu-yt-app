@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import string
 import sys
+# import warnings
+# warnings.simplefilter('ignore', FutureWarning)
 from datetime import datetime, timedelta, timezone
 JST = timezone(timedelta(hours=+9), 'JST')
 from dotenv import load_dotenv
@@ -224,9 +226,10 @@ class SmashDatabase(BigqueryDatabase):
     def select_analysis_data(self):
         df = super().select_my_data('analysis_table', ('*',))
         df = df.sort_values('game_start_datetime')
-        df.loc[:, 'game_start_datetime'] = df.loc[:, 'game_start_datetime'].astype(str)
+        # pandas 2.2.0の「Downcasting object dtype arrays ～」というFutureWarningに対応した https://qiita.com/yuji38kwmt/items/ba07a25924cfda363e42
+        df = df.astype({"game_start_datetime":"str"})
+        df = df.astype({"target_player_is_win":"str"})
         df = df[list(self.drop_analysis_item)]
-        df.loc[:, 'target_player_is_win'] = df.loc[:, 'target_player_is_win'].astype(str)
         # [Python] pandas 条件抽出した行の特定の列に、一括で値を設定する https://note.com/kohaku935/n/n5836a09b96a6
         df.loc[df["target_player_is_win"]=="True", "target_player_is_win"] = "Win"
         df.loc[df["target_player_is_win"]=="False", "target_player_is_win"] = "Lose"

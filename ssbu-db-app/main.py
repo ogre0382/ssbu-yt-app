@@ -88,7 +88,7 @@ def _get_show_table(show_df=_get_show_df()):
     show_table = re.sub('<table id(.*)>', r'<table id\1 border=1>', show_table)
     # 【CSS/html】table,th,tdの文字色を変える方法 https://csshtml.work/table-color/#spancolor
     show_table = re.sub('</style>', '.link{color: blue;}</style>', show_table)
-    print(show_table)
+    #print(show_table)
     return show_table
     
 # UPDATES

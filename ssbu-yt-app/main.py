@@ -47,7 +47,6 @@ def start_stop_crop_3rect(state):
             sec = int(state["game_screen"][f"html{i}"]["slider_number"]["state_element"])
             state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{sec}.jpg'
     else:
-        #_update_3rect_game_screen(state)
         _update_proc_game_screen(state, rect=True, var_rect=False)
         state["option"]["radio_button"]["visibility"] = True
     
@@ -69,15 +68,13 @@ def execute_crop(state):
         state["game_screen"]["radio_button"]["visibility"] = True
 
 ## Do you collect data from the following YouTube?
-def collect(state):
+def option(state):
     if state["option"]["radio_button"]["state_element"]=="yes":
-        #state["proc"]["button"]["disabled"] = "no"
         state["option"]["visibility"] = True
         state["game_screen"]["visibility"] = False
+        if state["inputs"]["crop"]==None: state["inputs"]["crop"]="None"
     else:
         _init_state(state)
-        
-def collect_option(state):
     ### Input player name
     if "auto" in state["option"]["text_input"]["check_box_state_element"]:
         state["option"]["text_input"]["visibility"] = False
@@ -96,17 +93,24 @@ def collect_option(state):
     state["inputs"]["target_1p_charas"] = state["option"]["multiselect"]["state_element"]
     print(state["inputs"])
     print()
-    print([input for input in state["inputs"].to_dict().values()])
-    if None not in [input for input in state["inputs"].to_dict().values()]:
+    inputs = [input for input in state["inputs"].to_dict().values()]
+    print(inputs)
+    if '' in inputs or None in inputs:
+        state["start_button"]["visibility"] = False
+        state["stop_button"]["visibility"] = False
+    else:
         state["start_button"]["visibility"] = True
         state["stop_button"]["visibility"] = True
+        
+#def start_collect(state):
+    
 
 #### Event context https://www.streamsync.cloud/repeater.html
 def view_results(state, payload, context):
     id = context["item"]["id"]
     # print(context["item"])
     # print(state["proc"]["repeater"][f"message{id}"])
-    state["proc"]["repeater"][f"message{id}"]["visibility"] = True if "view" in payload else False
+    state["collect"]["repeater"][f"message{id}"]["visibility"] = True if "view" in payload else False
     # print(state["proc"]["repeater"][f"message{id}"])
 
 # LOAD / GENERATE DATA
@@ -225,40 +229,50 @@ def _update_proc_game_screen(state, rect=False, crop=False, ch=4, var_rect=True)
         if state["game_screen"][f"html{i}"]["image_source"]!=f'static/image{i}_{sec}.jpg' and ch==4:
             _remove(_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]))
         state["game_screen"][f"html{i}"]["image_source"] = imw_file
-            
-# def _update_3rect_game_screen(state):
-#     cv2dict = dict()
-#     w,h = 1920,1080
-#     cv2dict['name1P']  = {'pt1':(int(w*0.10), int(h*0.02)), 'pt2':(int(w*0.43), int(h*0.13)), 'color':(255, 0, 0), 'thickness':3}
-#     cv2dict['name2P']  = {'pt1':(int(w*0.60), int(h*0.02)), 'pt2':(int(w*0.93), int(h*0.13)), 'color':(255, 0, 0), 'thickness':3}
-#     cv2dict['GameSet'] = {'pt1':(int(w*0.21), int(h*0.16)), 'pt2':(int(w*0.79), int(h*0.64)), 'color':(255, 0, 0), 'thickness':3}
-#     for i in range(state["sub_yt_num"]):
-#         GetYoutube.set_yt_image(
-#             cv2dict, 
-#             rect=True,
-#             imr_path=_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]),
-#             imw_path=_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"][:-4]+'_3rect.jpg')
-#         )
-#         state["game_screen"][f"html{i}"]["image_source"] = state["game_screen"][f"html{i}"]["image_source"][:-4]+'_3rect.jpg'
 
 # STATE INIT
 
-rel = True
+rel = False
+
+if not rel:
+    yti0 = {
+        'title': '【スマブラSP】VIP→トレモ', 
+        'duration': 5496, 'channel': 'Neo', 'release_timestamp': 1630295308, 'original_url': 'https://www.youtube.com/watch?v=9wFfGMbNuIg', 'fps': 60, 
+        'cap': 'https://rr5---sn-oguelnsr.googlevideo.com/videoplayback?expire=1712083324&ei=HP0LZqWYBOzr2roP_Pe0sAY&ip=106.73.16.65&id=o-AB-392f_drUAAqdqYV3T_Gdz7w-9qnVKhD_9_GCRvTRv&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=qd&mm=31%2C29&mn=sn-oguelnsr%2Csn-oguesn6r&ms=au%2Crdu&mv=m&mvi=5&pl=16&initcwndbps=846250&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1898594811&dur=5496.233&lmt=1674517743193918&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRgIhAJsAKyuiOUpqyIG-LXVC6iMnjYIPdANrgUMUVj8VyQlaAiEA4-ctl788BHcEhCAWyahFC7MKcPULsKktS7Xf4wzryTw%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRgIhALW0VGBZv8qNO4zZHTS26wvEN4hXFuumh5UCVd3DTYlIAiEAzSLyJu_c65j75IPyL9MEM7ZxUZsWZyTBNV405rNHULM%3D'
+    }
+    yti1 = {
+        'title': '【スマブラSP】VIP 連勝\u3000負けたら辞める', 
+        'duration': 3665, 'channel': 'Neo', 'release_timestamp': 1630548488, 'original_url': 'https://www.youtube.com/watch?v=xU1BLJ9gZ7I', 'fps': 60, 
+        'cap': 'https://rr3---sn-oguesndl.googlevideo.com/videoplayback?expire=1712083326&ei=Hv0LZrSmEeuF2roP8I2c2Ao&ip=106.73.16.65&id=o-AJU0BRpcOCkVFgBSu1gFF5JbIknCsC_KyhzWOhPlbKfl&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=ic&mm=31%2C29&mn=sn-oguesndl%2Csn-oguelnz7&ms=au%2Crdu&mv=m&mvi=3&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1367839480&dur=3664.433&lmt=1671856597725800&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIhAKL0YeIGTCB41ruVBR_T63B5ES6sXJWMLec_qAhEUxv9AiAU9bsrta9OWYElUI4CfdIwwM4CnXdMoMCqsUtloxUEyQ%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRAIgJDHcI7EGbJSa1R1w8YLEwwaWBwztd9SWPaE1K3IK1M0CIB8a1sNhK3p_tfVbRHwehjuAPjhOXBD1ngPZZvT8HTIA'
+    }
+    yti2 = {
+        'title': '【スマブラSP】すまめいと', 
+        'duration': 5458, 'channel': 'Neo', 'release_timestamp': 1631176068, 'original_url': 'https://www.youtube.com/watch?v=cdTxb0a0jrA', 'fps': 60, 
+        'cap': 'https://rr2---sn-ogul7n7z.googlevideo.com/videoplayback?expire=1712083328&ei=IP0LZouhE5yF0-kPjZWA4QE&ip=106.73.16.65&id=o-AEIdxzSYOmtrLkGdJq0H44dZFhH_ThcmwcFjrbMSffNa&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=zE&mm=31%2C29&mn=sn-ogul7n7z%2Csn-oguelnsl&ms=au%2Crdu&mv=m&mvi=2&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1889958743&dur=5457.716&lmt=1631225593097688&mt=1712061202&fvip=1&keepalive=yes&fexp=51141541&c=IOS&txp=7216222&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRgIhAKD5IJBSHNH6k0niQ9JxQ-cS0y69hl_sIqXM78Z9ImS7AiEA9-M1Cbfxu-TDx7zFG5ZZmPpIJ7J7HwAr0wwAW-BCIeE%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgdtaRAGaZK6j0HBpSUCYB0at4-op84s_x6qVgSlAosmECIQCmMRlY5eQa22S98BjePcya6yF32yRR2ZTkZO8yC00Jcg%3D%3D'
+    }
+    yti3 = {'title': '【スマブラSP】すまめいと→vip', 
+            'duration': 6677, 'channel': 'Neo', 'release_timestamp': 1633075410, 'original_url': 'https://www.youtube.com/watch?v=RAtI3Hl4weU', 'fps': 60, 
+            'cap': 'https://rr5---sn-oguelnzl.googlevideo.com/videoplayback?expire=1712083330&ei=Iv0LZtn-Hpu12roP7_ql6Aw&ip=106.73.16.65&id=o-AFF3hMzc2FafMHM3ZfMXyzJkNMvMYipOROWQ2jq9nabA&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=RF&mm=31%2C26&mn=sn-oguelnzl%2Csn-npoe7nds&ms=au%2Conr&mv=m&mvi=5&pl=16&initcwndbps=846250&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2279255606&dur=6677.232&lmt=1686068743330652&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIgNxAZCVpP6bb5HZtWpOBzWH64i2A1TYJr11p-5YS3XJACIQChP3r7WNB736PqtX7W5qvFWk4SM90OBszH0NsGFnT59A%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRgIhAKeJARs6jXIKC4rqhvY8tzp5ApCjUq6HSLUqeWTlk9WmAiEAlNsLxgYRoIZeVDgDr54S2P3rdPUtoG32hhnUEk01o44%3D'
+    }
+    yti4 = {'title': '【スマブラSP】カムイメイト', 
+            'duration': 7955, 'channel': 'Neo', 'release_timestamp': 1654925784, 'original_url': 'https://www.youtube.com/watch?v=pRmmyRNcQk0', 'fps': 60, 
+            'cap': 'https://rr4---sn-oguelnsy.googlevideo.com/videoplayback?expire=1712083332&ei=JP0LZom5GPjM2roPovyy0Ao&ip=106.73.16.65&id=o-AB4ohTaG48wEXwibot_hSOgy_WgMZE9USYb38lgjAK0T&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=-e&mm=31%2C26&mn=sn-oguelnsy%2Csn-npoe7nl6&ms=au%2Conr&mv=m&mvi=4&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2485924475&dur=7955.150&lmt=1680509445822434&mt=1712061202&fvip=2&keepalive=yes&fexp=51141541&c=IOS&txp=7219224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIhAL2u4o1Jrw8LWKHK80anM6wvs6NqRjpQP7dNpkBjHHOvAiB93vWij6FqjG0jn9rPriGossY26ZI5pT8RxhK6_bSKzw%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgMCCU2I-mEl-zDo98Y0wZvt9umxNzRd3as-r8Fh6V_zoCIQDSNbx7i3amzRcTPNHexJuG8lp-uacuhJIrxPgNmQpnNA%3D%3D'
+    }
 
 state_dict = {
     "sub_yt_num": 4,
     "inputs": {
-        "target_player_name": None,
-        "target_category": None,
-        "target_1p_charas": None,
+        "target_player_name": None if rel else 'auto',
+        "target_category": None if rel else 'auto',
+        "target_1p_charas": None if rel else ['KAMUI'],
         "chara_df": _get_main_df(),
-        "yt_infos": None,
-        "crop": None
+        "yt_infos": None if rel else [yti0, yti1, yti2, yti3, yti4],
+        "crop": None if rel else {'crop': {'pt1': [0, 0], 'pt2': [1585, 891]}}
     },
     "yt_url": {
         "text_input": {
             "place_holder": "https://www.youtube.com/watch?v=My3gyDHoGAs",
-            "state_element": None if rel else "https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf", #[None],
+            "state_element": None if rel else "https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf",
         },
         "check_box_state_element": [None],
         "text_visibility": False,
@@ -279,9 +293,9 @@ state_dict = {
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": None if rel else "static/image0_0.jpg",
+            "image_source": None,
             "inside": "url",
-            "visibility": False if rel else True
+            "visibility": False 
         },
         "html1": {
             "slider_number": {
@@ -291,9 +305,9 @@ state_dict = {
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": None if rel else "static/image1_0.jpg",
+            "image_source": None,
             "inside": "url",
-            "visibility": False if rel else True
+            "visibility": False
         },
         "html2": {
             "slider_number": {
@@ -303,9 +317,9 @@ state_dict = {
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": None if rel else "static/image2_0.jpg",
+            "image_source": None,
             "inside": "url",
-            "visibility": False if rel else True
+            "visibility": False
         },
         "html3": {
             "slider_number": {
@@ -315,15 +329,15 @@ state_dict = {
                 "visibility": True
             },
             "button_disabled": "yes",
-            "image_source": None if rel else "static/image3_0.jpg",
+            "image_source": None,
             "inside": "url",
-            "visibility": False if rel else True,
+            "visibility": False
         },
         "radio_button": {
             "state_element": None,
             "visibility": False,
         },
-        "visibility": False if rel else True
+        "visibility": False
     },
     "crop": {
         "left": {
@@ -353,7 +367,7 @@ state_dict = {
     "option": {
         "radio_button": {
             "state_element": None,
-            "visibility": False if rel else True
+            "visibility": False
         },
         "text_input": {
             "state_element": None,
@@ -371,15 +385,15 @@ state_dict = {
         },
         "visibility": False
     },
-    "start_button": {
-      "disabled": "no",
-      "visibility": False  
-    },
-    "stop_button": {
-        "disabled": "yes",
-        "visibility": False
-    },
-    "proc": {
+    "collect": {
+        "start_button": {
+            "disabled": "no",
+            "visibility": False if rel else True
+        },
+        "stop_button": {
+            "disabled": "yes",
+            "visibility": False if rel else True
+        },
         "repeater": {
             "message0": {
                 "id": 0,
@@ -573,7 +587,8 @@ def _init_state(state=None):
         state.user_state.ingest(state_dict)
         print(state.user_state)
     
-if rel: _init_state()
+_init_state()
 #_start()
 
+print(initial_state["inputs"])
 
