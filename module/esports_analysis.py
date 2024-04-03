@@ -1,19 +1,47 @@
+# import os
+# import sys
+# os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+# sys.path.append(os.path.split(__file__)[0])
+#import tensorflow as tf
+#tf.get_logger().setLevel("ERROR")
+
+# from os.path import dirname, join
+# from sys import path
+# path.append(join(dirname('__file__')))
+
 import cv2
 import easyocr
+#import kerasocr
 import numpy as np
 import re
+#import streamlit as st
 import string
 import threading # https://qiita.com/Toyo_m/items/992b0dcf765ad3082d0b
 import time
 
-from bq_db import BigqueryDatabase
-from dataclasses import dataclass
+from .bq_db import BigqueryDatabase
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from functools import wraps
-from google.cloud import vision
+# from google.cloud import vision
 from google.oauth2 import service_account
-from yt_obj import GetYoutube, get_yt_image
+# from streamlit import session_state as ss
+# from streamlit.runtime.scriptrunner import add_script_run_ctx
+# from tqdm import tqdm
+from .yt_obj import GetYoutube, get_yt_image
 JST = timezone(timedelta(hours=+9), 'JST')
+
+# def init_ss(key,value=None):
+#     if key not in ss: ss[key] = value
+
+# def set_ss(key, value=None):
+#     if key in ss: ss[key] = value
+
+# def del_ss(key):
+#     if key in ss: del ss[key]
+
+# def app_stop():
+#     ss.app_stop_clicked = True
 
 def trans(states, next_state):
     for state in states.keys():
@@ -64,18 +92,22 @@ def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector,
     #game_sec_list, interval_sec_list = get_game_interval_sec(test1(), test2())
     game_data_list = []
     count = 0
-    stc = st.columns([5,5])
+    #stc = st.columns([5,5])
     # 対戦カテゴリを自動選択
     if inputs['target_category']=='auto': target_category = get_category(info.title, {'VIP':['VIP'], 'smashmate':['めいと', 'メイト','レート', 'レーティング']})
     else: target_category = inputs['target_category']
     states = {'skip_interval':True, 'skip_game':False, 'find_game_start':False, 'get_fighter_name':False, 'find_game_end': False, 'get_game_result':False}
-    my_bar = st.progress(0)
-    with st.expander("See results of the image processing", expanded=True):
-        stc = st.columns([5,5])
+    # bar = tqdm(total=total, leave=False, disable=False, initial=initial)
+    # my_bar = st.progress(0)
+    bar_text = f'{info.original_url[-11:]} -> find_game_start'
+    # with st.expander("See results of the image processing", expanded=True):
+    #     stc = st.columns([5,5])
     for sec in range(initial, total): 
         st_bar_text = f"Image processing in progress. Please wait. | {info.original_url[-11:]}: {int((sec+1)/total*100)}% ({sec+1}/{total} sec)"
-        my_bar.progress((sec+1)/total, text=st_bar_text)
-        if ss.app_stop_clicked: break
+        # my_bar.progress((sec+1)/total, text=st_bar_text)
+        # bar.set_description(bar_text)
+        # bar.update(1)
+        # if ss.app_stop_clicked: break
         if game_num==len(game_data_list): break
         if states['skip_interval']:
             states['find_game_start'], count = skip_proc(count, count_end)
@@ -83,12 +115,14 @@ def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector,
             else:
                 states = trans(states, 'find_game_start')
         if states['find_game_start']:
+            bar_text = f'{info.original_url[-11:]} -> find_game_start'
             info,img = get_yt_image(info, sec*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
             img_576p = img = cv2.resize(img, dsize=(1024,576))
             img_top = img_576p[0:int(img_576p.shape[0]*0.2),:]
-            with stc[0]:
-                if find_game(img_top): states = trans(states, 'get_fighter_name')
+            # with stc[0]:
+            #     if find_game(img_top): states = trans(states, 'get_fighter_name')
         if states['get_fighter_name']:
+            bar_text = f'{info.original_url[-11:]} -> get_fighter_name'
             img_252p = cv2.resize(img, dsize=(448,252))
             h,w = img_252p.shape[0],img_252p.shape[1]
             img_topL = img_252p[int(h*0.02):int(h*0.13), int(w*0.10):int(w*0.43)]
@@ -97,12 +131,26 @@ def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector,
             allowlist='irt'+string.ascii_uppercase
             data.chara_id_1p, data.chara_name_1p, easyOCR_txt_1p = get_chara_name(easyOCR(img_topL,allowlist=allowlist), charalists)
             data.chara_id_2p, data.chara_name_2p, easyOCR_txt_2p = get_chara_name(easyOCR(img_topR,allowlist=allowlist), charalists)
+            #stc[0].write(f'easyOCR_txt: {easyOCR_txt_1p} vs {easyOCR_txt_2p}')
+            if data.chara_id_1p==0:
+                data.chara_id_1p, data.chara_name_1p, kerasOCR_txt_1p = get_chara_name(
+                    # kerasOCR(cv2.cvtColor(img_topL, cv2.COLOR_GRAY2RGB), blocklist=f'[^{allowlist}]'), charalists, 
+                    #slice_start=[-4], slice_end=[None]
+                )
+                #stc[0].write(f'kerasOCR_txt_1p: {kerasOCR_txt_1p}')
+            if data.chara_id_2p==0:
+                #img_topR = img_252p[int(h*0.02):int(h*0.13), int(w*0.60):int(w*0.93)]
+                data.chara_id_2p, data.chara_name_2p, kerasOCR_txt_2p = get_chara_name(
+                    # kerasOCR(cv2.cvtColor(img_topR,cv2.COLOR_GRAY2RGB),blocklist=f'[^{allowlist}]'), charalists, 
+                    #slice_start=[-4], slice_end=[None]
+                )
+                #stc[0].write(f'kerasOCR_txt_2p: {kerasOCR_txt_2p}')
             if (data.chara_name_1p in inputs['target_1p_charas'] and data.chara_id_2p!=0) or (data.chara_id_1p!=0 and data.chara_name_2p in inputs['target_1p_charas']):
                 count=0
                 states = trans(states, 'skip_game')
                 data.game_start_datetime = datetime.fromtimestamp(info.release_timestamp+sec, JST).strftime('%Y-%m-%d %T')
                 data.game_start_url = f'{info.original_url}&t={sec}s'
-                stc[0].image(img_252p, caption=f'{data.game_start_url}: {data.chara_name_1p} vs {data.chara_name_2p}')
+                # stc[0].image(img_252p, caption=f'{data.game_start_url}: {data.chara_name_1p} vs {data.chara_name_2p}')
             else:
                 states = trans(states, 'find_game_start')
         if states['skip_game']:
@@ -111,39 +159,46 @@ def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector,
             else:
                 states = trans(states, 'find_game_end')
         if states['find_game_end']:
+            bar_text = f'{info.original_url[-11:]} -> find_game_end'
             info,img = get_yt_image(info, sec*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
             img_252p = cv2.resize(img, dsize=dsize_temp)
             h,w = img_252p.shape[0],img_252p.shape[1]
             img_cent = img_252p[int(h*0.16):int(h*0.64),int(w*0.21):int(w*0.79)]
             if find_game(img_cent, temp_img=temp_img, detector=detector, target_des=target_des, match_ret=match_ret): states = trans(states, 'get_game_result')
         if states['get_game_result']:
+            bar_text = f'{info.original_url[-11:]} -> get_game_result'
             img_720p = cv2.resize(img, dsize=(1280,720))
             h,w = img_720p.shape[0],img_720p.shape[1]
             img_btmL = img_720p[int(h*0.847):int(h*0.927),int(w*0.266):int(w*0.343)] # 100～1の位
             img_btmR = img_720p[int(h*0.847):int(h*0.927),int(w*0.651):int(w*0.728)] # 100～1の位
-            with stc[1]:
-                data = get_game_result(img_btmL, img_btmR, data, inputs['target_1p_charas'])
+            # with stc[1]:
+            #     data = get_game_result(img_btmL, img_btmR, data, inputs['target_1p_charas'])
             if data.target_player_is_win==None:
                 sec2 = sec+7
                 info,img2 = get_yt_image(info, sec2*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
                 h,w = img2.shape[:2]
                 img_btmL2 = img2[int(h*0.6):int(h),int(0):int(w*0.5)]
+                #allowlist = re.sub('[.& ]','', target_chara)
                 allowlist = re.sub('[.& ]','', data.chara_name_1p+data.chara_name_2p)
-                target_chara = data.chara_name_1p if data.chara_name_1p in inputs['target_1p_charas'] else data.chara_name_2p
+                target_chara = data.chara_name_1p if data.chara_name_1p in inputs['target_1p_charas'] else data.chara_name_2p #if data.chara_name_2p in target_1p_charas else ''.join(target_1p_charas)
                 easyOCR_txt = set(easyOCR(img_btmL2,allowlist=allowlist))
+                #stc[1].image(img_btmL2, caption=f'easyOCR_txt: {easyOCR_txt}')
                 str_cnt=0
                 for ocr_str in easyOCR_txt:
                     if ocr_str in target_chara: str_cnt+=1
                     if str_cnt==3: data.target_player_is_win = True
                 if str_cnt<3: data.target_player_is_win = False
+                # chara_name, easyOCR_txt = get_chara_name(easyOCR(img_btmL2,allowlist=allowlist), charalists)[1:]
+                # if chara_name in inputs['target_1p_charas']: data.target_player_is_win = True
+                # else : data.target_player_is_win = False
                 data.game_end_datetime = datetime.fromtimestamp(info.release_timestamp+sec+7, JST).strftime('%Y-%m-%d %T')
                 data.game_end_url = f'{info.original_url}&t={sec2}s'
-                stc[1].image(cv2.resize(img2, dsize=dsize_temp), caption=f'{data.game_end_url}: {"WIN" if data.target_player_is_win else "LOSE"}')
+                # stc[1].image(cv2.resize(img2, dsize=dsize_temp), caption=f'{data.game_end_url}: {"WIN" if data.target_player_is_win else "LOSE"}')
             else:
                 data.game_end_datetime = datetime.fromtimestamp(info.release_timestamp+sec, JST).strftime('%Y-%m-%d %T')
                 data.game_end_url = f'{info.original_url}&t={sec}s'
-                stc[1].image(img_252p, caption=f'{data.game_end_url}: {"WIN" if data.target_player_is_win else "LOSE"}')
-            data.target_player_name = info.channel
+                # stc[1].image(img_252p, caption=f'{data.game_end_url}: {"WIN" if data.target_player_is_win else "LOSE"}')
+            data.target_player_name = info.channel #if info.channel in inputs['target_players'] else 'other'
             data.title = info.title
             data.category = target_category
             game_data_list.append(data)
@@ -155,7 +210,7 @@ def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector,
 #@stop_watch
 def ssbu_analysis(inputs):
     
-    init_ss('app_stop_clicked', False)
+    # init_ss('app_stop_clicked', False)
     yt = inputs['yt']
     #yt = select_analysis_target(inputs['yt'])
 
@@ -172,7 +227,7 @@ def ssbu_analysis(inputs):
     # k = int(len(yt.infos)/2) if len(yt.infos)%2==0 else int(len(yt.infos)/2)+1
     # numThreads = os.cpu_count() - threading.active_count() # 最大スレッド数 - 使用中のスレッド数
     # k = k if k < numThreads  else numThreads
-    k = 10
+    k = 12
     thresults = []
     for i,info in enumerate(yt.infos):
         if i%k<k: 
@@ -197,33 +252,33 @@ def ssbu_analysis(inputs):
                 args=(info, inputs, charalists, dsize_temp, temp_img, detector, target_des, match_ret),
                 kwargs=dict(initial=initial, total=total, count_end=end_count)
             )
-            init_ss(f't{i}{j}', add_script_run_ctx(thread))
-        for j in range(len(info_list)):
-            ss[f't{i}{j}'].start()
-        for j in range(len(info_list)):
-            thresults += ss[f't{i}{j}'].join()
-        for j in range(len(info_list)):
-            del_ss(f't{i}{j}')
+        #     init_ss(f't{i}{j}', add_script_run_ctx(thread))
+        # for j in range(len(info_list)):
+        #     ss[f't{i}{j}'].start()
+        # for j in range(len(info_list)):
+        #     thresults += ss[f't{i}{j}'].join()
+        # for j in range(len(info_list)):
+        #     del_ss(f't{i}{j}')
     #st.write(thresults)
-    ssbu_db = BigqueryDatabase(st.secrets['gcp_service_account'], 'ssbu_dataset')
-    data_id = len(ssbu_db.select_my_data('analysis_table', ('*',)))+1
-    for i in range(len(thresults)):
-        thresults[i].id = data_id+i
+    # ssbu_db = BigqueryDatabase(st.secrets['gcp_service_account'], 'ssbu_dataset')
+    # data_id = len(ssbu_db.select_my_data('analysis_table', ('*',)))+1
+    # for i in range(len(thresults)):
+    #     thresults[i].id = data_id+i
     insert_item = tuple(vars(thresults[0]).keys())
     insert_data = [tuple(vars(data).values()) for data in thresults]
     print(insert_item)
     print(insert_data)
-    ssbu_db.insert_my_data('analysis_table', insert_item, insert_data, 9)
+    # ssbu_db.insert_my_data('analysis_table', insert_item, insert_data, 9)
 
 def select_analysis_target(yt):
-    ssbu_db = BigqueryDatabase(st.secrets['gcp_service_account'], 'ssbu_dataset')
-    df = ssbu_db.select_my_data('analysis_table', ('*',))
-    df_sort = df.sort_values('id')
-    url_list = [url[:43] for url in df_sort['url'].to_list()]
+    # ssbu_db = BigqueryDatabase(st.secrets['gcp_service_account'], 'ssbu_dataset')
+    # df = ssbu_db.select_my_data('analysis_table', ('*',))
+    # df_sort = df.sort_values('id')
+    # url_list = [url[:43] for url in df_sort['url'].to_list()]
     info_list = [info for info in yt.infos]
-    for info in info_list:
-        if info.original_url in url_list:
-            yt.infos.remove(info)
+    # for info in info_list:
+    #     if info.original_url in url_list:
+    #         yt.infos.remove(info)
     return yt
 
 def get_charalists(chara_df):
@@ -256,6 +311,10 @@ def find_game(img, temp_img=None, detector=None, target_des=None, match_ret=-1):
     else: return feat_match(img, detector, target_des, match_ret) 
 
 def get_chara_name(txt, charalists, slice_start=[-4,-5], slice_end=[None,-1], str_num=3):
+    # for recog_name, chara_id, chara_name in zip(charalists[0], charalists[1], charalists[2]):
+    #     for start,end in zip(slice_start, slice_end):
+    #         if (len(recog_name[start:end])>=str_num) and (recog_name[start:end] in txt): return chara_id, chara_name, txt
+    # return 0, 'other', txt
     for start,end in zip(slice_start, slice_end):
         for recog_name, chara_id, chara_name in zip(charalists[0], charalists[1], charalists[2]):
             if (len(recog_name[start:end])>=str_num) and (recog_name[start:end] in txt): return chara_id, chara_name, txt
@@ -264,6 +323,19 @@ def get_chara_name(txt, charalists, slice_start=[-4,-5], slice_end=[None,-1], st
 def get_game_result(img_1p, img_2p, data, target_1p_charas):
     damage_1p = easyOCR(img_1p, allowlist=string.digits)
     damage_2p = easyOCR(img_2p, allowlist=string.digits)
+    #st.write(f'easyOCR: 1P:{damage_1p} | 2P:{damage_2p}')
+    # if damage_1p=='' and damage_2p=='':
+        # damage_1p = kerasOCR(cv2.cvtColor(img_1p, cv2.COLOR_GRAY2RGB), blocklist='\D')
+        #st.write(f'kerasOCR: 1P:{damage_1p}')
+        # damage_1p = gcvOCR(img_1p, blocklist='\D') # '\D'='[^0-9]'：すべての数字以外の文字
+        # st.write(f'gcvOCR: 1P:{damage_1p}')
+        # if damage_1p=='': 
+            # damage_2p = kerasOCR(cv2.cvtColor(img_2p, cv2.COLOR_GRAY2RGB), blocklist='\D')
+            #st.write(f'kerasOCR: 2P:{damage_2p}')
+            # damage_2p = gcvOCR(img_2p, blocklist='\D') # '\D'='[^0-9]'：すべての数字以外の文字
+            # st.write(f'gcvOCR: 2P:{damage_2p}')
+    # st.image(img_1p)
+    # st.image(img_2p)
     if data.chara_name_1p in target_1p_charas:
         data.target_player_is_1p = True
         if re.compile('\d').search(damage_1p) and damage_2p=='': data.target_player_is_win = True
@@ -361,6 +433,49 @@ def easyOCR(img, lang_list=['en'], allowlist=string.ascii_letters+string.digits,
         txt+=ocr_res
     return re.sub(' ', '', txt)
 
+# GCP Cloud Vision APIでテキスト抽出やーる（Python3.6）# https://qiita.com/SatoshiGachiFujimoto/items/2ff2777ccdbc74c1c5bb
+# Google CloudのCloud Vision APIで画像から日本語の文字抽出をしてみた # https://dev.classmethod.jp/articles/google-cloud_vision-api/
+# def gcvOCR(img, lang_list=['en'], blocklist='\W', account=st.secrets["gcp_service_account"]): # '\W'=[^a-zA-Z_0-9]:英字、＿、数字以外の文字
+#     # Instantiates a client
+#     if type(account) in [dict, st.runtime.secrets.AttrDict]:
+#         credentials = service_account.Credentials.from_service_account_info(account)
+#     else:
+#         credentials = service_account.Credentials.from_service_account_file(account)
+#     client = vision.ImageAnnotatorClient(credentials=credentials)
+
+#     # Loads the image into memory (bytes)
+#     content = cv2.imencode(".png", img)[1].tostring()
+#     image = vision.Image(content=content)
+
+#     # Performs text detection on the image
+#     response = client.text_detection(image=image, image_context={'language_hints':lang_list})
+#     txt = response.full_text_annotation.text
+#     return re.sub(blocklist, '', txt)
+
+# def kerasOCR(img, blocklist='\W'):
+#     # keras-ocr will automatically download pretrained
+#     # weights for the detector and recognizer.
+#     pipeline = kerasocr.pipeline.Pipeline()
+
+#     # Get a set of the example image
+#     img_keras = kerasocr.tools.read(img)
+
+#     #st.image(img_keras)
+
+#     # Each list of predictions in prediction_groups is a list of
+#     # (word, box) tuples.
+#     prediction_groups = pipeline.recognize([img_keras], detection_kwargs=dict(verbose=0), recognition_kwargs=dict(verbose=0))
+
+#     # fig, ax = plt.subplots(figsize=(20, 20))
+#     # kerasocr.tools.drawAnnotations(
+#     #     image=img_keras, predictions=prediction_groups[0], ax=ax
+#     # )
+#     # st.pyplot(fig)
+#     #print('test_kerasocr:',re.sub(blocklist, '', prediction_groups[0][0][0].upper()))
+#     txt = ''.join([prediction[0] for prediction in prediction_groups[0]])
+#     #os.system('cls')
+#     return re.sub(blocklist, '', txt.upper())
+
 def temp_match(img, temp_img, match_val=0.474): #match_val=0.474
     result = cv2.matchTemplate(img, temp_img, cv2.TM_CCOEFF_NORMED)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
@@ -436,7 +551,7 @@ def test_find_game_start():
             img_576p = img = cv2.resize(img, dsize=(1024,576))
             img_top = img_576p[0:int(img_576p.shape[0]*0.2),:]
             #img_top = img_576p[0:int(img_576p.shape[0]*0.15),:]
-            if find_game(img_top): st.image(img, caption=f'sec: {sec}')
+            # if find_game(img_top): st.image(img, caption=f'sec: {sec}')
 
 if __name__=="__main__":
     #print(len('https://www.youtube.com/watch?v=RAtI3Hl4weU&t='))

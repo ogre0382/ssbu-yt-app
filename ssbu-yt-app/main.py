@@ -9,6 +9,7 @@ from os import remove as _remove
 from os import rename as _rename
 from sys import path
 path.append(_join(_dirname('__file__'), '..'))
+from module.esports_analysis import get_charalists as _get_charalists
 from module.bq_db import SmashDatabase
 from module.yt_obj import GetYoutube
 
@@ -31,7 +32,7 @@ def start_game_screen(state):
 def change_game_screen(state, payload):
     if type(payload)==float:
         state["game_screen"]["radio_button"]["visibility"] = False
-        _secnum_game_screen(state)
+        _update_game_screen_secnum(state)
     else: 
         for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = False
         _update_game_screen(state)
@@ -43,9 +44,6 @@ def start_stop_crop_3rect(state):
     state["game_screen"]["radio_button"]["visibility"] = False
     if state["game_screen"]["radio_button"]["state_element"]=="no":
         state["crop"]["visibility"] = True
-        for i in range(state["sub_yt_num"]):
-            sec = int(state["game_screen"][f"html{i}"]["slider_number"]["state_element"])
-            state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_{sec}.jpg'
     else:
         _update_proc_game_screen(state, rect=True, var_rect=False)
         state["option"]["radio_button"]["visibility"] = True
@@ -75,35 +73,12 @@ def option(state):
         if state["inputs"]["crop"]==None: state["inputs"]["crop"]="None"
     else:
         _init_state(state)
-    ### Input player name
-    if "auto" in state["option"]["text_input"]["check_box_state_element"]:
-        state["option"]["text_input"]["visibility"] = False
-        state["inputs"]["target_player_name"] = "auto"
-    else: 
-        state["option"]["text_input"]["visibility"] = True
-        state["inputs"]["target_player_name"] = state["option"]["text_input"]["state_element"]
-    ### Select YouTube title category
-    if "auto" in state["option"]["radio_button2"]["check_box_state_element"]:
-        state["option"]["radio_button2"]["visibility"] = False
-        state["inputs"]["target_category"] = "auto"
-    else:
-        state["option"]["radio_button2"]["visibility"] = True
-        state["inputs"]["target_category"] = state["option"]["radio_button2"]["state_element"]
-    ### Select fighters player use
-    state["inputs"]["target_1p_charas"] = state["option"]["multiselect"]["state_element"]
-    print(state["inputs"])
-    print()
-    inputs = [input for input in state["inputs"].to_dict().values()]
-    print(inputs)
-    if '' in inputs or None in inputs:
-        state["start_button"]["visibility"] = False
-        state["stop_button"]["visibility"] = False
-    else:
-        state["start_button"]["visibility"] = True
-        state["stop_button"]["visibility"] = True
-        
-#def start_collect(state):
-    
+    _update_option(state)
+
+## 対戦している2キャラとその勝敗結果を取得し、それらに応じて対戦開始画面に飛べるURLをbigqueryに保存する
+def collect(state):
+    #charalists = _get_charalists(state["inputs"]["chara_df"])
+    pass
 
 #### Event context https://www.streamsync.cloud/repeater.html
 def view_results(state, payload, context):
@@ -171,7 +146,7 @@ def _check_yt_url(state):
         state["yt_url"]["button_visibility"] = False
         state["yt_url"]["text_visibility"] = True
 
-def _secnum_game_screen(state):
+def _update_game_screen_secnum(state):
     for i in range(state["sub_yt_num"]):
         num = state["game_screen"][f"html{i}"]["slider_number"]["state_element"]
         bnum = state["game_screen"][f"html{i}"]["slider_number"]["buf_state_element"]
@@ -211,7 +186,7 @@ def _update_cropper(state):
         
 def _update_proc_game_screen(state, rect=False, crop=False, ch=4, var_rect=True):
     state["crop"]["crop_button"]["disabled"] = "yes"
-    check_gs_ans = state["game_screen"]["radio_button"]["state_element"]
+    #check_gs_ans = state["game_screen"]["radio_button"]["state_element"]
     cv2dict, suffix = _get_crop_pt(state) if var_rect else _get_3rect_pt()
     if crop==True: suffix = "crop"
     ch_range = range(state["sub_yt_num"]) if ch==4 else range(ch,ch+1)
@@ -220,19 +195,42 @@ def _update_proc_game_screen(state, rect=False, crop=False, ch=4, var_rect=True)
         imr_file = f'static/image{i}_{sec}.jpg' if var_rect else state["game_screen"][f"html{i}"]["image_source"]
         imw_file = f'static/image{i}_{sec}_{suffix}.jpg' if var_rect else f'{state["game_screen"][f"html{i}"]["image_source"][:-4]}_{suffix}.jpg'
         GetYoutube.set_yt_image(
-            cv2dict,
-            rect=rect,
-            crop=crop,
+            cv2dict, rect=rect, crop=crop,
             imr_path=_join(_dirname('__file__'), imr_file),
             imw_path=_join(_dirname('__file__'), imw_file)
         )
         if state["game_screen"][f"html{i}"]["image_source"]!=f'static/image{i}_{sec}.jpg' and ch==4:
             _remove(_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]))
         state["game_screen"][f"html{i}"]["image_source"] = imw_file
+        
+def _update_option(state):
+    ## Input player name
+    if "auto" in state["option"]["text_input"]["check_box_state_element"]:
+        state["option"]["text_input"]["visibility"] = False
+        state["inputs"]["target_player_name"] = "auto"
+    else: 
+        state["option"]["text_input"]["visibility"] = True
+        state["inputs"]["target_player_name"] = state["option"]["text_input"]["state_element"]
+    ## Select YouTube title category
+    if "auto" in state["option"]["radio_button2"]["check_box_state_element"]:
+        state["option"]["radio_button2"]["visibility"] = False
+        state["inputs"]["target_category"] = "auto"
+    else:
+        state["option"]["radio_button2"]["visibility"] = True
+        state["inputs"]["target_category"] = state["option"]["radio_button2"]["state_element"]
+    ## Select fighters player use
+    state["inputs"]["target_1p_charas"] = state["option"]["multiselect"]["state_element"]
+    inputs = [input for input in state["inputs"].to_dict().values()]
+    if '' in inputs or None in inputs:
+        state["start_button"]["visibility"] = False
+        state["stop_button"]["visibility"] = False
+    else:
+        state["start_button"]["visibility"] = True
+        state["stop_button"]["visibility"] = True
 
 # STATE INIT
 
-rel = False
+rel = True
 
 if not rel:
     yti0 = {
