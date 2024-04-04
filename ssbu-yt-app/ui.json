@@ -1028,7 +1028,7 @@
             "handlers": {
                 "ss-option-change": "option"
             },
-            "visible": "option.radio_button.visibility",
+            "visible": "option.visibility",
             "binding": {
                 "eventType": "ss-option-change",
                 "stateRef": "option.radio_button.state_element"
@@ -1038,13 +1038,13 @@
             "id": "ni83kfnd6zsexfin",
             "type": "text",
             "content": {
-                "text": "If there are extra objects in the blue rectangle on the game screen, the image recognition accuracy of fighter names and game results may decrease. "
+                "text": "If there are extra objects in 3 blue rectangles, the image recognition accuracy of fighter names and game results may decrease. "
             },
             "isCodeManaged": false,
             "position": 1,
             "parentId": "orr4w5ss78bsgqm8",
             "handlers": {},
-            "visible": "option.radio_button.visibility"
+            "visible": "option.visibility"
         },
         "0pq0so688k8vict3": {
             "id": "0pq0so688k8vict3",
@@ -1055,10 +1055,10 @@
                 "repeaterObject": "@{collect.repeater}"
             },
             "isCodeManaged": false,
-            "position": 7,
-            "parentId": "c0f99a9e-5004-4e75-a6c6-36f17490b134",
+            "position": 1,
+            "parentId": "zgpsnrzgmzkkmzbi",
             "handlers": {},
-            "visible": true
+            "visible": false
         },
         "gicm0ufca7rdcu8z": {
             "id": "gicm0ufca7rdcu8z",
@@ -1076,16 +1076,13 @@
             "id": "5jys64r6ufyit8tp",
             "type": "button",
             "content": {
-                "text": "Stop to collect",
-                "buttonTextColor": "#125FA8",
-                "separatorColor": "#125FA8",
+                "text": "Stop",
                 "isDisabled": "@{collect.stop_button.disabled}"
             },
             "isCodeManaged": false,
-            "position": 6,
-            "parentId": "c0f99a9e-5004-4e75-a6c6-36f17490b134",
-            "handlers": {},
-            "visible": "collect.stop_button.visibility"
+            "position": 1,
+            "parentId": "2tsg4epph5pe0c99",
+            "handlers": {}
         },
         "uxxnp8m1xfa7toxy": {
             "id": "uxxnp8m1xfa7toxy",
@@ -1349,7 +1346,7 @@
             "position": 4,
             "parentId": "c0f99a9e-5004-4e75-a6c6-36f17490b134",
             "handlers": {},
-            "visible": "option.radio_button.visibility"
+            "visible": "option.visibility"
         },
         "b1bjqugqincvidvm": {
             "id": "b1bjqugqincvidvm",
@@ -1361,7 +1358,7 @@
             "position": 2,
             "parentId": "orr4w5ss78bsgqm8",
             "handlers": {},
-            "visible": "option.visibility"
+            "visible": "option.inputs_visibility"
         },
         "qr8iagpg00twjcxo": {
             "id": "qr8iagpg00twjcxo",
@@ -1374,7 +1371,7 @@
             "position": 4,
             "parentId": "orr4w5ss78bsgqm8",
             "handlers": {},
-            "visible": "option.visibility"
+            "visible": "option.inputs_visibility"
         },
         "4dljxy7oj9loxx5h": {
             "id": "4dljxy7oj9loxx5h",
@@ -1386,7 +1383,7 @@
             "position": 3,
             "parentId": "orr4w5ss78bsgqm8",
             "handlers": {},
-            "visible": "option.visibility"
+            "visible": "option.inputs_visibility"
         },
         "u0perd7xurymm93j": {
             "id": "u0perd7xurymm93j",
@@ -1404,16 +1401,15 @@
             "id": "wg35p194sglyzilc",
             "type": "button",
             "content": {
-                "text": "Start to collect",
-                "buttonTextColor": "#125FA8",
-                "separatorColor": "#125FA8",
+                "text": "Start",
                 "isDisabled": "@{collect.start_button.disabled}"
             },
             "isCodeManaged": false,
-            "position": 5,
-            "parentId": "c0f99a9e-5004-4e75-a6c6-36f17490b134",
-            "handlers": {},
-            "visible": "collect.start_button.visibility"
+            "position": 0,
+            "parentId": "2tsg4epph5pe0c99",
+            "handlers": {
+                "ss-click": "collect"
+            }
         },
         "xfdwe042i65ra6oa": {
             "id": "xfdwe042i65ra6oa",
@@ -1425,6 +1421,30 @@
             "isCodeManaged": false,
             "position": 0,
             "parentId": "orr4w5ss78bsgqm8",
+            "handlers": {},
+            "visible": true
+        },
+        "zgpsnrzgmzkkmzbi": {
+            "id": "zgpsnrzgmzkkmzbi",
+            "type": "section",
+            "content": {
+                "title": "Analyze and Collect",
+                "separatorColor": "#125FA8",
+                "buttonTextColor": "#125FA8"
+            },
+            "isCodeManaged": false,
+            "position": 5,
+            "parentId": "c0f99a9e-5004-4e75-a6c6-36f17490b134",
+            "handlers": {},
+            "visible": "collect.visibility"
+        },
+        "2tsg4epph5pe0c99": {
+            "id": "2tsg4epph5pe0c99",
+            "type": "horizontalstack",
+            "content": {},
+            "isCodeManaged": false,
+            "position": 0,
+            "parentId": "zgpsnrzgmzkkmzbi",
             "handlers": {},
             "visible": true
         }

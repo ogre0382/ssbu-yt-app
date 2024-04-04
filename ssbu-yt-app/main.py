@@ -46,11 +46,13 @@ def start_stop_crop_3rect(state):
         state["crop"]["visibility"] = True
     else:
         _update_proc_game_screen(state, rect=True, var_rect=False)
-        state["option"]["radio_button"]["visibility"] = True
+        state["option"]["visibility"] = True
     
 def check_crop(state, payload):
     if type(payload)==float:
         _update_cropper(state)
+        state["crop"]["check_button"]["disabled"] = "no"
+        state["crop"]["crop_button"]["disabled"] = "yes"
     else:
         _update_proc_game_screen(state, rect=True)
         state["crop"]["check_button"]["disabled"] = "yes"
@@ -68,17 +70,19 @@ def execute_crop(state):
 ## Do you collect data from the following YouTube?
 def option(state):
     if state["option"]["radio_button"]["state_element"]=="yes":
-        state["option"]["visibility"] = True
+        state["option"]["inputs_visibility"] = True
         state["game_screen"]["visibility"] = False
         if state["inputs"]["crop"]==None: state["inputs"]["crop"]="None"
     else:
         _init_state(state)
     _update_option(state)
+    print(state["inputs"])
 
 ## 対戦している2キャラとその勝敗結果を取得し、それらに応じて対戦開始画面に飛べるURLをbigqueryに保存する
 def collect(state):
     #charalists = _get_charalists(state["inputs"]["chara_df"])
-    pass
+    state["option"]["visibility"] = False
+    state["collect"]["repeater"]["visibility"] = True
 
 #### Event context https://www.streamsync.cloud/repeater.html
 def view_results(state, payload, context):
@@ -179,7 +183,6 @@ def _update_cropper(state):
         num[k] = state["crop"][k]["state_element"]
         bnum[k] = state["crop"][k]["buf_state_element"]
         if num[k]!=bnum[k]:
-            state["crop"]["check_button"]["disabled"] = "no"
             if k=="height": state["crop"]["width"]["buf_state_element"] = state["crop"]["width"]["state_element"] = int(num["height"]*16/9)
             if k=="width": state["crop"]["height"]["buf_state_element"] = state["crop"]["height"]["state_element"] = int(num["width"]*9/16)
             state["crop"][k]["buf_state_element"] = state["crop"][k]["state_element"]
@@ -222,11 +225,9 @@ def _update_option(state):
     state["inputs"]["target_1p_charas"] = state["option"]["multiselect"]["state_element"]
     inputs = [input for input in state["inputs"].to_dict().values()]
     if '' in inputs or None in inputs:
-        state["start_button"]["visibility"] = False
-        state["stop_button"]["visibility"] = False
+        state["collect"]["visibility"] = False
     else:
-        state["start_button"]["visibility"] = True
-        state["stop_button"]["visibility"] = True
+        state["collect"]["visibility"] = True
 
 # STATE INIT
 
@@ -248,13 +249,15 @@ if not rel:
         'duration': 5458, 'channel': 'Neo', 'release_timestamp': 1631176068, 'original_url': 'https://www.youtube.com/watch?v=cdTxb0a0jrA', 'fps': 60, 
         'cap': 'https://rr2---sn-ogul7n7z.googlevideo.com/videoplayback?expire=1712083328&ei=IP0LZouhE5yF0-kPjZWA4QE&ip=106.73.16.65&id=o-AEIdxzSYOmtrLkGdJq0H44dZFhH_ThcmwcFjrbMSffNa&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=zE&mm=31%2C29&mn=sn-ogul7n7z%2Csn-oguelnsl&ms=au%2Crdu&mv=m&mvi=2&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1889958743&dur=5457.716&lmt=1631225593097688&mt=1712061202&fvip=1&keepalive=yes&fexp=51141541&c=IOS&txp=7216222&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRgIhAKD5IJBSHNH6k0niQ9JxQ-cS0y69hl_sIqXM78Z9ImS7AiEA9-M1Cbfxu-TDx7zFG5ZZmPpIJ7J7HwAr0wwAW-BCIeE%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgdtaRAGaZK6j0HBpSUCYB0at4-op84s_x6qVgSlAosmECIQCmMRlY5eQa22S98BjePcya6yF32yRR2ZTkZO8yC00Jcg%3D%3D'
     }
-    yti3 = {'title': '【スマブラSP】すまめいと→vip', 
-            'duration': 6677, 'channel': 'Neo', 'release_timestamp': 1633075410, 'original_url': 'https://www.youtube.com/watch?v=RAtI3Hl4weU', 'fps': 60, 
-            'cap': 'https://rr5---sn-oguelnzl.googlevideo.com/videoplayback?expire=1712083330&ei=Iv0LZtn-Hpu12roP7_ql6Aw&ip=106.73.16.65&id=o-AFF3hMzc2FafMHM3ZfMXyzJkNMvMYipOROWQ2jq9nabA&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=RF&mm=31%2C26&mn=sn-oguelnzl%2Csn-npoe7nds&ms=au%2Conr&mv=m&mvi=5&pl=16&initcwndbps=846250&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2279255606&dur=6677.232&lmt=1686068743330652&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIgNxAZCVpP6bb5HZtWpOBzWH64i2A1TYJr11p-5YS3XJACIQChP3r7WNB736PqtX7W5qvFWk4SM90OBszH0NsGFnT59A%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRgIhAKeJARs6jXIKC4rqhvY8tzp5ApCjUq6HSLUqeWTlk9WmAiEAlNsLxgYRoIZeVDgDr54S2P3rdPUtoG32hhnUEk01o44%3D'
+    yti3 = {
+        'title': '【スマブラSP】すまめいと→vip', 
+        'duration': 6677, 'channel': 'Neo', 'release_timestamp': 1633075410, 'original_url': 'https://www.youtube.com/watch?v=RAtI3Hl4weU', 'fps': 60, 
+        'cap': 'https://rr5---sn-oguelnzl.googlevideo.com/videoplayback?expire=1712083330&ei=Iv0LZtn-Hpu12roP7_ql6Aw&ip=106.73.16.65&id=o-AFF3hMzc2FafMHM3ZfMXyzJkNMvMYipOROWQ2jq9nabA&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=RF&mm=31%2C26&mn=sn-oguelnzl%2Csn-npoe7nds&ms=au%2Conr&mv=m&mvi=5&pl=16&initcwndbps=846250&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2279255606&dur=6677.232&lmt=1686068743330652&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIgNxAZCVpP6bb5HZtWpOBzWH64i2A1TYJr11p-5YS3XJACIQChP3r7WNB736PqtX7W5qvFWk4SM90OBszH0NsGFnT59A%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRgIhAKeJARs6jXIKC4rqhvY8tzp5ApCjUq6HSLUqeWTlk9WmAiEAlNsLxgYRoIZeVDgDr54S2P3rdPUtoG32hhnUEk01o44%3D'
     }
-    yti4 = {'title': '【スマブラSP】カムイメイト', 
-            'duration': 7955, 'channel': 'Neo', 'release_timestamp': 1654925784, 'original_url': 'https://www.youtube.com/watch?v=pRmmyRNcQk0', 'fps': 60, 
-            'cap': 'https://rr4---sn-oguelnsy.googlevideo.com/videoplayback?expire=1712083332&ei=JP0LZom5GPjM2roPovyy0Ao&ip=106.73.16.65&id=o-AB4ohTaG48wEXwibot_hSOgy_WgMZE9USYb38lgjAK0T&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=-e&mm=31%2C26&mn=sn-oguelnsy%2Csn-npoe7nl6&ms=au%2Conr&mv=m&mvi=4&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2485924475&dur=7955.150&lmt=1680509445822434&mt=1712061202&fvip=2&keepalive=yes&fexp=51141541&c=IOS&txp=7219224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIhAL2u4o1Jrw8LWKHK80anM6wvs6NqRjpQP7dNpkBjHHOvAiB93vWij6FqjG0jn9rPriGossY26ZI5pT8RxhK6_bSKzw%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgMCCU2I-mEl-zDo98Y0wZvt9umxNzRd3as-r8Fh6V_zoCIQDSNbx7i3amzRcTPNHexJuG8lp-uacuhJIrxPgNmQpnNA%3D%3D'
+    yti4 = {
+        'title': '【スマブラSP】カムイメイト', 
+        'duration': 7955, 'channel': 'Neo', 'release_timestamp': 1654925784, 'original_url': 'https://www.youtube.com/watch?v=pRmmyRNcQk0', 'fps': 60, 
+        'cap': 'https://rr4---sn-oguelnsy.googlevideo.com/videoplayback?expire=1712083332&ei=JP0LZom5GPjM2roPovyy0Ao&ip=106.73.16.65&id=o-AB4ohTaG48wEXwibot_hSOgy_WgMZE9USYb38lgjAK0T&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=-e&mm=31%2C26&mn=sn-oguelnsy%2Csn-npoe7nl6&ms=au%2Conr&mv=m&mvi=4&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2485924475&dur=7955.150&lmt=1680509445822434&mt=1712061202&fvip=2&keepalive=yes&fexp=51141541&c=IOS&txp=7219224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIhAL2u4o1Jrw8LWKHK80anM6wvs6NqRjpQP7dNpkBjHHOvAiB93vWij6FqjG0jn9rPriGossY26ZI5pT8RxhK6_bSKzw%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgMCCU2I-mEl-zDo98Y0wZvt9umxNzRd3as-r8Fh6V_zoCIQDSNbx7i3amzRcTPNHexJuG8lp-uacuhJIrxPgNmQpnNA%3D%3D'
     }
 
 state_dict = {
@@ -365,8 +368,8 @@ state_dict = {
     "option": {
         "radio_button": {
             "state_element": None,
-            "visibility": False
         },
+        "inputs_visibility": False,
         "text_input": {
             "state_element": None,
             "visibility": True,
@@ -564,8 +567,10 @@ state_dict = {
                         }
                     }
                 }
-            }
-        }
+            },
+            "visibility": False
+        },
+        "visibility": False
     }
 }
 
