@@ -1077,7 +1077,8 @@
             "type": "button",
             "content": {
                 "text": "Stop",
-                "isDisabled": "@{collect.stop_button.disabled}"
+                "isDisabled": "@{collect.stop_button.disabled}",
+                "icon": "stop"
             },
             "isCodeManaged": false,
             "position": 1,
@@ -1402,7 +1403,8 @@
             "type": "button",
             "content": {
                 "text": "Start",
-                "isDisabled": "@{collect.start_button.disabled}"
+                "isDisabled": "@{collect.start_button.disabled}",
+                "icon": "play"
             },
             "isCodeManaged": false,
             "position": 0,

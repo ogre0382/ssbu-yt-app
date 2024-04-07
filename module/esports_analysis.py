@@ -28,7 +28,7 @@ from google.oauth2 import service_account
 # from streamlit import session_state as ss
 # from streamlit.runtime.scriptrunner import add_script_run_ctx
 # from tqdm import tqdm
-from .yt_obj import GetYoutube, get_yt_image
+from .yt_obj import YoutubeInformation, GetYoutube
 JST = timezone(timedelta(hours=+9), 'JST')
 
 # def init_ss(key,value=None):
@@ -42,12 +42,6 @@ JST = timezone(timedelta(hours=+9), 'JST')
 
 # def app_stop():
 #     ss.app_stop_clicked = True
-
-def trans(states, next_state):
-    for state in states.keys():
-        if state==next_state: states[state] = True
-        else: states[state] = False
-    return states
 
 def stop_watch(func):
     @wraps(func)
@@ -83,10 +77,42 @@ class GameData:
     target_player_is_win: str = None
     game_start_datetime: datetime = None
     game_start_url: str = None
-    game_end_datetime: datetime = None
-    game_end_url: str = None
+    game_finish_datetime: datetime = None
+    game_finish_url: str = None
     title: str = None
     category: str = None
+    analysis_start_time: int = -1
+
+# 空辞書、空リストを用意する場合はfiled(default_factory)を使用 https://qiita.com/plumfield56/items/5794170fae2c4cabc5be
+@dataclass
+class Parameter:
+    target_player_name: str = None
+    target_category: str = None
+    target_1p_charas: str = None
+    charalists: list = field(default_factory=list)
+    yt_info: YoutubeInformation = None
+    crop: dict = field(default_factory=dict)
+    img_proc_temps: dict = field(default_factory=dict)
+    
+    def __init__(self, inputs, img_proc_temps):
+        self.target_player_name = inputs["target_player_name"]
+        self.target_category = inputs["target_category"]
+        self.target_1p_charas = inputs["target_1p_charas"]
+        self.charalists = get_charalists(inputs["chara_df"])
+        self.crop = inputs["crop"]
+        print(img_proc_temps)
+        for k in img_proc_temps.keys():
+            img_proc_temps[k]["img_file"] = cv2.imread(f'./images/{img_proc_temps[k]["img_file"]}', 0) if img_proc_temps[k]["img_file"]!=None else None
+        self.img_proc_temps = img_proc_temps
+        
+    def get_yt_info(self, yt_info):
+        self.yt_info = yt_info
+
+def trans(states, next_state):
+    for state in states.keys():
+        if state==next_state: states[state] = True
+        else: states[state] = False
+    return states
 
 def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector, target_des, match_ret, initial=0, total=43200, count_end=28, game_num=-1):
     #game_sec_list, interval_sec_list = get_game_interval_sec(test1(), test2())
@@ -96,7 +122,7 @@ def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector,
     # 対戦カテゴリを自動選択
     if inputs['target_category']=='auto': target_category = get_category(info.title, {'VIP':['VIP'], 'smashmate':['めいと', 'メイト','レート', 'レーティング']})
     else: target_category = inputs['target_category']
-    states = {'skip_interval':True, 'skip_game':False, 'find_game_start':False, 'get_fighter_name':False, 'find_game_end': False, 'get_game_result':False}
+    states = {'skip_interval':True, 'skip_game':False, 'find_game_start':False, 'get_fighter_name':False, 'find_game_finish': False, 'get_game_result':False}
     # bar = tqdm(total=total, leave=False, disable=False, initial=initial)
     # my_bar = st.progress(0)
     bar_text = f'{info.original_url[-11:]} -> find_game_start'
@@ -116,7 +142,7 @@ def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector,
                 states = trans(states, 'find_game_start')
         if states['find_game_start']:
             bar_text = f'{info.original_url[-11:]} -> find_game_start'
-            info,img = get_yt_image(info, sec*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
+            info,img = GetYoutube.get_yt_image(info, sec*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
             img_576p = img = cv2.resize(img, dsize=(1024,576))
             img_top = img_576p[0:int(img_576p.shape[0]*0.2),:]
             # with stc[0]:
@@ -154,13 +180,13 @@ def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector,
             else:
                 states = trans(states, 'find_game_start')
         if states['skip_game']:
-            states['find_game_end'], count = skip_proc(count, count_end, interval=False)
-            if not states['find_game_end']: continue
+            states['find_game_finish'], count = skip_proc(count, count_end, interval=False)
+            if not states['find_game_finish']: continue
             else:
-                states = trans(states, 'find_game_end')
-        if states['find_game_end']:
-            bar_text = f'{info.original_url[-11:]} -> find_game_end'
-            info,img = get_yt_image(info, sec*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
+                states = trans(states, 'find_game_finish')
+        if states['find_game_finish']:
+            bar_text = f'{info.original_url[-11:]} -> find_game_finish'
+            info,img = GetYoutube.get_yt_image(info, sec*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
             img_252p = cv2.resize(img, dsize=dsize_temp)
             h,w = img_252p.shape[0],img_252p.shape[1]
             img_cent = img_252p[int(h*0.16):int(h*0.64),int(w*0.21):int(w*0.79)]
@@ -175,7 +201,7 @@ def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector,
             #     data = get_game_result(img_btmL, img_btmR, data, inputs['target_1p_charas'])
             if data.target_player_is_win==None:
                 sec2 = sec+7
-                info,img2 = get_yt_image(info, sec2*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
+                info,img2 = GetYoutube.get_yt_image(info, sec2*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
                 h,w = img2.shape[:2]
                 img_btmL2 = img2[int(h*0.6):int(h),int(0):int(w*0.5)]
                 #allowlist = re.sub('[.& ]','', target_chara)
@@ -191,13 +217,13 @@ def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector,
                 # chara_name, easyOCR_txt = get_chara_name(easyOCR(img_btmL2,allowlist=allowlist), charalists)[1:]
                 # if chara_name in inputs['target_1p_charas']: data.target_player_is_win = True
                 # else : data.target_player_is_win = False
-                data.game_end_datetime = datetime.fromtimestamp(info.release_timestamp+sec+7, JST).strftime('%Y-%m-%d %T')
-                data.game_end_url = f'{info.original_url}&t={sec2}s'
-                # stc[1].image(cv2.resize(img2, dsize=dsize_temp), caption=f'{data.game_end_url}: {"WIN" if data.target_player_is_win else "LOSE"}')
+                data.game_finish_datetime = datetime.fromtimestamp(info.release_timestamp+sec+7, JST).strftime('%Y-%m-%d %T')
+                data.game_finish_url = f'{info.original_url}&t={sec2}s'
+                # stc[1].image(cv2.resize(img2, dsize=dsize_temp), caption=f'{data.game_finish_url}: {"WIN" if data.target_player_is_win else "LOSE"}')
             else:
-                data.game_end_datetime = datetime.fromtimestamp(info.release_timestamp+sec, JST).strftime('%Y-%m-%d %T')
-                data.game_end_url = f'{info.original_url}&t={sec}s'
-                # stc[1].image(img_252p, caption=f'{data.game_end_url}: {"WIN" if data.target_player_is_win else "LOSE"}')
+                data.game_finish_datetime = datetime.fromtimestamp(info.release_timestamp+sec, JST).strftime('%Y-%m-%d %T')
+                data.game_finish_url = f'{info.original_url}&t={sec}s'
+                # stc[1].image(img_252p, caption=f'{data.game_finish_url}: {"WIN" if data.target_player_is_win else "LOSE"}')
             data.target_player_name = info.channel #if info.channel in inputs['target_players'] else 'other'
             data.title = info.title
             data.category = target_category
@@ -308,7 +334,7 @@ def skip_proc(count, count_end=28, interval=True):
 def find_game(img, temp_img=None, detector=None, target_des=None, match_ret=-1):
     if temp_img is None and detector==None and target_des==None and match_ret==-1: return detect_line(img, detect_edge(img))
     elif not temp_img is None: return temp_match(img, temp_img)
-    else: return feat_match(img, detector, target_des, match_ret) 
+    # else: return feat_match(img, detector, target_des, match_ret) 
 
 def get_chara_name(txt, charalists, slice_start=[-4,-5], slice_end=[None,-1], str_num=3):
     # for recog_name, chara_id, chara_name in zip(charalists[0], charalists[1], charalists[2]):
@@ -485,19 +511,19 @@ def temp_match(img, temp_img, match_val=0.474): #match_val=0.474
         return False
 
 # Python + OpenCVで画像の類似度を求める # https://qiita.com/best_not_best/items/c9497ffb5240622ede01
-def feat_match(img, detector, target_des, match_ret):
-    (comparing_kp, comparing_des) = detector.detectAndCompute(img, None)
-    bf = cv2.BFMatcher(cv2.NORM_HAMMING)
-    try:
-        matches = bf.match(target_des, comparing_des)
-        dist = [m.distance for m in matches]
-        ret = sum(dist) / len(dist)
-    except cv2.error:
-        ret = match_ret
-    if ret<match_ret:
-        return True
-    else:
-        return False
+# def feat_match(img, detector, target_des, match_ret):
+#     (comparing_kp, comparing_des) = detector.detectAndCompute(img, None)
+#     bf = cv2.BFMatcher(cv2.NORM_HAMMING)
+#     try:
+#         matches = bf.match(target_des, comparing_des)
+#         dist = [m.distance for m in matches]
+#         ret = sum(dist) / len(dist)
+#     except cv2.error:
+#         ret = match_ret
+#     if ret<match_ret:
+#         return True
+#     else:
+#         return False
     
 def test1(): #vs時の動画秒数（https://www.youtube.com/watch?v=6aUsPo83Rsw）
             #267    
@@ -520,8 +546,8 @@ def test2(): #GAMESET時の動画秒数（https://www.youtube.com/watch?v=6aUsPo
             18135,  18401,  18593,  19076,  19338,  19713,  19927,  20087,  20247,  20416, 
             20782,  21061,  21446,  21703,  21969,  22335,  22620]
 
-def get_game_interval_sec(game_start, game_end):
-    return [e-s for s,e in zip(game_start, game_end)], [s-e for s,e in zip(game_start[1:], game_end[:-1])]
+def get_game_interval_sec(game_start, game_finish):
+    return [e-s for s,e in zip(game_start, game_finish)], [s-e for s,e in zip(game_start[1:], game_finish[:-1])]
 
 def test_find_game_start():
     ydl_opts = {'verbose':True, 'format':'best', 'cookiesfrombrowser':('chrome',)}
@@ -547,7 +573,7 @@ def test_find_game_start():
     #sec_list = test1()
     for info in inputs['yt'].infos:
         for sec in sec_list: 
-            info,img = get_yt_image(info, sec*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
+            info,img = GetYoutube.get_yt_image(info, sec*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
             img_576p = img = cv2.resize(img, dsize=(1024,576))
             img_top = img_576p[0:int(img_576p.shape[0]*0.2),:]
             #img_top = img_576p[0:int(img_576p.shape[0]*0.15),:]
