@@ -1,31 +1,3 @@
-def part_gs_test():
-    yti0 = {
-        'title': '【スマブラSP】VIP→トレモ', 
-        'duration': 5496, 'channel': 'Neo', 'release_timestamp': 1630295308, 'original_url': 'https://www.youtube.com/watch?v=9wFfGMbNuIg', 'fps': 60, 
-        'cap': 'https://rr5---sn-oguelnsr.googlevideo.com/videoplayback?expire=1712083324&ei=HP0LZqWYBOzr2roP_Pe0sAY&ip=106.73.16.65&id=o-AB-392f_drUAAqdqYV3T_Gdz7w-9qnVKhD_9_GCRvTRv&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=qd&mm=31%2C29&mn=sn-oguelnsr%2Csn-oguesn6r&ms=au%2Crdu&mv=m&mvi=5&pl=16&initcwndbps=846250&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1898594811&dur=5496.233&lmt=1674517743193918&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRgIhAJsAKyuiOUpqyIG-LXVC6iMnjYIPdANrgUMUVj8VyQlaAiEA4-ctl788BHcEhCAWyahFC7MKcPULsKktS7Xf4wzryTw%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRgIhALW0VGBZv8qNO4zZHTS26wvEN4hXFuumh5UCVd3DTYlIAiEAzSLyJu_c65j75IPyL9MEM7ZxUZsWZyTBNV405rNHULM%3D'
-    }
-    yti1 = {
-        'title': '【スマブラSP】VIP 連勝\u3000負けたら辞める', 
-        'duration': 3665, 'channel': 'Neo', 'release_timestamp': 1630548488, 'original_url': 'https://www.youtube.com/watch?v=xU1BLJ9gZ7I', 'fps': 60, 
-        'cap': 'https://rr3---sn-oguesndl.googlevideo.com/videoplayback?expire=1712083326&ei=Hv0LZrSmEeuF2roP8I2c2Ao&ip=106.73.16.65&id=o-AJU0BRpcOCkVFgBSu1gFF5JbIknCsC_KyhzWOhPlbKfl&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=ic&mm=31%2C29&mn=sn-oguesndl%2Csn-oguelnz7&ms=au%2Crdu&mv=m&mvi=3&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1367839480&dur=3664.433&lmt=1671856597725800&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIhAKL0YeIGTCB41ruVBR_T63B5ES6sXJWMLec_qAhEUxv9AiAU9bsrta9OWYElUI4CfdIwwM4CnXdMoMCqsUtloxUEyQ%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRAIgJDHcI7EGbJSa1R1w8YLEwwaWBwztd9SWPaE1K3IK1M0CIB8a1sNhK3p_tfVbRHwehjuAPjhOXBD1ngPZZvT8HTIA'
-    }
-    yti2 = {
-        'title': '【スマブラSP】すまめいと', 
-        'duration': 5458, 'channel': 'Neo', 'release_timestamp': 1631176068, 'original_url': 'https://www.youtube.com/watch?v=cdTxb0a0jrA', 'fps': 60, 
-        'cap': 'https://rr2---sn-ogul7n7z.googlevideo.com/videoplayback?expire=1712083328&ei=IP0LZouhE5yF0-kPjZWA4QE&ip=106.73.16.65&id=o-AEIdxzSYOmtrLkGdJq0H44dZFhH_ThcmwcFjrbMSffNa&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=zE&mm=31%2C29&mn=sn-ogul7n7z%2Csn-oguelnsl&ms=au%2Crdu&mv=m&mvi=2&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1889958743&dur=5457.716&lmt=1631225593097688&mt=1712061202&fvip=1&keepalive=yes&fexp=51141541&c=IOS&txp=7216222&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRgIhAKD5IJBSHNH6k0niQ9JxQ-cS0y69hl_sIqXM78Z9ImS7AiEA9-M1Cbfxu-TDx7zFG5ZZmPpIJ7J7HwAr0wwAW-BCIeE%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgdtaRAGaZK6j0HBpSUCYB0at4-op84s_x6qVgSlAosmECIQCmMRlY5eQa22S98BjePcya6yF32yRR2ZTkZO8yC00Jcg%3D%3D'
-    }
-    yti3 = {
-        'title': '【スマブラSP】すまめいと→vip', 
-        'duration': 6677, 'channel': 'Neo', 'release_timestamp': 1633075410, 'original_url': 'https://www.youtube.com/watch?v=RAtI3Hl4weU', 'fps': 60, 
-        'cap': 'https://rr5---sn-oguelnzl.googlevideo.com/videoplayback?expire=1712083330&ei=Iv0LZtn-Hpu12roP7_ql6Aw&ip=106.73.16.65&id=o-AFF3hMzc2FafMHM3ZfMXyzJkNMvMYipOROWQ2jq9nabA&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=RF&mm=31%2C26&mn=sn-oguelnzl%2Csn-npoe7nds&ms=au%2Conr&mv=m&mvi=5&pl=16&initcwndbps=846250&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2279255606&dur=6677.232&lmt=1686068743330652&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIgNxAZCVpP6bb5HZtWpOBzWH64i2A1TYJr11p-5YS3XJACIQChP3r7WNB736PqtX7W5qvFWk4SM90OBszH0NsGFnT59A%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRgIhAKeJARs6jXIKC4rqhvY8tzp5ApCjUq6HSLUqeWTlk9WmAiEAlNsLxgYRoIZeVDgDr54S2P3rdPUtoG32hhnUEk01o44%3D'
-    }
-    yti4 = {
-        'title': '【スマブラSP】カムイメイト', 
-        'duration': 7955, 'channel': 'Neo', 'release_timestamp': 1654925784, 'original_url': 'https://www.youtube.com/watch?v=pRmmyRNcQk0', 'fps': 60, 
-        'cap': 'https://rr4---sn-oguelnsy.googlevideo.com/videoplayback?expire=1712083332&ei=JP0LZom5GPjM2roPovyy0Ao&ip=106.73.16.65&id=o-AB4ohTaG48wEXwibot_hSOgy_WgMZE9USYb38lgjAK0T&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=-e&mm=31%2C26&mn=sn-oguelnsy%2Csn-npoe7nl6&ms=au%2Conr&mv=m&mvi=4&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2485924475&dur=7955.150&lmt=1680509445822434&mt=1712061202&fvip=2&keepalive=yes&fexp=51141541&c=IOS&txp=7219224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIhAL2u4o1Jrw8LWKHK80anM6wvs6NqRjpQP7dNpkBjHHOvAiB93vWij6FqjG0jn9rPriGossY26ZI5pT8RxhK6_bSKzw%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgMCCU2I-mEl-zDo98Y0wZvt9umxNzRd3as-r8Fh6V_zoCIQDSNbx7i3amzRcTPNHexJuG8lp-uacuhJIrxPgNmQpnNA%3D%3D'
-    }
-    return ['KAMUI'], [yti0, yti1, yti2, yti3, yti4], {'crop': {'pt1': [0, 0], 'pt2': [1585, 891]}}
-
 def full_gs_test():
     yti0 = {
         'title': '【スマブラSP】VIP連勝', 
@@ -128,3 +100,31 @@ def full_gs_test():
         'cap': 'https://rr2---sn-oguesnds.googlevideo.com/videoplayback?expire=1712399120&ei=sM4QZqi_MbHu2roPt4ij8Ag&ip=240b%3A11%3A1041%3A8a00%3Ae56b%3Abeee%3A62f8%3A5519&id=o-AJ7vYbfZNGI8oq2Eml-IbjG_HguGkWFfatFMKsXlfc3t&itag=136&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=-H&mm=31%2C29&mn=sn-oguesnds%2Csn-oguelnzz&ms=au%2Crdu&mv=m&mvi=2&pl=36&initcwndbps=1631250&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1000217102&dur=4205.866&lmt=1707601395192016&mt=1712377247&fvip=3&keepalive=yes&fexp=51141541&c=IOS&txp=7219224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRAIgeV5fs3Epl0nC_anwtPrFmcO1Ds4EiroCLybgKLymd8cCIBGvZUJoubdBwABP4vyUUooEzToaDkx3jtJ-4zsy-i-w&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRgIhALWDV7erBfauL4p3-fIzxipZR7OzwCmXI4UonkKGa3jrAiEAxkqwtk64M4L0bxC1hR3oKixJEgy6rJOWuewUiDWEWyk%3D'
     }
     return ['KAMUI', 'BYLETH'], [yti0, yti1, yti2, yti3, yti4, yti5, yti6, yti7, yti8, yti9, yti10, yti11, yti12, yti13, yti14, yti15, yti16, yti17, yti18, yti19], 'None'
+
+def part_gs_test():
+    yti0 = {
+        'title': '【スマブラSP】VIP→トレモ', 
+        'duration': 5496, 'channel': 'Neo', 'release_timestamp': 1630295308, 'original_url': 'https://www.youtube.com/watch?v=9wFfGMbNuIg', 'fps': 60, 
+        'cap': 'https://rr5---sn-oguelnsr.googlevideo.com/videoplayback?expire=1712083324&ei=HP0LZqWYBOzr2roP_Pe0sAY&ip=106.73.16.65&id=o-AB-392f_drUAAqdqYV3T_Gdz7w-9qnVKhD_9_GCRvTRv&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=qd&mm=31%2C29&mn=sn-oguelnsr%2Csn-oguesn6r&ms=au%2Crdu&mv=m&mvi=5&pl=16&initcwndbps=846250&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1898594811&dur=5496.233&lmt=1674517743193918&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRgIhAJsAKyuiOUpqyIG-LXVC6iMnjYIPdANrgUMUVj8VyQlaAiEA4-ctl788BHcEhCAWyahFC7MKcPULsKktS7Xf4wzryTw%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRgIhALW0VGBZv8qNO4zZHTS26wvEN4hXFuumh5UCVd3DTYlIAiEAzSLyJu_c65j75IPyL9MEM7ZxUZsWZyTBNV405rNHULM%3D'
+    }
+    yti1 = {
+        'title': '【スマブラSP】VIP 連勝\u3000負けたら辞める', 
+        'duration': 3665, 'channel': 'Neo', 'release_timestamp': 1630548488, 'original_url': 'https://www.youtube.com/watch?v=xU1BLJ9gZ7I', 'fps': 60, 
+        'cap': 'https://rr3---sn-oguesndl.googlevideo.com/videoplayback?expire=1712083326&ei=Hv0LZrSmEeuF2roP8I2c2Ao&ip=106.73.16.65&id=o-AJU0BRpcOCkVFgBSu1gFF5JbIknCsC_KyhzWOhPlbKfl&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=ic&mm=31%2C29&mn=sn-oguesndl%2Csn-oguelnz7&ms=au%2Crdu&mv=m&mvi=3&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1367839480&dur=3664.433&lmt=1671856597725800&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIhAKL0YeIGTCB41ruVBR_T63B5ES6sXJWMLec_qAhEUxv9AiAU9bsrta9OWYElUI4CfdIwwM4CnXdMoMCqsUtloxUEyQ%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRAIgJDHcI7EGbJSa1R1w8YLEwwaWBwztd9SWPaE1K3IK1M0CIB8a1sNhK3p_tfVbRHwehjuAPjhOXBD1ngPZZvT8HTIA'
+    }
+    yti2 = {
+        'title': '【スマブラSP】すまめいと', 
+        'duration': 5458, 'channel': 'Neo', 'release_timestamp': 1631176068, 'original_url': 'https://www.youtube.com/watch?v=cdTxb0a0jrA', 'fps': 60, 
+        'cap': 'https://rr2---sn-ogul7n7z.googlevideo.com/videoplayback?expire=1712083328&ei=IP0LZouhE5yF0-kPjZWA4QE&ip=106.73.16.65&id=o-AEIdxzSYOmtrLkGdJq0H44dZFhH_ThcmwcFjrbMSffNa&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=zE&mm=31%2C29&mn=sn-ogul7n7z%2Csn-oguelnsl&ms=au%2Crdu&mv=m&mvi=2&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1889958743&dur=5457.716&lmt=1631225593097688&mt=1712061202&fvip=1&keepalive=yes&fexp=51141541&c=IOS&txp=7216222&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRgIhAKD5IJBSHNH6k0niQ9JxQ-cS0y69hl_sIqXM78Z9ImS7AiEA9-M1Cbfxu-TDx7zFG5ZZmPpIJ7J7HwAr0wwAW-BCIeE%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgdtaRAGaZK6j0HBpSUCYB0at4-op84s_x6qVgSlAosmECIQCmMRlY5eQa22S98BjePcya6yF32yRR2ZTkZO8yC00Jcg%3D%3D'
+    }
+    yti3 = {
+        'title': '【スマブラSP】すまめいと→vip', 
+        'duration': 6677, 'channel': 'Neo', 'release_timestamp': 1633075410, 'original_url': 'https://www.youtube.com/watch?v=RAtI3Hl4weU', 'fps': 60, 
+        'cap': 'https://rr5---sn-oguelnzl.googlevideo.com/videoplayback?expire=1712083330&ei=Iv0LZtn-Hpu12roP7_ql6Aw&ip=106.73.16.65&id=o-AFF3hMzc2FafMHM3ZfMXyzJkNMvMYipOROWQ2jq9nabA&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=RF&mm=31%2C26&mn=sn-oguelnzl%2Csn-npoe7nds&ms=au%2Conr&mv=m&mvi=5&pl=16&initcwndbps=846250&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2279255606&dur=6677.232&lmt=1686068743330652&mt=1712061202&fvip=4&keepalive=yes&fexp=51141541&c=IOS&txp=7216224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIgNxAZCVpP6bb5HZtWpOBzWH64i2A1TYJr11p-5YS3XJACIQChP3r7WNB736PqtX7W5qvFWk4SM90OBszH0NsGFnT59A%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRgIhAKeJARs6jXIKC4rqhvY8tzp5ApCjUq6HSLUqeWTlk9WmAiEAlNsLxgYRoIZeVDgDr54S2P3rdPUtoG32hhnUEk01o44%3D'
+    }
+    yti4 = {
+        'title': '【スマブラSP】カムイメイト', 
+        'duration': 7955, 'channel': 'Neo', 'release_timestamp': 1654925784, 'original_url': 'https://www.youtube.com/watch?v=pRmmyRNcQk0', 'fps': 60, 
+        'cap': 'https://rr4---sn-oguelnsy.googlevideo.com/videoplayback?expire=1712083332&ei=JP0LZom5GPjM2roPovyy0Ao&ip=106.73.16.65&id=o-AB4ohTaG48wEXwibot_hSOgy_WgMZE9USYb38lgjAK0T&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=-e&mm=31%2C26&mn=sn-oguelnsy%2Csn-npoe7nl6&ms=au%2Conr&mv=m&mvi=4&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2485924475&dur=7955.150&lmt=1680509445822434&mt=1712061202&fvip=2&keepalive=yes&fexp=51141541&c=IOS&txp=7219224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIhAL2u4o1Jrw8LWKHK80anM6wvs6NqRjpQP7dNpkBjHHOvAiB93vWij6FqjG0jn9rPriGossY26ZI5pT8RxhK6_bSKzw%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgMCCU2I-mEl-zDo98Y0wZvt9umxNzRd3as-r8Fh6V_zoCIQDSNbx7i3amzRcTPNHexJuG8lp-uacuhJIrxPgNmQpnNA%3D%3D'
+    }
+    return ['KAMUI'], [yti0, yti1, yti2, yti3, yti4], {'crop': {'pt1': [0, 0], 'pt2': [1585, 891]}}

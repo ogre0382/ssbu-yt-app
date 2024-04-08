@@ -5,7 +5,7 @@
 #import tensorflow as tf
 #tf.get_logger().setLevel("ERROR")
 
-# from os.path import dirname, join
+from os.path import dirname, join
 # from sys import path
 # path.append(join(dirname('__file__')))
 
@@ -102,7 +102,7 @@ class Parameter:
         self.crop = inputs["crop"]
         print(img_proc_temps)
         for k in img_proc_temps.keys():
-            img_proc_temps[k]["img_file"] = cv2.imread(f'./images/{img_proc_temps[k]["img_file"]}', 0) if img_proc_temps[k]["img_file"]!=None else None
+            img_proc_temps[k]["img"] = cv2.imread(join(dirname(__file__),f'./images/{img_proc_temps[k]["img"]}'), 0) if img_proc_temps[k]["img"]!=None else None
         self.img_proc_temps = img_proc_temps
         
     def get_yt_info(self, yt_info):
@@ -114,7 +114,8 @@ def trans(states, next_state):
         else: states[state] = False
     return states
 
-def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector, target_des, match_ret, initial=0, total=43200, count_end=28, game_num=-1):
+# def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector, target_des, match_ret, initial=0, total=43200, count_end=28, game_num=-1):
+def ssbu_each_analysis(param: Parameter):
     #game_sec_list, interval_sec_list = get_game_interval_sec(test1(), test2())
     game_data_list = []
     count = 0

@@ -237,31 +237,41 @@ def _update_option(state):
 
 ## 対戦している2キャラとその勝敗結果を取得し、それらに応じて対戦開始画面に飛べるURLをbigqueryに保存する
 def _update_view_results(state):
+    k = state["main_yt_num"]
     inputs = state["inputs"]
     img_proc_temps = {
         "g_start": {
-            "img_file": None,
+            "img": None,
             "dsize": (448,252)
         },
         "g_fighter": {
-            "img_file": None,
+            "img": None,
             "dsize": (1024,576)
         },
         "g_finish": {
-            "img_file": "gameset.png",
+            "img": "gameset.png",
             "dsize": (448,252)
         },
         "g_result": {
-            "img_file": None,
+            "img": None,
             "dsize": (1280,720)
         }
     }
+    # 動画毎に並行(並列)処理
+    info_list = []
+    info_lists = []
+    for i,info in enumerate(inputs["yt_infos"]):
+        if i%k<k: 
+            info_list.append(info)
+        if i%k==(k-1) or i==(len(inputs["yt_infos"])-1):
+            info_lists.append(info_list)
+            info_list = []
     param = Parameter(inputs, img_proc_temps)
-    for yt_info in inputs["yt_infos"]:
-        param.get_yt_info(yt_info)
-        print(param)
-        print()
-
+    for i,info_list in enumerate(info_lists):
+        for j,info in enumerate(info_list):
+            param.get_yt_info(info)
+            print(param)
+            print()
 
 # STATE INIT
 
