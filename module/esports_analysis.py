@@ -19,7 +19,7 @@ import string
 import threading # https://qiita.com/Toyo_m/items/992b0dcf765ad3082d0b
 import time
 
-from .bq_db import BigqueryDatabase
+from .bq_db import BigqueryDatabase, SmashDatabase
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from functools import wraps
@@ -93,20 +93,52 @@ class Parameter:
     yt_info: YoutubeInformation = None
     crop: dict = field(default_factory=dict)
     img_proc_temps: dict = field(default_factory=dict)
+    initial: int = 0
     
-    def __init__(self, inputs, img_proc_temps):
+    def __init__(self, inputs, img_proc_temps, category_dict):
         self.target_player_name = inputs["target_player_name"]
         self.target_category = inputs["target_category"]
+        self.category_dict = category_dict
         self.target_1p_charas = inputs["target_1p_charas"]
         self.charalists = get_charalists(inputs["chara_df"])
         self.crop = inputs["crop"]
-        print(img_proc_temps)
         for k in img_proc_temps.keys():
             img_proc_temps[k]["img"] = cv2.imread(join(dirname(__file__),f'./images/{img_proc_temps[k]["img"]}'), 0) if img_proc_temps[k]["img"]!=None else None
         self.img_proc_temps = img_proc_temps
+        self.df = SmashDatabase('ssbu_dataset').select_analysis_data()
         
     def get_yt_info(self, yt_info):
         self.yt_info = yt_info
+        self.get_initial()
+        
+    def get_initial(self):
+        df = self.df
+        for game_start_url,analysis_start_time in zip(df['game_start_url'].to_list(),df['analysis_start_time'].to_list()):
+            if self.yt_info['original_url'] in game_start_url: self.initial = analysis_start_time
+            
+
+class EsportsAnalysis:
+    def __init__(self, param:Parameter):
+        self.param = param
+        self.game_data_list = []
+        self.count = 0
+        self.states = {'skip_interval':True, 'skip_game':False, 'find_game_start':False, 'get_fighter_name':False, 'find_game_finish': False, 'get_game_result':False}
+        self.next_state = 'skip_interval'
+        self.target_category = self.get_category() if param.target_category=='auto' else param.target_category
+
+    def get_category(self): 
+        for k,V in self.param.category_dict.items():
+            for v in V:
+                if v in self.param.yt_info['title']: return k
+        return 'other'
+    
+    def trans(self):
+        for state in self.states.keys():
+            if state==self.next_state: self.states[state] = True
+            else: self.states[state] = False
+    
+    def execute_analysis(self):
+        pass
 
 def trans(states, next_state):
     for state in states.keys():
@@ -114,8 +146,7 @@ def trans(states, next_state):
         else: states[state] = False
     return states
 
-# def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector, target_des, match_ret, initial=0, total=43200, count_end=28, game_num=-1):
-def ssbu_each_analysis(param: Parameter):
+def ssbu_each_analysis(info, inputs, charalists, dsize_temp, temp_img, detector, target_des, match_ret, initial=0, total=43200, count_end=28, game_num=-1):
     #game_sec_list, interval_sec_list = get_game_interval_sec(test1(), test2())
     game_data_list = []
     count = 0

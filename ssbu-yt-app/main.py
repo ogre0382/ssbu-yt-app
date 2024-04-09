@@ -1,5 +1,6 @@
 import pandas as pd
 import streamsync as ss
+import threading
 import re
 import webbrowser
 from glob import glob as _glob
@@ -87,7 +88,7 @@ def collect(state):
     #charalists = _get_charalists(state["inputs"]["chara_df"])
     state["option"]["visibility"] = False
     state["collect"]["repeater"]["visibility"] = True
-    _update_view_results(state)
+    _generate_params(state)
 
 #### Event context https://www.streamsync.cloud/repeater.html
 def view_results(state, payload, context):
@@ -105,7 +106,9 @@ def _get_main_df():
 def _get_select(main_df=_get_main_df()):
     select_df = main_df.sort_values('chara_id')
     select_df = select_df['chara_name']
+    print("select_df['chara_name']", select_df)
     select_dict = select_df.to_dict()
+    print(select_df.to_list())
     return {v: v for v in select_dict.values()}
 
 def _get_main_yt(url):
@@ -140,6 +143,54 @@ def _get_3rect_pt():
     cv2dict['GameSet'] = {'pt1':(int(w*0.21), int(h*0.16)), 'pt2':(int(w*0.79), int(h*0.64)), 'color':(255, 0, 0), 'thickness':3}
     suffix = "3rect"
     return cv2dict, suffix
+
+def _generate_params(state):
+    k = state["main_yt_num"]
+    inputs = state["inputs"]
+    category_dict = {'VIP':['VIP'], 'smashmate':['めいと', 'メイト','レート', 'レーティング']}
+    img_proc_temps = {
+        "g_start": {
+            "img": None,
+            "dsize": (448,252)
+        },
+        "g_fighter": {
+            "img": None,
+            "dsize": (1024,576)
+        },
+        "g_finish": {
+            "img": "gameset.png",
+            "dsize": (448,252)
+        },
+        "g_result": {
+            "img": None,
+            "dsize": (1280,720)
+        }
+    }
+    # 動画毎に並行(並列)処理
+    info_list = []
+    info_lists = []
+    for i,info in enumerate(inputs["yt_infos"]):
+        if i%k<k: 
+            info_list.append(info)
+        if i%k==(k-1) or i==(len(inputs["yt_infos"])-1):
+            info_lists.append(info_list)
+            info_list = []
+    param = Parameter(inputs, img_proc_temps, category_dict)
+    for info_list in info_lists:
+        tasks = []
+        for info in info_list:
+            param.get_yt_info(info)
+            print(param)
+            print()
+            tasks.append(threading.Thread(target=_generate_analysis_data, args=(param,)))
+        for t in tasks:
+            t.start()
+        for t in tasks:
+            t.join()
+
+def _generate_analysis_data(param:Parameter):
+    # for sec in 
+    pass
     
 # UPDATES
 
@@ -235,47 +286,9 @@ def _update_option(state):
     else:
         state["collect"]["visibility"] = True
 
-## 対戦している2キャラとその勝敗結果を取得し、それらに応じて対戦開始画面に飛べるURLをbigqueryに保存する
-def _update_view_results(state):
-    k = state["main_yt_num"]
-    inputs = state["inputs"]
-    img_proc_temps = {
-        "g_start": {
-            "img": None,
-            "dsize": (448,252)
-        },
-        "g_fighter": {
-            "img": None,
-            "dsize": (1024,576)
-        },
-        "g_finish": {
-            "img": "gameset.png",
-            "dsize": (448,252)
-        },
-        "g_result": {
-            "img": None,
-            "dsize": (1280,720)
-        }
-    }
-    # 動画毎に並行(並列)処理
-    info_list = []
-    info_lists = []
-    for i,info in enumerate(inputs["yt_infos"]):
-        if i%k<k: 
-            info_list.append(info)
-        if i%k==(k-1) or i==(len(inputs["yt_infos"])-1):
-            info_lists.append(info_list)
-            info_list = []
-    param = Parameter(inputs, img_proc_temps)
-    for i,info_list in enumerate(info_lists):
-        for j,info in enumerate(info_list):
-            param.get_yt_info(info)
-            print(param)
-            print()
-
 # STATE INIT
 
-rel = False
+rel = True
 full_gs = True
 
 if not rel:
