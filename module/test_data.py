@@ -1,3 +1,5 @@
+import re
+
 def full_gs_test():
     yti0 = {
         'title': '【スマブラSP】VIP連勝', 
@@ -128,3 +130,16 @@ def part_gs_test():
         'cap': 'https://rr4---sn-oguelnsy.googlevideo.com/videoplayback?expire=1712083332&ei=JP0LZom5GPjM2roPovyy0Ao&ip=106.73.16.65&id=o-AB4ohTaG48wEXwibot_hSOgy_WgMZE9USYb38lgjAK0T&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=-e&mm=31%2C26&mn=sn-oguelnsy%2Csn-npoe7nl6&ms=au%2Conr&mv=m&mvi=4&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2485924475&dur=7955.150&lmt=1680509445822434&mt=1712061202&fvip=2&keepalive=yes&fexp=51141541&c=IOS&txp=7219224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIhAL2u4o1Jrw8LWKHK80anM6wvs6NqRjpQP7dNpkBjHHOvAiB93vWij6FqjG0jn9rPriGossY26ZI5pT8RxhK6_bSKzw%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgMCCU2I-mEl-zDo98Y0wZvt9umxNzRd3as-r8Fh6V_zoCIQDSNbx7i3amzRcTPNHexJuG8lp-uacuhJIrxPgNmQpnNA%3D%3D'
     }
     return ['KAMUI'], [yti0, yti1, yti2, yti3, yti4], {'crop': {'pt1': [0, 0], 'pt2': [1585, 891]}}
+
+if __name__ == '__main__':
+    yt_infos = part_gs_test()[1]
+    yt_infos[0]["original_url"]
+    yt_infos[1]["original_url"]+"&t=3s"
+    yt_infos[2]["original_url"]+"&t=33s"
+    yt_infos[3]["original_url"]+"&t=333s"
+    yt_infos[4]["original_url"]+"&t=3333s"
+    for i, yti in enumerate(yt_infos):
+        yt_url = yti["original_url"]+"&t="+"3"*(i+1)+"s"
+        print(yt_url)
+        # 文字列から数字部分だけをリストとして取得：re.findall関数 https://atmarkit.itmedia.co.jp/ait/articles/2103/12/news030.html
+        print(re.findall(r'\d+',yt_url)[-1])

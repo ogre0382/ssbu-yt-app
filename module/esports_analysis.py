@@ -81,7 +81,6 @@ class GameData:
     game_finish_url: str = None
     title: str = None
     category: str = None
-    analysis_start_time: int = -1
 
 # 空辞書、空リストを用意する場合はfiled(default_factory)を使用 https://qiita.com/plumfield56/items/5794170fae2c4cabc5be
 @dataclass
@@ -113,8 +112,9 @@ class Parameter:
         
     def get_initial(self):
         df = self.df
-        for game_start_url,analysis_start_time in zip(df['game_start_url'].to_list(),df['analysis_start_time'].to_list()):
-            if self.yt_info['original_url'] in game_start_url: self.initial = analysis_start_time
+        for game_start_url in df['game_start_url'].to_list():
+            if self.yt_info['original_url'] in game_start_url:
+                self.initial = max([self.initial, int(re.findall(r'\d+',game_start_url)[-1])])
             
 
 class EsportsAnalysis:
@@ -137,8 +137,104 @@ class EsportsAnalysis:
             if state==self.next_state: self.states[state] = True
             else: self.states[state] = False
     
-    def execute_analysis(self):
-        pass
+    def execute_analysis(self, param:Parameter):
+        st_bar_text = f"Image processing in progress. Please wait. | {info.original_url[-11:]}: {int((sec+1)/total*100)}% ({sec+1}/{total} sec)"
+        if states['skip_interval']:
+            states['find_game_start'], count = skip_proc(count, count_end)
+            if not states['find_game_start']: continue
+            else:
+                states = trans(states, 'find_game_start')
+        if states['find_game_start']:
+            bar_text = f'{info.original_url[-11:]} -> find_game_start'
+            info,img = GetYoutube.get_yt_image(info, sec*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
+            img_576p = img = cv2.resize(img, dsize=(1024,576))
+            img_top = img_576p[0:int(img_576p.shape[0]*0.2),:]
+            # with stc[0]:
+            #     if find_game(img_top): states = trans(states, 'get_fighter_name')
+        if states['get_fighter_name']:
+            bar_text = f'{info.original_url[-11:]} -> get_fighter_name'
+            img_252p = cv2.resize(img, dsize=(448,252))
+            h,w = img_252p.shape[0],img_252p.shape[1]
+            img_topL = img_252p[int(h*0.02):int(h*0.13), int(w*0.10):int(w*0.43)]
+            img_topR = img_252p[int(h*0.02):int(h*0.13), int(w*0.60):int(w*0.93)]
+            data = GameData()
+            allowlist='irt'+string.ascii_uppercase
+            data.chara_id_1p, data.chara_name_1p, easyOCR_txt_1p = get_chara_name(easyOCR(img_topL,allowlist=allowlist), charalists)
+            data.chara_id_2p, data.chara_name_2p, easyOCR_txt_2p = get_chara_name(easyOCR(img_topR,allowlist=allowlist), charalists)
+            #stc[0].write(f'easyOCR_txt: {easyOCR_txt_1p} vs {easyOCR_txt_2p}')
+            if data.chara_id_1p==0:
+                data.chara_id_1p, data.chara_name_1p, kerasOCR_txt_1p = get_chara_name(
+                    # kerasOCR(cv2.cvtColor(img_topL, cv2.COLOR_GRAY2RGB), blocklist=f'[^{allowlist}]'), charalists, 
+                    #slice_start=[-4], slice_end=[None]
+                )
+                #stc[0].write(f'kerasOCR_txt_1p: {kerasOCR_txt_1p}')
+            if data.chara_id_2p==0:
+                #img_topR = img_252p[int(h*0.02):int(h*0.13), int(w*0.60):int(w*0.93)]
+                data.chara_id_2p, data.chara_name_2p, kerasOCR_txt_2p = get_chara_name(
+                    # kerasOCR(cv2.cvtColor(img_topR,cv2.COLOR_GRAY2RGB),blocklist=f'[^{allowlist}]'), charalists, 
+                    #slice_start=[-4], slice_end=[None]
+                )
+                #stc[0].write(f'kerasOCR_txt_2p: {kerasOCR_txt_2p}')
+            if (data.chara_name_1p in inputs['target_1p_charas'] and data.chara_id_2p!=0) or (data.chara_id_1p!=0 and data.chara_name_2p in inputs['target_1p_charas']):
+                count=0
+                states = trans(states, 'skip_game')
+                data.game_start_datetime = datetime.fromtimestamp(info.release_timestamp+sec, JST).strftime('%Y-%m-%d %T')
+                data.game_start_url = f'{info.original_url}&t={sec}s'
+                # stc[0].image(img_252p, caption=f'{data.game_start_url}: {data.chara_name_1p} vs {data.chara_name_2p}')
+            else:
+                states = trans(states, 'find_game_start')
+        if states['skip_game']:
+            states['find_game_finish'], count = skip_proc(count, count_end, interval=False)
+            if not states['find_game_finish']: continue
+            else:
+                states = trans(states, 'find_game_finish')
+        if states['find_game_finish']:
+            bar_text = f'{info.original_url[-11:]} -> find_game_finish'
+            info,img = GetYoutube.get_yt_image(info, sec*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
+            img_252p = cv2.resize(img, dsize=dsize_temp)
+            h,w = img_252p.shape[0],img_252p.shape[1]
+            img_cent = img_252p[int(h*0.16):int(h*0.64),int(w*0.21):int(w*0.79)]
+            if find_game(img_cent, temp_img=temp_img, detector=detector, target_des=target_des, match_ret=match_ret): states = trans(states, 'get_game_result')
+        if states['get_game_result']:
+            bar_text = f'{info.original_url[-11:]} -> get_game_result'
+            img_720p = cv2.resize(img, dsize=(1280,720))
+            h,w = img_720p.shape[0],img_720p.shape[1]
+            img_btmL = img_720p[int(h*0.847):int(h*0.927),int(w*0.266):int(w*0.343)] # 100～1の位
+            img_btmR = img_720p[int(h*0.847):int(h*0.927),int(w*0.651):int(w*0.728)] # 100～1の位
+            # with stc[1]:
+            #     data = get_game_result(img_btmL, img_btmR, data, inputs['target_1p_charas'])
+            if data.target_player_is_win==None:
+                sec2 = sec+7
+                info,img2 = GetYoutube.get_yt_image(info, sec2*info.fps, ydl_opts=inputs['ydl_opts'], dsize=inputs['dsize'], crop=inputs['crop'], gray=True)
+                h,w = img2.shape[:2]
+                img_btmL2 = img2[int(h*0.6):int(h),int(0):int(w*0.5)]
+                #allowlist = re.sub('[.& ]','', target_chara)
+                allowlist = re.sub('[.& ]','', data.chara_name_1p+data.chara_name_2p)
+                target_chara = data.chara_name_1p if data.chara_name_1p in inputs['target_1p_charas'] else data.chara_name_2p #if data.chara_name_2p in target_1p_charas else ''.join(target_1p_charas)
+                easyOCR_txt = set(easyOCR(img_btmL2,allowlist=allowlist))
+                #stc[1].image(img_btmL2, caption=f'easyOCR_txt: {easyOCR_txt}')
+                str_cnt=0
+                for ocr_str in easyOCR_txt:
+                    if ocr_str in target_chara: str_cnt+=1
+                    if str_cnt==3: data.target_player_is_win = True
+                if str_cnt<3: data.target_player_is_win = False
+                # chara_name, easyOCR_txt = get_chara_name(easyOCR(img_btmL2,allowlist=allowlist), charalists)[1:]
+                # if chara_name in inputs['target_1p_charas']: data.target_player_is_win = True
+                # else : data.target_player_is_win = False
+                data.game_finish_datetime = datetime.fromtimestamp(info.release_timestamp+sec+7, JST).strftime('%Y-%m-%d %T')
+                data.game_finish_url = f'{info.original_url}&t={sec2}s'
+                # stc[1].image(cv2.resize(img2, dsize=dsize_temp), caption=f'{data.game_finish_url}: {"WIN" if data.target_player_is_win else "LOSE"}')
+            else:
+                data.game_finish_datetime = datetime.fromtimestamp(info.release_timestamp+sec, JST).strftime('%Y-%m-%d %T')
+                data.game_finish_url = f'{info.original_url}&t={sec}s'
+                # stc[1].image(img_252p, caption=f'{data.game_finish_url}: {"WIN" if data.target_player_is_win else "LOSE"}')
+            data.target_player_name = info.channel #if info.channel in inputs['target_players'] else 'other'
+            data.title = info.title
+            data.category = target_category
+            game_data_list.append(data)
+            count=0
+            states = trans(states, 'skip_interval')
+        return game_data_list
 
 def trans(states, next_state):
     for state in states.keys():

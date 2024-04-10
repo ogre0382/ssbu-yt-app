@@ -12,7 +12,7 @@ from sys import path
 path.append(_join(_dirname('__file__'), '..'))
 # from module.esports_analysis import get_charalists as _get_charalists
 # from module.esports_analysis import get_templater as _get_templater
-from module.esports_analysis import Parameter
+from module.esports_analysis import Parameter, EsportsAnalysis
 from module.bq_db import SmashDatabase
 from module.yt_obj import GetYoutube
 from module.test_data import part_gs_test as _part_gs_test
@@ -85,10 +85,12 @@ def option(state):
 
 ## 対戦している2キャラとその勝敗結果を取得し、それらに応じて対戦開始画面に飛べるURLをbigqueryに保存する
 def collect(state):
-    #charalists = _get_charalists(state["inputs"]["chara_df"])
     state["option"]["visibility"] = False
     state["collect"]["repeater"]["visibility"] = True
-    _generate_params(state)
+    _remove_img_file()
+    _generate_message(state)
+    _generate_insert_data(state)
+
 
 #### Event context https://www.streamsync.cloud/repeater.html
 def view_results(state, payload, context):
@@ -144,7 +146,184 @@ def _get_3rect_pt():
     suffix = "3rect"
     return cv2dict, suffix
 
-def _generate_params(state):
+def _generate_message(state):
+    state["collect"]["repeater"] = {
+        "message0": {
+            "id": 0,
+            "text": "Not started",
+            "visibility": False,
+            "repeater": {
+                "images0": {
+                    "start_html": {
+                        "image_source": "static/image0_0.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image0_0.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                },
+                "images1": {
+                    "start_html": {
+                        "image_source": "static/image0_0_crop.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image0_0_crop.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                },
+                "images2": {
+                    "start_html": {
+                        "image_source": "static/image0_0_crop_3rect.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image0_0_crop_3rect.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                }
+            }
+        },
+        "message1": {
+            "id": 1,
+            "text": "Not started",
+            "visibility": False,
+            "repeater": {
+                "images0": {
+                    "start_html": {
+                        "image_source": "static/image1_0.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image1_0.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                },
+                "images1": {
+                    "start_html": {
+                        "image_source": "static/image1_0_crop.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image1_0_crop.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                },
+                "images2": {
+                    "start_html": {
+                        "image_source": "static/image1_0_crop_3rect.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image1_0_crop_3rect.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                }
+            }
+        },
+        "message2": {
+            "id": 2,
+            "text": "Not started",
+            "visibility": False,
+            "repeater": {
+                "images0": {
+                    "start_html": {
+                        "image_source": "static/image2_0.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image2_0.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                },
+                "images1": {
+                    "start_html": {
+                        "image_source": "static/image2_0_crop.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image2_0_crop.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                },
+                "images2": {
+                    "start_html": {
+                        "image_source": "static/image2_0_crop_3rect.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image2_0_crop_3rect.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                }
+            }
+        },
+        "message3": {
+            "id": 3,
+            "text": "Not started",
+            "visibility": False,
+            "repeater": {
+                "images0": {
+                    "start_html": {
+                        "image_source": "static/image3_0.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image3_0.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                },
+                "images1": {
+                    "start_html": {
+                        "image_source": "static/image3_0_crop.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image3_0_crop.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                },
+                "images2": {
+                    "start_html": {
+                        "image_source": "static/image3_0_crop_3rect.jpg",
+                        "inside_url": "url",
+                        "inside_vs": "vs"
+                    },
+                    "end_html": {
+                        "image_source": "static/image3_0_crop_3rect.jpg",
+                        "inside_url": "url",
+                        "inside_res": "res"
+                    }
+                }
+            }
+        },
+        "visibility": False
+    }
+
+def _generate_insert_data(state):
     k = state["main_yt_num"]
     inputs = state["inputs"]
     category_dict = {'VIP':['VIP'], 'smashmate':['めいと', 'メイト','レート', 'レーティング']}
@@ -182,15 +361,18 @@ def _generate_params(state):
             param.get_yt_info(info)
             print(param)
             print()
-            tasks.append(threading.Thread(target=_generate_analysis_data, args=(param,)))
+            tasks.append(threading.Thread(target=_generate_analysis_data, args=(state,param,)))
         for t in tasks:
             t.start()
         for t in tasks:
             t.join()
 
-def _generate_analysis_data(param:Parameter):
-    # for sec in 
-    pass
+def _generate_analysis_data(state, param:Parameter):
+    analysis = EsportsAnalysis(param)
+    for sec in range(param.initial, param.yt_info['duration']):
+        state["short_text"] = f"% Image processing in progress. Please wait. | {param.yt_info['original_url'].split('=')[1]}: {int((sec+1)/param.yt_info['duration']*100)}% ({sec+1}/{param.yt_info['duration']} sec)"
+        analysis.execute_analysis(param)
+        
     
 # UPDATES
 
@@ -617,9 +799,12 @@ def _start():
     browser = webbrowser.get('"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" %s &')
     browser.open("http://localhost:20000")
 
-def _init_state(state=None):
+def _remove_img_file():
     file_list = _glob(_join(_dirname('__file__'),'static/image*.jpg'))
     for file in file_list: _remove(file)
+    
+def _init_state(state=None):
+    _remove_img_file()
     if state!=None:
         print(state.user_state)
         #state.user_state = state_dict
