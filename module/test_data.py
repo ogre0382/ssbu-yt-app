@@ -131,15 +131,38 @@ def part_gs_test():
     }
     return ['KAMUI'], [yti0, yti1, yti2, yti3, yti4], {'crop': {'pt1': [0, 0], 'pt2': [1585, 891]}}
 
+def generate_message(k=10):
+    collect_repeater = dict()
+    for i in range(k):
+        collect_repeater.update({
+            f"message{i}": {
+                "id": i,
+                "text": "Not started",
+                "visibility": False,
+                "repeater": {
+                    "images0": {
+                        "start_html": {
+                            "image_source": "static/image0_0.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image0_0.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    }
+                }
+            }
+        })
+    print(collect_repeater)
+
 if __name__ == '__main__':
     yt_infos = part_gs_test()[1]
-    yt_infos[0]["original_url"]
-    yt_infos[1]["original_url"]+"&t=3s"
-    yt_infos[2]["original_url"]+"&t=33s"
-    yt_infos[3]["original_url"]+"&t=333s"
-    yt_infos[4]["original_url"]+"&t=3333s"
     for i, yti in enumerate(yt_infos):
         yt_url = yti["original_url"]+"&t="+"3"*(i+1)+"s"
         print(yt_url)
         # 文字列から数字部分だけをリストとして取得：re.findall関数 https://atmarkit.itmedia.co.jp/ait/articles/2103/12/news030.html
         print(re.findall(r'\d+',yt_url)[-1])
+    
+    generate_message()
