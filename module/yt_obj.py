@@ -94,7 +94,7 @@ class GetYoutube:
 
     # スタティックメソッド https://qiita.com/cardene/items/14d300c1b46371e74a38
     @staticmethod
-    def get_yt_image(info, sec_pos=0, dsize=(1920,1080), imw_path=None, ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}, ):
+    def get_yt_image(info, sec_pos=0, dsize=(1920,1080), gray=False, imw_path="imw_path", ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}):
         cap = cv2.VideoCapture(info["cap"])
         cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
         ret, img = cap.read()
@@ -104,18 +104,19 @@ class GetYoutube:
             cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
             ret, img = cap.read()
         img = cv2.resize(img, dsize=dsize)
+        if gray: img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         if ('.jpg' in imw_path) or ('.png' in imw_path): cv2.imwrite(imw_path, img)
         return img
     
     @staticmethod
-    def set_yt_image(cv2dict, rect=False, crop=False, dsize=(1920,1080), imr_path=None, imw_path=None):
-        img = cv2.imread(imr_path)
+    def set_yt_image(cv2dict, img=None, rect=False, crop=False, dsize=(1920,1080), imr_path="imr_path", imw_path="imw_path"):
+        if img is None: img = cv2.imread(imr_path)
         if rect:
             for key in cv2dict.keys():
                 img = cv2.rectangle(img, pt1=cv2dict[key]['pt1'], pt2=cv2dict[key]['pt2'], color=cv2dict[key]['color'], thickness=cv2dict[key]['thickness'])
         if crop:
-            for key in cv2dict.keys():
-                img = img[cv2dict[key]['pt1'][1]:cv2dict[key]['pt2'][1], cv2dict[key]['pt1'][0]:cv2dict[key]['pt2'][0]]
+            for i in range(len(cv2dict.keys())):
+                img = img[cv2dict[f'crop{i}']['pt1'][1]:cv2dict[f'crop{i}']['pt2'][1], cv2dict[f'crop{i}']['pt1'][0]:cv2dict[f'crop{i}']['pt2'][0]]
                 #img = img[crop['top']:crop['top']+crop['height'], crop['left']:crop['left']+crop['width']]
         img = cv2.resize(img, dsize=dsize)
         if ('.jpg' in imw_path) or ('.png' in imw_path): cv2.imwrite(imw_path, img)
@@ -201,7 +202,7 @@ def get_yt_caps(input_url, resolution='best', ydl_opts={}):
 
 #def get_yt_image(info, frame_pos, dsize=None, crop_dsize=None, crop=None, add_rect_dsize=None, add_rect=None, cv2pil=False, gray=False):
 def get_yt_image(info, frame_pos, ydl_opts={}, dsize=None, crop=None, add_rect=None, cv2pil=False, gray=False):
-    cap = info.cap
+    cap = info["cap"]
     cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
     ret, img = cap.read()
     if not ret:

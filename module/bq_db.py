@@ -60,9 +60,9 @@ class BigqueryDatabase:
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
         if table_item!=None: self.client.query(f"CREATE TABLE IF NOT EXISTS `{table_ref}` ({', '.join(table_item)});")
 
-    def insert_my_data(self, table_name=None, insert_item=None, insert_data=None, main_data_index=-1):
+    def insert_my_data(self, table_name=None, insert_item=[], insert_data=[], main_data_index=-1):
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
-        if insert_item!=None and insert_data!=None:
+        if len(insert_item)>0 and len(insert_data)>0:
         # 重複データが無いか確認
             select_df = self.client.query(f"SELECT {', '.join(insert_item)} FROM `{table_ref}`;").to_dataframe()
             select_val_tolist = select_df.values.tolist()
@@ -74,8 +74,10 @@ class BigqueryDatabase:
                 else:        
                     # 無ければデータ登録用のリストに格納
                     insert_values.append(str(d))
-            #print(f"INSERT INTO `{table_ref}` ({', '.join(insert_item)}) VALUES {', '.join(insert_values)};")
+            print(f"INSERT INTO `{table_ref}` ({', '.join(insert_item)}) VALUES {', '.join(insert_values)};")
             self.client.query(f"INSERT INTO `{table_ref}` ({', '.join(insert_item)}) VALUES {', '.join(insert_values)};")
+        else:
+            print("登録するデータが無いか、データ型が指定されていません")
 
     def select_my_data(self, table_name=None, select_item=None, where_req=None):
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
@@ -100,9 +102,9 @@ class BigqueryDatabase:
 class SmashDatabase(BigqueryDatabase):
     def __init__(self, dataset_name):
         super().__init__(dataset_name)
-        self.chara_item_type = ('id INT64', 'recog_name STRING', 'first_color BOOL', 'chara_id INT64', 'chara_name STRING',)
-        self.chara_item = tuple([item.split()[0] for item in self.chara_item_type])
-        self.chara_insert_data = [
+        self.fighter_item_type = ('id INT64', 'recog_name STRING', 'first_color BOOL', 'fighter_id INT64', 'fighter_name STRING',)
+        self.fighter_item = tuple([item.split()[0] for item in self.fighter_item_type])
+        self.fighter_insert_data = [
             (1,	    'ALEX',         False,  79, 'STEVE'),
             (2,	    'BANJO',        True,   75, 'BANJO & KAZOOIE'),
             (3,	    'BAYONET',      True,   64, 'BAYONETTA'),
@@ -201,7 +203,7 @@ class SmashDatabase(BigqueryDatabase):
             (96,	'SAMUS',        True,   4,	'SAMUS')
         ]
         self.analysis_item_type = (
-            'id INT64', 'chara_id_1p INT64', 'chara_name_1p STRING', 'chara_id_2p INT64', 'chara_name_2p STRING', 
+            'id INT64', 'fighter_id_1p INT64', 'fighter_name_1p STRING', 'fighter_id_2p INT64', 'fighter_name_2p STRING', 
             'target_player_name STRING', 'target_player_is_1p BOOL', 'target_player_is_win BOOL', 
             'game_start_datetime DATETIME', 'game_start_url STRING','game_end_datetime DATETIME', 'game_end_url STRING', 
             'title STRING', 'category STRING',
@@ -209,18 +211,18 @@ class SmashDatabase(BigqueryDatabase):
         self.analysis_item = tuple([item.split()[0] for item in self.analysis_item_type])
         self.drop_analysis_item = self.analysis_item[0:10]+self.analysis_item[12:]
     
-    def create_chara_table_data(self):
-        super().create_my_table('chara_table', self.chara_item_type)
-        super().insert_my_data('chara_table', self.chara_item, self.chara_insert_data)
+    def create_fighter_table_data(self):
+        super().create_my_table('fighter_table', self.fighter_item_type)
+        super().insert_my_data('fighter_table', self.fighter_item, self.fighter_insert_data)
         
     def create_analysis_table(self):
         super().create_my_table('analysis_table', self.analysis_item_type)
     
-    def insert_analysis_data(self, table_name=None, insert_item=None, insert_data=None, main_data_index=-1):
-        super().insert_my_data(table_name, insert_item, insert_data, main_data_index)
+    def insert_analysis_data(self, insert_data):
+        super().insert_my_data('analysis_table', self.analysis_item_type, insert_data, 9)
     
-    def select_chara_data(self):
-        df = super().select_my_data('chara_table', ('*',))
+    def select_fighter_data(self):
+        df = super().select_my_data('fighter_table', ('*',))
         return df.sort_values('id')
     
     def select_analysis_data(self):
@@ -238,25 +240,27 @@ class SmashDatabase(BigqueryDatabase):
 def main2():
     ssbu_db = SmashDatabase('ssbu_dataset')
     ssbu_db.create_my_dataset()
-    ssbu_db.create_chara_table_data()
+    ssbu_db.create_fighter_table_data()
     ssbu_db.create_analysis_table()
-    print(ssbu_db.select_analysis_data())
-
+    df = ssbu_db.select_analysis_data()
+    print(df)
+    print(df['title'].value_counts())
+    
 # def ssbu_bq():
-#     charalist = [charadata[4] for charadata in insert_data]
+#     fighterlist = [fighterdata[4] for fighterdata in insert_data]
 #     aulist=[]
-#     for chara in charalist:
+#     for fighter in fighterlist:
 #         for au in string.ascii_uppercase:
-#             if au in chara: aulist.append(au)
+#             if au in fighter: aulist.append(au)
 #     print(sorted(set(aulist)))
 
-#     #select_item = ('chara_id','chara_name',)
+#     #select_item = ('fighter_id','fighter_name',)
 #     select_item = ('*')
-#     where_req = ('first_color = True','chara_id < 72',)
-#     df = ssbu_db.select_my_data('chara_table', select_item, where_req)
-#     df_sort = df.sort_values('chara_id')
+#     where_req = ('first_color = True','fighter_id < 72',)
+#     df = ssbu_db.select_my_data('fighter_table', select_item, where_req)
+#     df_sort = df.sort_values('fighter_id')
 #     print(df_sort)
-#     #print(df_sort['chara_name'].to_list())
+#     #print(df_sort['fighter_name'].to_list())
 #     for recog_name in df_sort['recog_name'].to_list():
 #         print(recog_name[-4:None])
 #         print(recog_name[-5:-1])
@@ -266,12 +270,12 @@ def main2():
 #     print(df_sort)
 #     print(df_sort['game_start_url'].to_list())
 
-#     df = ssbu_db.select_my_data('analysis_table', ('*',), ('chara_id_1p != 63','chara_id_1p != 77',))
-#     df_sort = df.sort_values('chara_id_1p')
-#     print(set(df_sort['chara_name_1p'].to_list()))
-#     df = ssbu_db.select_my_data('analysis_table', ('*',), ('chara_id_2p != 63','chara_id_2p != 77',))
-#     df_sort = df.sort_values('chara_id_2p')
-#     print(set(df_sort['chara_name_2p'].to_list()))
+#     df = ssbu_db.select_my_data('analysis_table', ('*',), ('fighter_id_1p != 63','fighter_id_1p != 77',))
+#     df_sort = df.sort_values('fighter_id_1p')
+#     print(set(df_sort['fighter_name_1p'].to_list()))
+#     df = ssbu_db.select_my_data('analysis_table', ('*',), ('fighter_id_2p != 63','fighter_id_2p != 77',))
+#     df_sort = df.sort_values('fighter_id_2p')
+#     print(set(df_sort['fighter_name_2p'].to_list()))
     
 #     # df = ssbu_db.select_my_data('analysis_table', ('MAX(id)',))
 #     # print(df.iloc[0,0])
@@ -284,8 +288,8 @@ def ssbu_bq_sel():
     #print(len(ssbu_db.select_my_data('analysis_table', ('*',))))
     
     df = ssbu_db.select_my_data('analysis_table', ('*',))
-    chara_list = list(set(df['chara_name_1p'].to_list()+df['chara_name_2p'].to_list()))
-    print(sorted(chara_list),len(chara_list))
+    fighter_list = list(set(df['fighter_name_1p'].to_list()+df['fighter_name_2p'].to_list()))
+    print(sorted(fighter_list),len(fighter_list))
     
     url_list = df['game_start_url'].to_list()
     org_url_list = list(set([url[:43] for url in url_list]))
@@ -293,28 +297,28 @@ def ssbu_bq_sel():
     org_url_list.remove('https://www.youtube.com/watch?v=dqs-pK0JhuI')
     org_url_list.insert(0, 'https://www.youtube.com/watch?v=P7Olxt1_tG0')
     org_url_list.insert(0, 'https://www.youtube.com/watch?v=dqs-pK0JhuI')
-    chara_2p_list = df['chara_name_2p'].to_list()
-    rm_chara_list = []
+    fighter_2p_list = df['fighter_name_2p'].to_list()
+    rm_fighter_list = []
     for org_url in org_url_list:
-        chara_each_url = []
-        for url, chara_2p in zip(url_list, chara_2p_list):
-            if org_url in url: chara_each_url.append(chara_2p)
+        fighter_each_url = []
+        for url, fighter_2p in zip(url_list, fighter_2p_list):
+            if org_url in url: fighter_each_url.append(fighter_2p)
         if ('P7Olxt1_tG0' or 'dqs-pK0JhuI') in org_url: 
-            rm_chara_list += list(set(chara_each_url)) 
+            rm_fighter_list += list(set(fighter_each_url)) 
         else: 
-            #chara_set = set([chara for chara in chara_each_url if chara not in rm_chara_list])
-            chara_set = set(chara_each_url)
-            print(org_url, ":", len(chara_set), ":", chara_set)
+            #fighter_set = set([fighter for fighter in fighter_each_url if fighter not in rm_fighter_list])
+            fighter_set = set(fighter_each_url)
+            print(org_url, ":", len(fighter_set), ":", fighter_set)
     
 def ssbu_bq_del():
     ssbu_db = BigqueryDatabase('ssbu_dataset')
-    #ssbu_db.delete_my_data('chara_table', ('id > -1',))
+    #ssbu_db.delete_my_data('fighter_table', ('id > -1',))
     #ssbu_db.delete_my_data('analysis_table', ('title = "2200を目指すスマメイト2095～"',))
     ssbu_db.delete_my_data('analysis_table', ('id > -1',))
     
 def ssbu_bq_upd():
     ssbu_db = BigqueryDatabase('ssbu_dataset')
-    ssbu_db.update_my_data('analysis_table', ("target_player_is_win_lose_draw = 'win'",) ,('chara_id_1p = 46',))
+    ssbu_db.update_my_data('analysis_table', ("target_player_is_win_lose_draw = 'win'",) ,('fighter_id_1p = 46',))
 
 if __name__ == '__main__':
     #BigqueryDatabase("ssbu_dataset")
@@ -322,4 +326,7 @@ if __name__ == '__main__':
     #ssbu_bq_sel()
     #ssbu_bq_del()
     #ssbu_bq_upd()
-    main2()
+    # main2()
+    inputs = {"fighter_df": SmashDatabase('ssbu_dataset').select_fighter_data()}
+    df_sorted = inputs["fighter_df"].sort_values(by='id')
+    print(df_sorted)

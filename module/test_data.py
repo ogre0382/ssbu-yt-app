@@ -1,3 +1,4 @@
+from pprint import pprint
 import re
 
 def full_gs_test():
@@ -101,7 +102,8 @@ def full_gs_test():
         'duration': 4206, 'channel': 'Ly', 'release_timestamp': 1668353018, 'original_url': 'https://www.youtube.com/watch?v=Pkho2QJ2bfw', 'fps': 30, 
         'cap': 'https://rr2---sn-oguesnds.googlevideo.com/videoplayback?expire=1712399120&ei=sM4QZqi_MbHu2roPt4ij8Ag&ip=240b%3A11%3A1041%3A8a00%3Ae56b%3Abeee%3A62f8%3A5519&id=o-AJ7vYbfZNGI8oq2Eml-IbjG_HguGkWFfatFMKsXlfc3t&itag=136&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=-H&mm=31%2C29&mn=sn-oguesnds%2Csn-oguelnzz&ms=au%2Crdu&mv=m&mvi=2&pl=36&initcwndbps=1631250&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=1000217102&dur=4205.866&lmt=1707601395192016&mt=1712377247&fvip=3&keepalive=yes&fexp=51141541&c=IOS&txp=7219224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRAIgeV5fs3Epl0nC_anwtPrFmcO1Ds4EiroCLybgKLymd8cCIBGvZUJoubdBwABP4vyUUooEzToaDkx3jtJ-4zsy-i-w&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRgIhALWDV7erBfauL4p3-fIzxipZR7OzwCmXI4UonkKGa3jrAiEAxkqwtk64M4L0bxC1hR3oKixJEgy6rJOWuewUiDWEWyk%3D'
     }
-    return ['KAMUI', 'BYLETH'], [yti0, yti1, yti2, yti3, yti4, yti5, yti6, yti7, yti8, yti9, yti10, yti11, yti12, yti13, yti14, yti15, yti16, yti17, yti18, yti19], 'None'
+    # return ['KAMUI', 'BYLETH'], [yti0, yti1, yti2, yti3, yti4, yti5, yti6, yti7, yti8, yti9, yti10, yti11, yti12, yti13, yti14, yti15, yti16, yti17, yti18, yti19], {'crop0': {'pt1': [0,0], 'pt2': [1920,1080]}}
+    return ['KAMUI', 'BYLETH'], [yti0], {'crop0': {'pt1': [0,0], 'pt2': [1920,1080]}}
 
 def part_gs_test():
     yti0 = {
@@ -129,14 +131,84 @@ def part_gs_test():
         'duration': 7955, 'channel': 'Neo', 'release_timestamp': 1654925784, 'original_url': 'https://www.youtube.com/watch?v=pRmmyRNcQk0', 'fps': 60, 
         'cap': 'https://rr4---sn-oguelnsy.googlevideo.com/videoplayback?expire=1712083332&ei=JP0LZom5GPjM2roPovyy0Ao&ip=106.73.16.65&id=o-AB4ohTaG48wEXwibot_hSOgy_WgMZE9USYb38lgjAK0T&itag=298&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&mh=-e&mm=31%2C26&mn=sn-oguelnsy%2Csn-npoe7nl6&ms=au%2Conr&mv=m&mvi=4&pl=16&initcwndbps=923750&siu=1&vprv=1&svpuc=1&mime=video%2Fmp4&gir=yes&clen=2485924475&dur=7955.150&lmt=1680509445822434&mt=1712061202&fvip=2&keepalive=yes&fexp=51141541&c=IOS&txp=7219224&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Csiu%2Cvprv%2Csvpuc%2Cmime%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRQIhAL2u4o1Jrw8LWKHK80anM6wvs6NqRjpQP7dNpkBjHHOvAiB93vWij6FqjG0jn9rPriGossY26ZI5pT8RxhK6_bSKzw%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=ALClDIEwRQIgMCCU2I-mEl-zDo98Y0wZvt9umxNzRd3as-r8Fh6V_zoCIQDSNbx7i3amzRcTPNHexJuG8lp-uacuhJIrxPgNmQpnNA%3D%3D'
     }
-    return ['KAMUI'], [yti0, yti1, yti2, yti3, yti4], {'crop': {'pt1': [0, 0], 'pt2': [1585, 891]}}
+    return ['KAMUI'], [yti0, yti1, yti2, yti3, yti4], {'crop0': {'pt1': [0, 0], 'pt2': [1585, 891]}}
 
-def generate_message(k=10):
-    collect_repeater = dict()
-    for i in range(k):
+# def generate_message(k=10):
+#     message_repeater = dict()
+#     for i in range(5):
+#         message_repeater.update({
+#             f"images{i}": {
+#                 "start_html": {
+#                     "image_source": "static/image0_0.jpg",
+#                     "inside_url": "url",
+#                     "inside_vs": "vs"
+#                 },
+#                 "end_html": {
+#                     "image_source": "static/image0_0.jpg",
+#                     "inside_url": "url",
+#                     "inside_res": "res"
+#                 }
+#             }
+#         })
+#     collect_repeater = dict()
+#     for i in range(k):
+#         collect_repeater.update({
+#             f"message{i}": {
+#                 "id": i,
+#                 "text": "Not started",
+#                 "visibility": False,
+#                 "repeater": message_repeater
+#             }
+#         })
+#     pprint(collect_repeater)
+
+# def generate_message(state, collect_repeater=dict()):
+def generate_message(collect_repeater=dict()):
+    # for i in range(state["main_yt_num"]):
+    for i in range(10):
         collect_repeater.update({
             f"message{i}": {
                 "id": i,
+                "text": "Not started",
+                "visibility": False,
+                "repeater": generate_view_results()
+            }
+        })
+    # state["collect"]["repeater"] = collect_repeater
+    pprint(collect_repeater)
+
+# def generate_view_results(state, message_repeater=dict(), res_num=0):
+def generate_view_results(message_repeater=dict(), res_num=0):
+    message_repeater.update({
+        f"images{res_num}": {
+            "start_html": {
+                "image_source": f"static/image{res_num}_0.jpg",
+                "inside_url": "url",
+                "inside_vs": "vs"
+            },
+            "end_html": {
+                "image_source": f"static/image{res_num}_1.jpg",
+                "inside_url": "url",
+                "inside_res": "res"
+            }
+        }
+    })
+    # if res_num>0: state["collect"]["repeater"][f"message{res_num}"]["repeater"] = message_repeater
+    return message_repeater
+
+state_dict = {
+    "collect": {
+        "start_button": {
+            "disabled": "no",
+            #"visibility": False if rel else True
+        },
+        "stop_button": {
+            "disabled": "yes",
+            #"visibility": False if rel else True
+        },
+        "repeater": {
+            "message0": {
+                "id": 0,
                 "text": "Not started",
                 "visibility": False,
                 "repeater": {
@@ -151,11 +223,170 @@ def generate_message(k=10):
                             "inside_url": "url",
                             "inside_res": "res"
                         }
+                    },
+                    "images1": {
+                        "start_html": {
+                            "image_source": "static/image0_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image0_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images2": {
+                        "start_html": {
+                            "image_source": "static/image0_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image0_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
                     }
                 }
-            }
-        })
-    print(collect_repeater)
+            },
+            "message1": {
+                "id": 1,
+                "text": "Not started",
+                "visibility": False,
+                "repeater": {
+                    "images0": {
+                        "start_html": {
+                            "image_source": "static/image1_0.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image1_0.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images1": {
+                        "start_html": {
+                            "image_source": "static/image1_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image1_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images2": {
+                        "start_html": {
+                            "image_source": "static/image1_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image1_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    }
+                }
+            },
+            "message2": {
+                "id": 2,
+                "text": "Not started",
+                "visibility": False,
+                "repeater": {
+                    "images0": {
+                        "start_html": {
+                            "image_source": "static/image2_0.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image2_0.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images1": {
+                        "start_html": {
+                            "image_source": "static/image2_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image2_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images2": {
+                        "start_html": {
+                            "image_source": "static/image2_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image2_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    }
+                }
+            },
+            "message3": {
+                "id": 3,
+                "text": "Not started",
+                "visibility": False,
+                "repeater": {
+                    "images0": {
+                        "start_html": {
+                            "image_source": "static/image3_0.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image3_0.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images1": {
+                        "start_html": {
+                            "image_source": "static/image3_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image3_0_crop.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    },
+                    "images2": {
+                        "start_html": {
+                            "image_source": "static/image3_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_vs": "vs"
+                        },
+                        "end_html": {
+                            "image_source": "static/image3_0_crop_3rect.jpg",
+                            "inside_url": "url",
+                            "inside_res": "res"
+                        }
+                    }
+                }
+            },
+            "visibility": False
+        },
+        #"visibility": False if rel else True
+    }
+}
+
+def none_check():
+    print(len([None, None]))
 
 if __name__ == '__main__':
     yt_infos = part_gs_test()[1]
@@ -166,3 +397,4 @@ if __name__ == '__main__':
         print(re.findall(r'\d+',yt_url)[-1])
     
     generate_message()
+    none_check()

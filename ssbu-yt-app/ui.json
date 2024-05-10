@@ -1058,7 +1058,7 @@
             "position": 1,
             "parentId": "zgpsnrzgmzkkmzbi",
             "handlers": {},
-            "visible": false
+            "visible": "collect.repeater_visibility"
         },
         "gicm0ufca7rdcu8z": {
             "id": "gicm0ufca7rdcu8z",
@@ -1078,12 +1078,16 @@
             "content": {
                 "text": "Stop",
                 "isDisabled": "@{collect.stop_button.disabled}",
-                "icon": "stop"
+                "icon": "stop",
+                "cssClasses": ""
             },
             "isCodeManaged": false,
             "position": 1,
             "parentId": "2tsg4epph5pe0c99",
-            "handlers": {}
+            "handlers": {
+                "ss-click": "collect"
+            },
+            "visible": "collect.visibility"
         },
         "uxxnp8m1xfa7toxy": {
             "id": "uxxnp8m1xfa7toxy",
@@ -1411,7 +1415,8 @@
             "parentId": "2tsg4epph5pe0c99",
             "handlers": {
                 "ss-click": "collect"
-            }
+            },
+            "visible": "collect.visibility"
         },
         "xfdwe042i65ra6oa": {
             "id": "xfdwe042i65ra6oa",
