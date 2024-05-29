@@ -7,7 +7,6 @@ import yt_dlp
 from dataclasses import dataclass, field, asdict
 from PIL import Image
 
-
 @dataclass
 class YoutubeStream:
     url: str = None
@@ -98,7 +97,10 @@ class GetYoutube:
         cap = cv2.VideoCapture(info["cap"])
         cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
         ret, img = cap.read()
-        if not ret:
+        loop_cnt = 0
+        while not ret:
+            loop_cnt+=1
+            print(f'Fail to do "cap.read()" with {info["original_url"]} ({loop_cnt} loop)')
             info = GetYoutube(info["original_url"], ydl_opts=ydl_opts).infos[0]
             cap = cv2.VideoCapture(info["cap"])
             cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
@@ -109,128 +111,28 @@ class GetYoutube:
         return img
     
     @staticmethod
-    def set_yt_image(cv2dict, img=None, rect=False, crop=False, dsize=(1920,1080), imr_path="imr_path", imw_path="imw_path"):
-        if img is None: img = cv2.imread(imr_path)
+    def set_yt_image(cv2dict=None, img=None, rect=False, crop=False, pre_dsize=None, post_dsize=None, gray=False, imr_path="imr_path", imw_path="imw_path"):
+        if (img is None) and (('.jpg' in imr_path) or ('.png' in imr_path)):
+            if gray: img = cv2.imread(imr_path, 0)
+            else: cv2.imread(imr_path)
         if rect:
             for key in cv2dict.keys():
                 img = cv2.rectangle(img, pt1=cv2dict[key]['pt1'], pt2=cv2dict[key]['pt2'], color=cv2dict[key]['color'], thickness=cv2dict[key]['thickness'])
         if crop:
+            # print("crop0更新前:", cv2dict['crop0'])
+            # cv2dict['crop0']['pt1'][0] = int(pre_dsize[0]*(cv2dict['crop0']['pt1'][0]/1920))
+            # cv2dict['crop0']['pt1'][1] = int(pre_dsize[1]*(cv2dict['crop0']['pt1'][1]/1080))
+            # cv2dict['crop0']['pt2'][0] = int(pre_dsize[0]*(cv2dict['crop0']['pt2'][0]/1920))
+            # cv2dict['crop0']['pt2'][1] = int(pre_dsize[1]*(cv2dict['crop0']['pt2'][1]/1080))
+            # print("crop0更新後:", cv2dict['crop0'])
             for i in range(len(cv2dict.keys())):
                 img = img[cv2dict[f'crop{i}']['pt1'][1]:cv2dict[f'crop{i}']['pt2'][1], cv2dict[f'crop{i}']['pt1'][0]:cv2dict[f'crop{i}']['pt2'][0]]
-                #img = img[crop['top']:crop['top']+crop['height'], crop['left']:crop['left']+crop['width']]
-        img = cv2.resize(img, dsize=dsize)
-        if ('.jpg' in imw_path) or ('.png' in imw_path): cv2.imwrite(imw_path, img)
+                if i==0 and pre_dsize!=None: img = cv2.resize(img, dsize=pre_dsize)
+        if post_dsize!=None: img = cv2.resize(img, dsize=post_dsize)
+        if ('.jpg' in imw_path) or ('.png' in imw_path):
+            if gray: img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            cv2.imwrite(imw_path, img)
         return img
-        
-
-"""
-@dataclass
-class YoutubeInfomation:
-    title: str = None
-    duration: int = None
-    release_datetime: datetime = None
-    original_url: str = None
-    fps: int = 0
-    cap: cv2.VideoCapture = None
-
-    def __init__(self, info):
-        self.title = info['title']
-        self.duration = info['duration']
-        self.release_datetime = datetime.fromtimestamp(info['release_timestamp'], JST).strftime('%Y-%m-%d %T')
-        self.original_url = info['original_url']
-        self.fps = info['fps']
-        self.formats = info['formats'][::-1]
-        self.cap = None
-
-    def __del__(self):
-        for k in list(self.__dict__.keys()):
-            if k not in ('title', 'duration', 'release_datetime', 'original_url', 'fps'): del self.__dict__[k]
-
-    @staticmethod
-    def get_yt_infos(input_url, ydl_opts={}):
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            infos = ydl.extract_info(input_url, download=False)
-            if 'entries' in infos.keys(): infos = infos['entries']
-            else: infos = [infos]
-            return [YoutubeInfomation(info) for info in infos]
-
-
-@dataclass
-class YoutubeStream:
-    url: str = None
-    resolution: str = None
-
-    def __init__(self, format):
-        self.url = format['url']
-        self.resolution = format['format_note']
-
-    @staticmethod
-    def get_yt_streams(info):
-        streams = [YoutubeStream(format)
-                for format in info.formats
-                if format['vcodec'] != 'none' and 'format_note' in format]
-        info.__del__()
-        _, unique_indices = np.unique(np.array([stream.resolution
-                                                for stream in streams]), return_index=True)
-        streams = [streams[index] for index in np.sort(unique_indices)]
-        resolutions = np.array([stream.resolution for stream in streams])
-        return streams[::-1], resolutions[::-1]
-
-
-def get_yt_caps(input_url, resolution='best', ydl_opts={}):
-    infos = YoutubeInfomation.get_yt_infos(input_url, ydl_opts=ydl_opts)
-    for i,info in enumerate(infos):
-        streams, resolutions = YoutubeStream.get_yt_streams(info)
-        
-        if resolution == 'best':
-            for j in range(len(streams)-1,-1,-1):
-                if "p" in streams[j].resolution:
-                    info.cap = cv2.VideoCapture(streams[j].url)
-                    break
-
-        elif resolution not in resolutions:
-            raise ValueError(f'Resolution {resolution} not available')
-        
-        else:
-            res_index = np.where(resolutions == resolution)[0][0]
-            info.cap = cv2.VideoCapture(streams[res_index].url)
-        #print(info)
-        infos[i] = info
-
-    return infos
-"""
-
-#def get_yt_image(info, frame_pos, dsize=None, crop_dsize=None, crop=None, add_rect_dsize=None, add_rect=None, cv2pil=False, gray=False):
-def get_yt_image(info, frame_pos, ydl_opts={}, dsize=None, crop=None, add_rect=None, cv2pil=False, gray=False):
-    cap = info["cap"]
-    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
-    ret, img = cap.read()
-    if not ret:
-        yt = GetYoutube(info.original_url, ydl_opts=ydl_opts)
-        info = yt.infos[0]
-        cap = info.cap
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_pos)
-        ret, img = cap.read()
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    if dsize!=None: img = cv2.resize(img, dsize=dsize)
-    if crop!=None:
-        #if crop_dsize!=None: img = cv2.resize(img, dsize=crop_dsize)
-        left, top, width, height = tuple(map(int, crop.values()))
-        img = img[top:top + height, left:left + width]
-        if dsize!=None: img = cv2.resize(img, dsize=dsize)
-    if add_rect!=None:
-        #if add_rect_dsize!=None: img = cv2.resize(img, dsize=add_rect_dsize)
-        for key in add_rect.keys():
-            img = cv2.rectangle(img, pt1=add_rect[key]['pt1'], pt2=add_rect[key]['pt2'], color=add_rect[key]['color'], thickness=add_rect[key]['thickness'])
-    if gray: img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    if cv2pil: return info,Image.fromarray(img)
-    else: return info,img
-
-def get_total_sec(infos):
-    total_sec=0
-    for info in infos:
-        total_sec+=info["duration"]
-    return timedelta(seconds=total_sec)
 
 if __name__ == '__main__':
     # url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zAPnbxJkz99IB_npRLLB3_'

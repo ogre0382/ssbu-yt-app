@@ -62,17 +62,17 @@ class BigqueryDatabase:
 
     def insert_my_data(self, table_name=None, insert_item=[], insert_data=[], main_data_index=-1):
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
-        if len(insert_item)>0 and len(insert_data)>0:
-        # 重複データが無いか確認
+        if len(insert_item)>0 and len(insert_data)>0: # 重複データが無いか確認
             select_df = self.client.query(f"SELECT {', '.join(insert_item)} FROM `{table_ref}`;").to_dataframe()
             select_val_tolist = select_df.values.tolist()
             select_val_list = list(itertools.chain.from_iterable(select_val_tolist))
             insert_values = []
             for d in insert_data:
-                if d[main_data_index] in select_val_list:
+                if (None in d) or (-1 in d):
+                    print(f"欠損しているデータがあります: {d}")
+                elif d[main_data_index] in select_val_list:
                     print(f"'{d[main_data_index]}'は既にデータベースに登録されています")
-                else:        
-                    # 無ければデータ登録用のリストに格納
+                else: # 既にデータベースに登録されているデータではない場合はデータ登録用のリストに格納
                     insert_values.append(str(d))
             print(f"INSERT INTO `{table_ref}` ({', '.join(insert_item)}) VALUES {', '.join(insert_values)};")
             self.client.query(f"INSERT INTO `{table_ref}` ({', '.join(insert_item)}) VALUES {', '.join(insert_values)};")
@@ -100,8 +100,8 @@ class BigqueryDatabase:
 
 # 【Python】クラスの継承・オーバーライドをしっかりと理解する https://note.com/keyma4note/n/ne62443307140
 class SmashDatabase(BigqueryDatabase):
-    def __init__(self, dataset_name):
-        super().__init__(dataset_name)
+    def __init__(self):
+        super().__init__('ssbu_dataset')
         self.fighter_item_type = ('id INT64', 'recog_name STRING', 'first_color BOOL', 'fighter_id INT64', 'fighter_name STRING',)
         self.fighter_item = tuple([item.split()[0] for item in self.fighter_item_type])
         self.fighter_insert_data = [
@@ -145,7 +145,8 @@ class SmashDatabase(BigqueryDatabase):
             (38,	'LEMMY',        False,  58,	'KOOPA Jr.'),
             (39,	'LITTLEMAC',    True,   52, 'LITTLE MAC'),
             (40,	'LUCAS',        True,   40,	'LUCAS'),
-            (41,	'LUCA',         True,   44,	'LUCARIO'),
+            # (41,	'LUCA',         True,   44,	'LUCARIO'),
+            (41,	'LUCARI',         True,   44,	'LUCARIO'),
             (42,	'LUCINA',       True,   24,	'LUCINA'),
             (43,	'LUDWIG',       False,  58,	'KOOPA Jr.'),
             (44,	'LUIGI',        True,   10,	'LUIGI'),
@@ -219,68 +220,33 @@ class SmashDatabase(BigqueryDatabase):
         super().create_my_table('analysis_table', self.analysis_item_type)
     
     def insert_analysis_data(self, insert_data):
-        super().insert_my_data('analysis_table', self.analysis_item_type, insert_data, 9)
+        super().insert_my_data('analysis_table', self.analysis_item, insert_data, 9)
     
     def select_fighter_data(self):
         df = super().select_my_data('fighter_table', ('*',))
         return df.sort_values('id')
     
-    def select_analysis_data(self):
+    def select_analysis_data(self, drop=False):
         df = super().select_my_data('analysis_table', ('*',))
         df = df.sort_values('game_start_datetime')
         # pandas 2.2.0の「Downcasting object dtype arrays ～」というFutureWarningに対応した https://qiita.com/yuji38kwmt/items/ba07a25924cfda363e42
         df = df.astype({"game_start_datetime":"str"})
         df = df.astype({"target_player_is_win":"str"})
-        df = df[list(self.drop_analysis_item)]
+        if drop: df = df[list(self.drop_analysis_item)]
         # [Python] pandas 条件抽出した行の特定の列に、一括で値を設定する https://note.com/kohaku935/n/n5836a09b96a6
         df.loc[df["target_player_is_win"]=="True", "target_player_is_win"] = "Win"
         df.loc[df["target_player_is_win"]=="False", "target_player_is_win"] = "Lose"
         return df
     
 def main2():
-    ssbu_db = SmashDatabase('ssbu_dataset')
+    ssbu_db = SmashDatabase()
     ssbu_db.create_my_dataset()
     ssbu_db.create_fighter_table_data()
     ssbu_db.create_analysis_table()
     df = ssbu_db.select_analysis_data()
     print(df)
     print(df['title'].value_counts())
-    
-# def ssbu_bq():
-#     fighterlist = [fighterdata[4] for fighterdata in insert_data]
-#     aulist=[]
-#     for fighter in fighterlist:
-#         for au in string.ascii_uppercase:
-#             if au in fighter: aulist.append(au)
-#     print(sorted(set(aulist)))
 
-#     #select_item = ('fighter_id','fighter_name',)
-#     select_item = ('*')
-#     where_req = ('first_color = True','fighter_id < 72',)
-#     df = ssbu_db.select_my_data('fighter_table', select_item, where_req)
-#     df_sort = df.sort_values('fighter_id')
-#     print(df_sort)
-#     #print(df_sort['fighter_name'].to_list())
-#     for recog_name in df_sort['recog_name'].to_list():
-#         print(recog_name[-4:None])
-#         print(recog_name[-5:-1])
-
-#     df = ssbu_db.select_my_data('analysis_table', '*')
-#     df_sort = df.sort_values('id')
-#     print(df_sort)
-#     print(df_sort['game_start_url'].to_list())
-
-#     df = ssbu_db.select_my_data('analysis_table', ('*',), ('fighter_id_1p != 63','fighter_id_1p != 77',))
-#     df_sort = df.sort_values('fighter_id_1p')
-#     print(set(df_sort['fighter_name_1p'].to_list()))
-#     df = ssbu_db.select_my_data('analysis_table', ('*',), ('fighter_id_2p != 63','fighter_id_2p != 77',))
-#     df_sort = df.sort_values('fighter_id_2p')
-#     print(set(df_sort['fighter_name_2p'].to_list()))
-    
-#     # df = ssbu_db.select_my_data('analysis_table', ('MAX(id)',))
-#     # print(df.iloc[0,0])
-
-#@stop_watch
 def ssbu_bq_sel():
     ssbu_db = BigqueryDatabase('ssbu_dataset')
     
@@ -320,6 +286,19 @@ def ssbu_bq_upd():
     ssbu_db = BigqueryDatabase('ssbu_dataset')
     ssbu_db.update_my_data('analysis_table', ("target_player_is_win_lose_draw = 'win'",) ,('fighter_id_1p = 46',))
 
+def check_fighter_table():
+    ssbu_db = SmashDatabase()
+    df =ssbu_db.select_fighter_data()
+    fighter_lists = df['recog_name'].to_list(), df['fighter_id'].to_list(), df['fighter_name'].to_list()
+    for start, end in zip([-4,-5,-3,-5,-4], [None,-1,None,-2,-1]):
+        print(start, end)
+        dup_id_list = []
+        for recog_name_0, fighter_id_0, fighter_name_0 in zip(fighter_lists[0], fighter_lists[1], fighter_lists[2]):
+            for recog_name_1, fighter_id_1, fighter_name_1 in zip(fighter_lists[0], fighter_lists[1], fighter_lists[2]):
+                if recog_name_0[start:end]==recog_name_1[start:end] and fighter_id_0!=fighter_id_1 and fighter_id_0 not in dup_id_list: 
+                    print([recog_name_1[start:end], f"{recog_name_0}|{recog_name_1}", f"{fighter_id_0}|{fighter_id_1}", f"{fighter_name_0}|{fighter_name_1}"])
+                    dup_id_list.append(fighter_id_1)
+
 if __name__ == '__main__':
     #BigqueryDatabase("ssbu_dataset")
     #ssbu_bq()
@@ -327,6 +306,8 @@ if __name__ == '__main__':
     #ssbu_bq_del()
     #ssbu_bq_upd()
     # main2()
-    inputs = {"fighter_df": SmashDatabase('ssbu_dataset').select_fighter_data()}
-    df_sorted = inputs["fighter_df"].sort_values(by='id')
-    print(df_sorted)
+    # inputs = {"fighter_df": SmashDatabase().select_fighter_data()}
+    # df_sorted = inputs["fighter_df"].sort_values(by='id')
+    # print(df_sorted)
+    check_fighter_table()
+    

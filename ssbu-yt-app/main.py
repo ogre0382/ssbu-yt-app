@@ -1,4 +1,5 @@
 import streamsync as ss
+import threading
 import time
 from glob import glob as _glob
 from os.path import dirname as _dirname
@@ -7,15 +8,12 @@ from os import remove as _remove
 from pprint import pprint as _pprint
 from sys import path
 path.append(_join(_dirname('__file__'), '..'))
-# from module.esports_analysis import get_fighterlists as _get_fighterlists
-# from module.esports_analysis import get_templater as _get_templater
 from threading import Thread
 from tqdm import tqdm
-from module.esports_analysis import ThreadWithReturnValue, Parameter, EsportsAnalysis
+from module.esports_analysis import EsportsAnalysis,Parameter #NewThread, get_charalists, get_templater, get_category, ssbu_each_analysis
 from module.bq_db import SmashDatabase
 from module.yt_obj import GetYoutube
-from module.test_data import part_gs_test as _part_gs_test
-from module.test_data import full_gs_test as _full_gs_test
+from multiprocessing import Process
 
 # EVENT HANDLERS
 
@@ -90,6 +88,9 @@ def collect(state):
         state["collect"]["repeater"] = dict()
         state["collect"]["repeater_visibility"] = True
         _remove_img_file()
+        # _generate_message(state, state["collect"].to_dict()["repeater"])
+        _generate_message(state)
+        print(state["collect"]["repeater"])
         _generate_insert_data(state)
     if state["collect"]["stop_button"]["disabled"]=="no":
         state["collect"]["start_button"]["disabled"] = "no"
@@ -99,52 +100,18 @@ def collect(state):
 #### Event context https://www.streamsync.cloud/repeater.html
 def view_results(state, payload, context):
     id = context["item"]['id']
-    # print(context["item"])
-    # print(state["proc"]["repeater"][f"message{id}"])
     state["collect"]["repeater"][f"message{id}"]["visibility"] = True if "view" in payload else False
-    # print(state["proc"]["repeater"][f"message{id}"])
 
 # LOAD / GENERATE DATA
 
 def _get_main_df():
-    return SmashDatabase('ssbu_dataset').select_fighter_data()
+    return SmashDatabase().select_fighter_data()
 
 def _get_select(main_df=_get_main_df()):
     select_df = main_df.sort_values('fighter_id')
     select_df = select_df['fighter_name']
-    # print("select_df['fighter_name']", select_df)
     select_dict = select_df.to_dict()
-    # print(select_df.to_list())
     return {v: v for v in select_dict.values()}
-
-# def _get_message():
-#     message_repeater = dict()
-#     collect_repeater = dict()
-#     for i in range(75):
-#         message_repeater.update({
-#             f"images{i}": {
-#                 "start_html": {
-#                     "image_source": f"static/image{i}_0.jpg",
-#                     "inside_url": "url",
-#                     "inside_vs": "vs"
-#                 },
-#                 "end_html": {
-#                     "image_source": f"static/image{i}_1.jpg",
-#                     "inside_url": "url",
-#                     "inside_res": "res"
-#                 }
-#             }
-#         })
-#     for i in range(10):
-#         collect_repeater.update({
-#             f"message{i}": {
-#                 'id': i,
-#                 "text": "Not started",
-#                 "visibility": False,
-#                 "repeater": message_repeater
-#             }
-#         })
-#     return collect_repeater
 
 def _get_main_yt(url):
     return GetYoutube(url).infos
@@ -191,134 +158,192 @@ def _generate_message(state, collect_repeater=dict()):
         })
     state["collect"]["repeater"] = collect_repeater
 
-def _generate_view_results(state, message_repeater=dict(), res_num=0):
+def _generate_view_results(state, message_repeater=dict(), index=0, res_num=0):
     message_repeater.update({
         f"images{res_num}": {
             "start_html": {
                 "image_source": f"static/image{res_num}_0.jpg",
-                "inside_url": "url",
-                "inside_vs": "vs"
+                "inside_url": None,
+                "inside_vs": None
             },
             "end_html": {
                 "image_source": f"static/image{res_num}_1.jpg",
-                "inside_url": "url",
-                "inside_res": "res"
+                "inside_url": None,
+                "inside_res": None
             }
         }
     })
-    if res_num>0: state["collect"]["repeater"][f"message{res_num}"]["repeater"] = message_repeater
+    if res_num>0: state["collect"]["repeater"][f"message{index}"]["repeater"] = message_repeater
     return message_repeater
 
+# 【Python】threadingによるマルチスレッド処理の基本 | 入れ子のロック取得 RLock 
+# https://tech.nkhn37.net/python-threading-multithread/#_RLock
+lock = threading.RLock()
 def _generate_insert_data(state):
     inputs = state["inputs"]
     category = {'VIP':['VIP'], 'smashmate':['めいと', 'メイト','レート', 'レーティング']}
+    dsize = [(1024,576), (448*2,252*2), (448,252), (1280,720)]
     img = {
         "g_start": {
             "img": None,
             "temp_img": None,
             "temp_match_val": -1,
-            "dsize": (1024,576),
-            "crop": {"crop1": {'pt1': [0,0], 'pt2': [1024,int(576*0.2)]}}
+            "dsize": dsize[0],
+            "crop": {"crop1": {'pt1': [0,0], 'pt2': [dsize[0][0],int(dsize[0][1]*0.2)]}}
         },
         "g_fighter": {
             "img_1p": None,
             "img_2p": None,
-            "dsize": (448,252),
-            "crop_1p": {"crop1": {'pt1': [int(448*0.10),int(252*0.02)], 'pt2': [int(448*0.43),int(252*0.13)]}},
-            "crop_2p": {"crop1": {'pt1':[int(448*0.60),int(252*0.02)], 'pt2':[int(448*0.93),int(252*0.13)]}}
+            "dsize": dsize[1],
+            "crop_1p": {"crop1": {'pt1': [int(dsize[1][0]*0.10),int(dsize[1][1]*0.02)], 'pt2': [int(dsize[1][0]*0.43),int(dsize[1][1]*0.13)]}},
+            "crop_2p": {"crop1": {'pt1':[int(dsize[1][0]*0.60),int(dsize[1][1]*0.02)], 'pt2':[int(dsize[1][0]*0.93),int(dsize[1][1]*0.13)]}}
         },
         "g_finish": {
             "img": None,
             "temp_img": "gameset.png",
             "temp_match_val": 0.474,
-            "dsize": (448,252),
-            "crop": {"crop1": {'pt1':[int(448*0.21),int(252*0.06)], 'pt2':[int(448*0.79),int(252*0.64)]}}
+            "dsize": dsize[2],
+            "crop": {"crop1": {'pt1':[int(dsize[2][0]*0.21),int(dsize[2][1]*0.16)], 'pt2':[int(dsize[2][0]*0.79),int(dsize[2][1]*0.64)]}}
         },
         "g_result": {
             "img_1p": None,
             "img_2p": None,
             "img_rs": None,
-            "dsize": (1280,720),
-            "crop_1p": {"crop1": {'pt1':[int(1280*0.266),int(720*0.847)], 'pt2':[int(1280*0.343),int(720*0.927)]}},
-            "crop_2p": {"crop1": {'pt1':[int(1280*0.651),int(720*0.847)], 'pt2':[int(1280*0.728),int(720*0.927)]}},
-            "crop_rs": {"crop1": {'pt1':[int(1280*0.000),int(720*0.600)], 'pt2':[int(1280*0.500),int(720*1.000)]}}
-        }
+            "dsize": dsize[3],
+            "crop_1p": {"crop1": {'pt1':[int(dsize[3][0]*0.266),int(dsize[3][1]*0.847)], 'pt2':[int(dsize[3][0]*0.343),int(dsize[3][1]*0.927)]}},
+            "crop_2p": {"crop1": {'pt1':[int(dsize[3][0]*0.651),int(dsize[3][1]*0.847)], 'pt2':[int(dsize[3][0]*0.728),int(dsize[3][1]*0.927)]}},
+            "crop_rs": {"crop1": {'pt1':[int(dsize[3][0]*0.000),int(dsize[3][1]*0.600)], 'pt2':[int(dsize[3][0]*0.500),int(dsize[3][1]*1.000)]}}
+        },
+        "imw_path": _dirname('__file__')
     }
-    # 動画毎に並行(並列)処理
-    # print(inputs)
-    # print(inputs["fighter_df"])
-    # print(type(inputs["fighter_df"]))
-    # inputs_dict = inputs.to_dict()
-    # print(inputs_dict)
-    # print(inputs_dict["fighter_df"])
-    # print(type(inputs_dict["fighter_df"]))
+    #  動画毎に並行(並列)処理
     fighter_df = inputs["fighter_df"]
     inputs_dict = inputs.to_dict()
     inputs_dict["fighter_df"] = fighter_df
-    param = Parameter(inputs_dict, img, category)
-    # print(type(param.inputs["crop"]))
-    # print(param.inputs["crop"])
-    # print(type(param.inputs["crop"].to_dict()))
-    # print(param.inputs["crop"].to_dict())
-    # print(inputs["yt_infos"])
-    # param_list = []
-    # thread_list = []
-
-    # params = []
+    
+    ini_dur_dict = {
+        "_pYOceaWgUE":[174,384],
+        "0lSvRsCxnPs":[1334,1486],
+        "dqs-pK0JhuI":[5923,6152],
+        "jBPL8Ww_wDU":[142,297],
+        "p3Ch2_bnhDE":[819,1046],
+        "rweC6vZ4nqY":[8912,9093],
+        "Tpg6JuxtySU":[2252,2490],
+        "xKp81GIaD6o":[846,1105]#,
+        # "G1UFDlHvs9Q":[4314,4319]#, 
+        # "ys5m64edPIM":[4364,4751]
+        # "Xk28pn-xRwc":[856,1095]
+    }
+    
     tasks = []
-    for i in range(len(inputs["yt_infos"])):
-        # params.append(param)
-        tasks.append(Thread(target=_generate_analysis_data, args=(state,i,param,)))
-        # print(f"yt_info: ", yt_info)
-        # print("param: ", param)
-        print()
-    # state["collect"]["params"] = params
-    # for param in params:
-    #     tasks.append(Thread(target=_generate_analysis_data, args=(state,param,)))
-    #     print(f"param: ", param)
-    #     print()
-    for t in tasks:
-        t.start()
+    for i in range(state["main_yt_num"]):
+        for k in ini_dur_dict.keys():
+            if k in state["inputs"]["yt_infos"][i]['original_url']:
+                initial = ini_dur_dict[k][0]
+                duration = ini_dur_dict[k][1]
+        # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param, initial-30, duration),))
+        # task = Thread(target=_generate_yt_image, args=(state, i, EsportsAnalysis(i, param, 1),))
+        # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param, 1),))
+        task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i, initial, duration))
+        # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param),))
+        task.start()
+        tasks.append(task)
     for t in tasks:
         t.join()
+    state["collect"]["stop_button"]["disabled"] = "yes"
+    
+    
+    # charalists = get_charalists(inputs['fighter_df'])
+    # dsize_temp = (448,252)
+    # detector = None
+    # match_ret = -1
+    # temp_img, target_des = get_templater('./images/gameset3.png', dsize=dsize_temp, detector=detector)
+    # target_category = get_category(info.title, inputs['target_category'], {'VIP':['VIP'], 'smashmate':['めいと', 'メイト','レート', 'レーティング']},)
+    # threads = []
+    # for info in enumerate(inputs_dict["yt_infos"]):
+    #     thread = NewThread(
+    #         target=ssbu_each_analysis,
+    #         args=(info, inputs_dict, charalists, dsize_temp, temp_img, detector, target_des, match_ret, target_category,),
+    #         kwargs=dict(initial=0, total=info["duration"], count_end=28)
+    #     )
+    #     threads.append(thread)
+    # for t in threads:
+    #     t.start()
+    # for index,t in enumerate(threads):
+    #     game_data_list = t.join()
+    #     time.sleep(0.1*(1+index))
+    #     smash_db = SmashDatabase()
+    #     data_id = len(smash_db.select_analysis_data()) + 1
+    #     for i in range(len(game_data_list)): game_data_list[i].id = data_id+i
+    #     print(f"game_data_list = {game_data_list}")
+    #     smash_db.insert_analysis_data([tuple(vars(data).values()) for data in game_data_list])
+    #     # if "Stopped" not in state["collect"]["repeater"][f"message{index}"]["text"]:
+    #     #     state["collect"]["repeater"][f"message{index}"]["text"] = f"+Finished{text[7:]}"
 
-def _generate_analysis_data(state, index, param: Parameter):
-    # print(f"params[{index}]: ", params[index])
-    # param = params[index]
-    print("param: ", param)
-    print()
-    analysis = EsportsAnalysis(index, param)
-    analysis.set_game_data()
-    _generate_message(state, state["collect"].to_dict()["repeater"])
+# def _generate_analysis_data(state, index, param:Parameter):
+# def _generate_analysis_data(state, index, analysis:EsportsAnalysis):
+def _generate_analysis_data(state, inputs, index, initial=0, duraiotn=0):
+    analysis = EsportsAnalysis(Parameter(inputs, index, initial, duraiotn, imw_path=_dirname('__file__')), )
     bar = tqdm(total=analysis.yt_info['duration'], leave=False, disable=False, initial=analysis.initial)
-    bar_text = f"% Image processing in progress. Please wait. | {analysis.yt_info['original_url'].split('=')[1]}"
-    bar.set_description(bar_text)
     game_data_list = []
+    analysis.set_game_data()
+    yt_id = analysis.yt_info['original_url'].split('=')[1]
     for sec in range(analysis.initial, analysis.yt_info['duration']):
+        if state["collect"]["stop_button"]["disabled"]=="yes":
+            state["collect"]["repeater"][f"message{index}"]["text"] = f"!Stopped{text[7:]}"
+            break
+        # lock_state = False
+        # if analysis.states['find_game_start']:
+        #     lock_state = lock.acquire()
+        #     print(f"lock_state = {lock_state}")
+        analysis.execute_analysis(index, sec)
+        # if lock_state: lock.release()
+        bar_text = f"Started image processing | {yt_id} -> {analysis.state}"
+        bar.set_description(bar_text)
         bar.update(1)
         text = f"%{bar_text}: {int((sec+1)/analysis.yt_info['duration']*100)}% ({sec+1}/{analysis.yt_info['duration']} sec)"
         state["collect"]["repeater"][f"message{index}"]["text"] = text
-        analysis.execute_analysis(sec)
-        if analysis.game_data.fighter_id_1p>-1 and analysis.game_data.fighter_id_2p>-1:
-            image_source = f"static/image{len(game_data_list)}_{analysis.game_data.game_start_url.split('&t=')[1]}.jpg"
+        if ((analysis.game_data.fighter_name_1p in analysis.param.inputs['target_1p_fighters'] and analysis.game_data.fighter_id_2p>0) or 
+            (analysis.game_data.fighter_id_1p>0 and analysis.game_data.fighter_name_2p in analysis.param.inputs['target_1p_fighters'])):
+            image_source = f"static/image{index}_{yt_id}_{sec}.jpg"
             inside_url = analysis.game_data.game_start_url
             inside_vs = f"{analysis.game_data.fighter_name_1p} vs {analysis.game_data.fighter_name_2p}"
-            state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["image_source"] = image_source
-            state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_url"] = inside_url
-            state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_vs"] = inside_vs
-            if analysis.game_data.target_player_is_win in [True, False]:
-                image_source = f"static/image{len(game_data_list)}_{analysis.game_data.game_finish_url.split('&t=')[1]}.jpg"
+            if state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["image_source"]==f"static/image{len(game_data_list)}_0.jpg":
+                state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["image_source"] = image_source
+            if state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_url"]==None:
+                state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_url"] = inside_url
+            if state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_vs"]==None:
+                print(f'state["collect"]["repeater"][f"message{index}"]["repeater"] = {state["collect"]["repeater"][f"message{index}"]["repeater"]}')
+                state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_vs"] = inside_vs
+            if analysis.game_data.target_player_is_win!=None:
+                image_source = f"static/image{index}_{yt_id}_{analysis.sec_buf}.jpg"
                 inside_url = analysis.game_data.game_finish_url
                 inside_res = "WIN" if analysis.game_data.target_player_is_win else "LOSE"
-                state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["image_source"] = image_source
-                state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_url"] = inside_url
-                state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_res"] = inside_res
+                state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["end_html"]["image_source"] = image_source
+                state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["end_html"]["inside_url"] = inside_url
+                state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["end_html"]["inside_res"] = inside_res
+                print(f'state["collect"]["repeater"][f"message{index}"]["repeater"]= {state["collect"]["repeater"][f"message{index}"]["repeater"]}')
                 game_data_list.append(analysis.game_data)
-                analysis.set_game_data(index)
-                _generate_view_results(state, state["collect"].to_dict()["repeater"][f"message{len(game_data_list)}"]["repeater"], len(game_data_list))
-        if state["collect"]["stop_button"]["disabled"]=="yes": break
-    time.sleep(1)
-    SmashDatabase('ssbu_dataset').insert_analysis_data([tuple(vars(data).values()) for data in game_data_list])
+                analysis.set_game_data()
+                _generate_view_results(state, state["collect"].to_dict()["repeater"][f"message{index}"]["repeater"], index, len(game_data_list))
+    time.sleep(0.1*(1+index))
+    smash_db = SmashDatabase()
+    data_id = len(smash_db.select_analysis_data()) + 1
+    for i in range(len(game_data_list)): game_data_list[i].id = data_id+i
+    print(f"game_data_list = {game_data_list}")
+    smash_db.insert_analysis_data([tuple(vars(data).values()) for data in game_data_list])
+    if "Stopped" not in state["collect"]["repeater"][f"message{index}"]["text"]:
+        state["collect"]["repeater"][f"message{index}"]["text"] = f"+Finished{text[7:]}"
+        
+def _generate_yt_image(state, index, analysis:EsportsAnalysis):
+    bar = tqdm(total=analysis.yt_info['duration'], leave=False, disable=False, initial=analysis.initial)
+    for sec in range(analysis.initial, analysis.yt_info['duration']):
+        if state["collect"]["stop_button"]["disabled"]=="yes":
+            state["collect"]["repeater"][f"message{index}"]["text"] = f"!Stopped"
+            break
+        analysis.test_get_yt_image(index, sec)
+        bar.update(1)
+        
         
 # UPDATES
 
@@ -374,7 +399,6 @@ def _update_cropper(state):
         
 def _update_proc_game_screen(state, rect=False, crop=False, ch=4, var_rect=True):
     state["crop"]["crop_button"]["disabled"] = "yes"
-    #check_gs_ans = state["game_screen"]["radio_button"]["state_element"]
     cv2dict, suffix = _get_crop_pt(state) if var_rect else _get_3rect_pt()
     if crop==True: suffix = "crop"
     ch_range = range(state["sub_yt_num"]) if ch==4 else range(ch,ch+1)
@@ -383,9 +407,9 @@ def _update_proc_game_screen(state, rect=False, crop=False, ch=4, var_rect=True)
         imr_file = f'static/image{i}_{sec}.jpg' if var_rect else state["game_screen"][f"html{i}"]["image_source"]
         imw_file = f'static/image{i}_{sec}_{suffix}.jpg' if var_rect else f'{state["game_screen"][f"html{i}"]["image_source"][:-4]}_{suffix}.jpg'
         GetYoutube.set_yt_image(
-            cv2dict, rect=rect, crop=crop,
+            cv2dict, rect=rect, crop=crop, post_dsize=(1920,1080),
             imr_path=_join(_dirname('__file__'), imr_file),
-            imw_path=_join(_dirname('__file__'), imw_file)
+            imw_path=_join(_dirname('__file__'), imw_file),
         )
         if state["game_screen"][f"html{i}"]["image_source"]!=f'static/image{i}_{sec}.jpg' and ch==4:
             _remove(_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]))
@@ -422,17 +446,25 @@ full_gs = True
 if not rel:
     if full_gs:
         target_1p_fighters = ['KAMUI', 'BYLETH']
-        # yt_infos = _get_main_yt("https://www.youtube.com/watch?v=0lSvRsCxnPs&list=PLxWXI3TDg12wDTFFBiYvWBdkjrn9OPsCY")
-        yt_infos = _get_main_yt("https://www.youtube.com/watch?v=wxySmIhgtnI&list=PLxWXI3TDg12xwVJxNCYpNBG0s3l4-3inZ")
+        yt_infos = _get_main_yt("https://www.youtube.com/playlist?list=PLxWXI3TDg12wDTFFBiYvWBdkjrn9OPsCY")
+        # yt_infos = _get_main_yt("https://www.youtube.com/watch?v=rweC6vZ4nqY")
         crop = {'crop0': {'pt1': [0,0], 'pt2': [1920,1080]}}
-        # target_1p_fighters, yt_infos, crop = _full_gs_test()
-        # yt_infos = yt_infos[0]
-        #yt_infos = yt_infos[:10]
-        #yt_infos = yt_infos[10:]
+        # yt_infos = yt_infos[:10]
+        # yt_infos = yt_infos[10:]
+        # print(yt_infos)
+        yt_infos = [info for info in yt_infos for yt_id in [
+            "_pYOceaWgUE",
+            "0lSvRsCxnPs",
+            "dqs-pK0JhuI",
+            "jBPL8Ww_wDU",
+            "p3Ch2_bnhDE",
+            "rweC6vZ4nqY",
+            "Tpg6JuxtySU",
+            "xKp81GIaD6o"
+        ] if yt_id in info['original_url']]
     else:
-        # target_1p_fighters, yt_infos, crop = _part_gs_test()
         target_1p_fighters = ['KAMUI']
-        yt_infos = _get_main_yt("https://www.youtube.com/watch?v=9wFfGMbNuIg&list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf")
+        yt_infos = _get_main_yt("https://www.youtube.com/playlist?list=PLxWXI3TDg12ynGyOqMitigy6a8JgkyYwY")
         crop = {'crop0': {'pt1': [0, 0], 'pt2': [1585, 891]}}
 
 state_dict = {
@@ -563,7 +595,6 @@ state_dict = {
         "visibility": False
     },
     "collect": {
-        # "params": None,
         "start_button": {
             "disabled": "no",
         },
@@ -589,9 +620,6 @@ def _remove_img_file():
 def _init_state(state=None):
     _remove_img_file()
     if state!=None:
-        # print(state.user_state)
-        #state.user_state = state_dict
         state.user_state.ingest(state_dict)
-        # _pprint(state.user_state)
     
 _init_state()
