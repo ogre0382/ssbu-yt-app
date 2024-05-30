@@ -142,7 +142,6 @@ class Parameter:
 class EsportsAnalysis:
     def __init__(self, param:Parameter, sec={"interval":28, "game":56}):
         self.param = param
-        self.yt_info = param.yt_info
         self.count = 0
         self.states = {'skip_interval':True, 'skip_game':False, 'find_game_start':False, 'get_fighter_name':False, 'find_game_finish': False, 'get_game_result':False}
         self.img = None
@@ -328,11 +327,11 @@ class EsportsAnalysis:
                 (self.game_data.fighter_id_1p>0 and self.game_data.fighter_name_2p in self.param.target_1p_fighters)):
                 self.count=0
                 self.trans('skip_game')
-                self.game_data.game_start_datetime = datetime.fromtimestamp(self.yt_info["release_timestamp"]+sec, JST).strftime('%Y-%m-%d %T')
-                self.game_data.game_start_url = f'{self.yt_info["original_url"]}&t={sec}s'
-                yt_id = self.yt_info['original_url'].split('=')[1]
+                self.game_data.game_start_datetime = datetime.fromtimestamp(self.param.yt_info["release_timestamp"]+sec, JST).strftime('%Y-%m-%d %T')
+                self.game_data.game_start_url = f'{self.param.yt_info["original_url"]}&t={sec}s'
+                yt_id = self.param.yt_info['original_url'].split('=')[1]
                 print(f"success get_fighter_name in {sec}s in with {yt_id}")
-                GetYoutube.get_yt_image(self.yt_info, sec, (480,270), imw_path=join(self.param.img["imw_path"], f'static/image{index}_{yt_id}_{sec}.jpg'))
+                GetYoutube.get_yt_image(self.param.yt_info, sec, (480,270), imw_path=join(self.param.img["imw_path"], f'static/image{index}_{yt_id}_{sec}.jpg'))
             else:
                 self.trans('find_game_start')
         if self.states['skip_game']:
@@ -340,7 +339,7 @@ class EsportsAnalysis:
             if self.count==self.sec["game"]: self.trans('find_game_finish')
             else: return 0
         if self.states['find_game_finish']:
-            self.img = GetYoutube.get_yt_image(self.yt_info, sec, gray=True)
+            self.img = GetYoutube.get_yt_image(self.param.yt_info, sec, gray=True)
             self.param.img["g_finish"]["img"] = GetYoutube.set_yt_image(
                 self.param.crop | self.param.img['g_finish']['crop'], self.img, crop=True,
                 pre_dsize=self.param.img["g_finish"]["dsize"],
@@ -366,7 +365,7 @@ class EsportsAnalysis:
             self.get_game_result()
             if self.game_data.target_player_is_win==None:
                 self.sec_buf+=1
-                self.img = GetYoutube.get_yt_image(self.yt_info, self.sec_buf, gray=True)
+                self.img = GetYoutube.get_yt_image(self.param.yt_info, self.sec_buf, gray=True)
                 self.param.img["g_result"]["img_1p"] = GetYoutube.set_yt_image(
                     self.param.crop | self.param.img['g_result']['crop_1p'], self.img, crop=True,
                     pre_dsize=self.param.img["g_result"]["dsize"],
@@ -381,7 +380,7 @@ class EsportsAnalysis:
             if self.game_data.target_player_is_win==None:
                 # self.sec_buf+=6
                 self.sec_buf+=6.5
-                self.img = GetYoutube.get_yt_image(self.yt_info, self.sec_buf, gray=True)
+                self.img = GetYoutube.get_yt_image(self.param.yt_info, self.sec_buf, gray=True)
                 self.param.img["g_result"]["img_rs"] = GetYoutube.set_yt_image(
                     self.param.crop | self.param.img['g_result']['crop_rs'], self.img, crop=True,
                     pre_dsize=self.param.img["g_result"]["dsize"],
@@ -389,21 +388,21 @@ class EsportsAnalysis:
                 )
                 self.get_game_result2()
             if self.game_data.target_player_is_win!=None:
-                self.game_data.game_finish_datetime = datetime.fromtimestamp(self.yt_info['release_timestamp']+self.sec_buf, JST).strftime('%Y-%m-%d %T')
-                self.game_data.game_finish_url = f"{self.yt_info['original_url']}&t={self.sec_buf}s"
+                self.game_data.game_finish_datetime = datetime.fromtimestamp(self.param.yt_info['release_timestamp']+self.sec_buf, JST).strftime('%Y-%m-%d %T')
+                self.game_data.game_finish_url = f"{self.param.yt_info['original_url']}&t={self.sec_buf}s"
                 self.count=0
                 self.trans('skip_interval')
-                yt_id = self.yt_info['original_url'].split('=')[1]
+                yt_id = self.param.yt_info['original_url'].split('=')[1]
                 print(f"success get_game_result in {self.sec_buf}s in with {yt_id}")
-                GetYoutube.get_yt_image(self.yt_info, self.sec_buf, (480,270), imw_path=join(self.param.img["imw_path"], f'static/image{index}_{yt_id}_{self.sec_buf}.jpg'))
+                GetYoutube.get_yt_image(self.param.yt_info, self.sec_buf, (480,270), imw_path=join(self.param.img["imw_path"], f'static/image{index}_{yt_id}_{self.sec_buf}.jpg'))
             else:
                 self.trans('get_game_result')
         for k,v in self.states.items():
             if v==True: self.state = k
             
     def test_get_yt_image(self, index, sec):
-        yt_id = self.yt_info['original_url'].split('=')[1]
-        GetYoutube.get_yt_image(self.yt_info, sec, (480,270), imw_path=join(self.param.img["imw_path"], f'static/image{index}_{yt_id}_{sec}.jpg'))
+        yt_id = self.param.yt_info['original_url'].split('=')[1]
+        GetYoutube.get_yt_image(self.param.yt_info, sec, (480,270), imw_path=join(self.param.img["imw_path"], f'static/image{index}_{yt_id}_{sec}.jpg'))
 
 def test_generate_insert_data(inputs):
     category = {'VIP':['VIP'], 'smashmate':['めいと', 'メイト','レート', 'レーティング']}
@@ -462,7 +461,7 @@ def test_generate_analysis_data(index, param: Parameter):
     game_data_list = []
     for sec in range(initial, total):
         analysis.execute_analysis(index, sec)
-        bar_text = f"Image processing in progress. Please wait. | {analysis.yt_info['original_url'].split('=')[1]} -> {analysis.state}"
+        bar_text = f"Image processing in progress. Please wait. | {analysis.param.yt_info['original_url'].split('=')[1]} -> {analysis.state}"
         bar.set_description(bar_text)
         bar.update(1)
         if analysis.game_data.fighter_id_1p>-1 and analysis.game_data.fighter_id_2p>-1:
