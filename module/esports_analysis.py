@@ -144,11 +144,12 @@ class EsportsAnalysis:
         self.param = param
         self.count = 0
         self.states = {'skip_interval':True, 'skip_game':False, 'find_game_start':False, 'get_fighter_name':False, 'find_game_finish': False, 'get_game_result':False}
+        self.state = 'skip_interval'
         self.img = None
         self.sec = sec
 
-    def set_game_data(self):
-        self.game_data = GameData()
+    def set_game_data(self, inputs, index):
+        self.game_data = GameData(inputs, index)
         self.sec_buf = 0
 
     def trans(self, next_state):
@@ -297,7 +298,7 @@ class EsportsAnalysis:
             else: return 0
         if self.states['find_game_start']:
             print(f"sec = {sec}")
-            self.img = GetYoutube.get_yt_image(self.yt_info, sec, gray=True)
+            self.img = GetYoutube.get_yt_image(self.param.yt_info, sec, gray=True)
             self.param.img["g_start"]["img"] = GetYoutube.set_yt_image(
                 self.param.crop | self.param.img['g_start']['crop'], self.img, crop=True,
                 pre_dsize=self.param.img["g_start"]["dsize"],

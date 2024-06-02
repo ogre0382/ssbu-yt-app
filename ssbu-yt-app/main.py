@@ -245,13 +245,13 @@ def _generate_insert_data(state):
         # task = Thread(target=_generate_yt_image, args=(state, i, EsportsAnalysis(i, param, 1),))
         # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param, 1),))
         task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i, initial, duration))
+        # task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i))
         # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param),))
         task.start()
         tasks.append(task)
     for t in tasks:
         t.join()
     state["collect"]["stop_button"]["disabled"] = "yes"
-    
     
     # charalists = get_charalists(inputs['fighter_df'])
     # dsize_temp = (448,252)
@@ -282,13 +282,13 @@ def _generate_insert_data(state):
 
 # def _generate_analysis_data(state, index, param:Parameter):
 # def _generate_analysis_data(state, index, analysis:EsportsAnalysis):
-def _generate_analysis_data(state, inputs, index, initial=0, duraiotn=0):
-    analysis = EsportsAnalysis(Parameter(inputs, index, initial, duraiotn, imw_path=_dirname('__file__')), )
-    bar = tqdm(total=analysis.yt_info['duration'], leave=False, disable=False, initial=analysis.initial)
+def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
+    analysis = EsportsAnalysis(Parameter(inputs, index, initial, duration, imw_path=_dirname('__file__')), )
+    bar = tqdm(total=analysis.param.duration, leave=False, disable=False, initial=analysis.param.initial)
     game_data_list = []
-    analysis.set_game_data()
-    yt_id = analysis.yt_info['original_url'].split('=')[1]
-    for sec in range(analysis.initial, analysis.yt_info['duration']):
+    analysis.set_game_data(inputs, index)
+    yt_id = analysis.param.yt_info['original_url'].split('=')[1]
+    for sec in range(analysis.param.initial, analysis.param.duration):
         if state["collect"]["stop_button"]["disabled"]=="yes":
             state["collect"]["repeater"][f"message{index}"]["text"] = f"!Stopped{text[7:]}"
             break
@@ -301,10 +301,10 @@ def _generate_analysis_data(state, inputs, index, initial=0, duraiotn=0):
         bar_text = f"Started image processing | {yt_id} -> {analysis.state}"
         bar.set_description(bar_text)
         bar.update(1)
-        text = f"%{bar_text}: {int((sec+1)/analysis.yt_info['duration']*100)}% ({sec+1}/{analysis.yt_info['duration']} sec)"
+        text = f"%{bar_text}: {int((sec+1)/analysis.param.duration*100)}% ({sec+1}/{analysis.param.duration} sec)"
         state["collect"]["repeater"][f"message{index}"]["text"] = text
-        if ((analysis.game_data.fighter_name_1p in analysis.param.inputs['target_1p_fighters'] and analysis.game_data.fighter_id_2p>0) or 
-            (analysis.game_data.fighter_id_1p>0 and analysis.game_data.fighter_name_2p in analysis.param.inputs['target_1p_fighters'])):
+        if ((analysis.game_data.fighter_name_1p in analysis.param.target_1p_fighters and analysis.game_data.fighter_id_2p>0) or 
+            (analysis.game_data.fighter_id_1p>0 and analysis.game_data.fighter_name_2p in analysis.param.target_1p_fighters)):
             image_source = f"static/image{index}_{yt_id}_{sec}.jpg"
             inside_url = analysis.game_data.game_start_url
             inside_vs = f"{analysis.game_data.fighter_name_1p} vs {analysis.game_data.fighter_name_2p}"
