@@ -1,3 +1,5 @@
+import gc
+import re
 import streamsync as ss
 import threading
 import time
@@ -13,7 +15,7 @@ from tqdm import tqdm
 from module.esports_analysis import EsportsAnalysis,Parameter #NewThread, get_charalists, get_templater, get_category, ssbu_each_analysis
 from module.bq_db import SmashDatabase
 from module.yt_obj import GetYoutube
-from multiprocessing import Process
+# from multiprocessing import Process
 
 # EVENT HANDLERS
 
@@ -75,9 +77,9 @@ def option(state):
         state["option"]["inputs_visibility"] = True
         state["game_screen"]["visibility"] = False
         if state["inputs"]["crop"]==None: state["inputs"]["crop"]="None"
+        _update_option(state)
     else:
         _init_state(state)
-    _update_option(state)
 
 ## 対戦している2キャラとその勝敗結果を取得し、それらに応じて対戦開始画面に飛べるURLをbigqueryに保存する
 def collect(state):
@@ -140,8 +142,8 @@ def _get_crop_pt(state):
 def _get_3rect_pt():
     cv2dict = dict()
     w,h = 1920,1080
-    cv2dict['name1P']  = {'pt1':(int(w*0.10), int(h*0.02)), 'pt2':(int(w*0.43), int(h*0.13)), 'color':(255, 0, 0), 'thickness':3}
-    cv2dict['name2P']  = {'pt1':(int(w*0.60), int(h*0.02)), 'pt2':(int(w*0.93), int(h*0.13)), 'color':(255, 0, 0), 'thickness':3}
+    cv2dict['name1P']  = {'pt1':(int(w*0.10), int(h*0.02)), 'pt2':(int(w*0.43), int(h*0.15)), 'color':(255, 0, 0), 'thickness':3}
+    cv2dict['name2P']  = {'pt1':(int(w*0.60), int(h*0.02)), 'pt2':(int(w*0.93), int(h*0.15)), 'color':(255, 0, 0), 'thickness':3}
     cv2dict['GameSet'] = {'pt1':(int(w*0.21), int(h*0.16)), 'pt2':(int(w*0.79), int(h*0.64)), 'color':(255, 0, 0), 'thickness':3}
     suffix = "3rect"
     return cv2dict, suffix
@@ -221,31 +223,27 @@ def _generate_insert_data(state):
     inputs_dict = inputs.to_dict()
     inputs_dict["fighter_df"] = fighter_df
     
-    ini_dur_dict = {
-        "_pYOceaWgUE":[174,384],
-        "0lSvRsCxnPs":[1334,1486],
-        "dqs-pK0JhuI":[5923,6152],
-        "jBPL8Ww_wDU":[142,297],
-        "p3Ch2_bnhDE":[819,1046],
-        "rweC6vZ4nqY":[8912,9093],
-        "Tpg6JuxtySU":[2252,2490],
-        "xKp81GIaD6o":[846,1105]#,
-        # "G1UFDlHvs9Q":[4314,4319]#, 
-        # "ys5m64edPIM":[4364,4751]
-        # "Xk28pn-xRwc":[856,1095]
-    }
+    # ini_dur_dict = {
+    #     "xU1BLJ9gZ7I": [1627, 1828],
+    #     # "RAtI3Hl4weU": [4393, 4612],
+    #     "pRmmyRNcQk0": [326, 497],
+    #     "2Tv_sAgVQ50": [8597, 9777],
+    #     # "szOMY1_LsgQ": [1722, 1839],
+    #     # "cuyzcm06UkM": [3551, 3703],
+    #     # "BU_WhpQs4AA": [567, 845]
+    # }
     
     tasks = []
     for i in range(state["main_yt_num"]):
-        for k in ini_dur_dict.keys():
-            if k in state["inputs"]["yt_infos"][i]['original_url']:
-                initial = ini_dur_dict[k][0]
-                duration = ini_dur_dict[k][1]
+        # for k in ini_dur_dict.keys():
+        #     if k in state["inputs"]["yt_infos"][i]['original_url']:
+        #         initial = ini_dur_dict[k][0]-30
+        #         duration = ini_dur_dict[k][1]+5
+        # task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i, initial, duration))
+        task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i), kwargs=dict(initial=1))
         # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param, initial-30, duration),))
         # task = Thread(target=_generate_yt_image, args=(state, i, EsportsAnalysis(i, param, 1),))
         # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param, 1),))
-        task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i, initial, duration))
-        # task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i))
         # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param),))
         task.start()
         tasks.append(task)
@@ -283,6 +281,7 @@ def _generate_insert_data(state):
 # def _generate_analysis_data(state, index, param:Parameter):
 # def _generate_analysis_data(state, index, analysis:EsportsAnalysis):
 def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
+    print(_dirname('__file__'))
     analysis = EsportsAnalysis(Parameter(inputs, index, initial, duration, imw_path=_dirname('__file__')), )
     bar = tqdm(total=analysis.param.duration, leave=False, disable=False, initial=analysis.param.initial)
     game_data_list = []
@@ -305,9 +304,9 @@ def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
         state["collect"]["repeater"][f"message{index}"]["text"] = text
         if ((analysis.game_data.fighter_name_1p in analysis.param.target_1p_fighters and analysis.game_data.fighter_id_2p>0) or 
             (analysis.game_data.fighter_id_1p>0 and analysis.game_data.fighter_name_2p in analysis.param.target_1p_fighters)):
-            image_source = f"static/image{index}_{yt_id}_{sec}.jpg"
             inside_url = analysis.game_data.game_start_url
             inside_vs = f"{analysis.game_data.fighter_name_1p} vs {analysis.game_data.fighter_name_2p}"
+            image_source = f"static/image{index}_{yt_id}_{sec}_{re.sub('[.&/ ]', '', inside_vs)}.jpg"
             if state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["image_source"]==f"static/image{len(game_data_list)}_0.jpg":
                 state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["image_source"] = image_source
             if state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_url"]==None:
@@ -316,16 +315,21 @@ def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
                 print(f'state["collect"]["repeater"][f"message{index}"]["repeater"] = {state["collect"]["repeater"][f"message{index}"]["repeater"]}')
                 state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_vs"] = inside_vs
             if analysis.game_data.target_player_is_win!=None:
-                image_source = f"static/image{index}_{yt_id}_{analysis.sec_buf}.jpg"
                 inside_url = analysis.game_data.game_finish_url
                 inside_res = "WIN" if analysis.game_data.target_player_is_win else "LOSE"
+                image_source = f"static/image{index}_{yt_id}_{analysis.sec_buf}_{inside_res}.jpg"
                 state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["end_html"]["image_source"] = image_source
                 state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["end_html"]["inside_url"] = inside_url
                 state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["end_html"]["inside_res"] = inside_res
                 print(f'state["collect"]["repeater"][f"message{index}"]["repeater"]= {state["collect"]["repeater"][f"message{index}"]["repeater"]}')
                 game_data_list.append(analysis.game_data)
-                analysis.set_game_data()
+                analysis.set_game_data(inputs, index)
                 _generate_view_results(state, state["collect"].to_dict()["repeater"][f"message{index}"]["repeater"], index, len(game_data_list))
+    
+    # 【Python】オブジェクトを削除してメモリを解放する https://yumarublog.com/python/del/
+    del analysis
+    gc.collect()
+    
     time.sleep(0.1*(1+index))
     smash_db = SmashDatabase()
     data_id = len(smash_db.select_analysis_data()) + 1
@@ -343,8 +347,8 @@ def _generate_yt_image(state, index, analysis:EsportsAnalysis):
             break
         analysis.test_get_yt_image(index, sec)
         bar.update(1)
-        
-        
+
+
 # UPDATES
 
 def _update_yt_url(state):
@@ -438,33 +442,32 @@ def _update_option(state):
     else:
         state["collect"]["visibility"] = True
 
+
 # STATE INIT
 
-rel = False
-full_gs = True
+rel = True
+full_gs = False
 
 if not rel:
     if full_gs:
         target_1p_fighters = ['KAMUI', 'BYLETH']
-        yt_infos = _get_main_yt("https://www.youtube.com/playlist?list=PLxWXI3TDg12wDTFFBiYvWBdkjrn9OPsCY")
-        # yt_infos = _get_main_yt("https://www.youtube.com/watch?v=rweC6vZ4nqY")
+        # yt_infos = _get_main_yt("https://www.youtube.com/playlist?list=PLxWXI3TDg12wDTFFBiYvWBdkjrn9OPsCY")
+        yt_infos = _get_main_yt("https://www.youtube.com/watch?v=rweC6vZ4nqY")
         crop = {'crop0': {'pt1': [0,0], 'pt2': [1920,1080]}}
-        # yt_infos = yt_infos[:10]
-        # yt_infos = yt_infos[10:]
-        # print(yt_infos)
-        yt_infos = [info for info in yt_infos for yt_id in [
-            "_pYOceaWgUE",
-            "0lSvRsCxnPs",
-            "dqs-pK0JhuI",
-            "jBPL8Ww_wDU",
-            "p3Ch2_bnhDE",
-            "rweC6vZ4nqY",
-            "Tpg6JuxtySU",
-            "xKp81GIaD6o"
-        ] if yt_id in info['original_url']]
     else:
         target_1p_fighters = ['KAMUI']
-        yt_infos = _get_main_yt("https://www.youtube.com/playlist?list=PLxWXI3TDg12ynGyOqMitigy6a8JgkyYwY")
+        # yt_infos = _get_main_yt("https://www.youtube.com/playlist?list=PLxWXI3TDg12ynGyOqMitigy6a8JgkyYwY")
+        yt_infos = _get_main_yt("https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf")
+        # yt_infos = _get_main_yt("https://www.youtube.com/watch?v=szOMY1_LsgQ")
+        # yt_infos = [info for info in yt_infos for yt_id in [
+        #     "xU1BLJ9gZ7I",
+        #     # "RAtI3Hl4weU",
+        #     "pRmmyRNcQk0",
+        #     "2Tv_sAgVQ50",
+        #     # "szOMY1_LsgQ",
+        #     # "cuyzcm06UkM",
+        #     # "BU_WhpQs4AA"
+        # ] if yt_id in info['original_url']]
         crop = {'crop0': {'pt1': [0, 0], 'pt2': [1585, 891]}}
 
 state_dict = {
@@ -607,7 +610,7 @@ state_dict = {
     }
 }
 
-initial_state = ss.init_state(state_dict)
+# initial_state = ss.init_state(state_dict)
 
 _pprint(state_dict)
 print("-"*10)
@@ -619,7 +622,7 @@ def _remove_img_file():
     
 def _init_state(state=None):
     _remove_img_file()
-    if state!=None:
-        state.user_state.ingest(state_dict)
+    if state!=None: state.user_state.ingest(state_dict)
+    ss.init_state(state_dict)
     
 _init_state()

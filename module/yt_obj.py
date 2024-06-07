@@ -112,9 +112,7 @@ class GetYoutube:
     
     @staticmethod
     def set_yt_image(cv2dict=None, img=None, rect=False, crop=False, pre_dsize=None, post_dsize=None, gray=False, imr_path="imr_path", imw_path="imw_path"):
-        if (img is None) and (('.jpg' in imr_path) or ('.png' in imr_path)):
-            if gray: img = cv2.imread(imr_path, 0)
-            else: cv2.imread(imr_path)
+        if (img is None) and (('.jpg' in imr_path) or ('.png' in imr_path)): img = cv2.imread(imr_path, 0) if gray else cv2.imread(imr_path)
         if rect:
             for key in cv2dict.keys():
                 img = cv2.rectangle(img, pt1=cv2dict[key]['pt1'], pt2=cv2dict[key]['pt2'], color=cv2dict[key]['color'], thickness=cv2dict[key]['thickness'])
@@ -129,9 +127,8 @@ class GetYoutube:
                 img = img[cv2dict[f'crop{i}']['pt1'][1]:cv2dict[f'crop{i}']['pt2'][1], cv2dict[f'crop{i}']['pt1'][0]:cv2dict[f'crop{i}']['pt2'][0]]
                 if i==0 and pre_dsize!=None: img = cv2.resize(img, dsize=pre_dsize)
         if post_dsize!=None: img = cv2.resize(img, dsize=post_dsize)
-        if ('.jpg' in imw_path) or ('.png' in imw_path):
-            if gray: img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            cv2.imwrite(imw_path, img)
+        if gray: img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        if ('.jpg' in imw_path) or ('.png' in imw_path): cv2.imwrite(imw_path, img)
         return img
 
 if __name__ == '__main__':
