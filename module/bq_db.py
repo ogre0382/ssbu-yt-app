@@ -95,218 +95,125 @@ class BigqueryDatabase:
     def update_my_data(self, table_name=None, set_values=None, where_req=None):
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
         if set_values!=None and where_req!=None:
-            #print(f"UPDATE `{table_ref}` SET {', '.join(set_values)} WHERE {' AND '.join(where_req)};")
+            print(f"UPDATE `{table_ref}` SET {', '.join(set_values)} WHERE {' AND '.join(where_req)};")
             self.client.query(f"UPDATE `{table_ref}` SET {', '.join(set_values)} WHERE {' AND '.join(where_req)};")
 
 # 【Python】クラスの継承・オーバーライドをしっかりと理解する https://note.com/keyma4note/n/ne62443307140
 class SmashDatabase(BigqueryDatabase):
     def __init__(self):
         super().__init__('ssbu_dataset')
-        self.fighter_item_type = ('id INT64', 'recog_name STRING', 'first_color BOOL', 'fighter_id INT64', 'fighter_name STRING',)
+        # self.fighter_item_type = ('id INT64', 'recog_name STRING', 'first_color BOOL', 'fighter_id INT64', 'fighter_name STRING',)
+        self.fighter_item_type = ('id INT64', 'recog_name STRING', 'recog_name_en STRING', 'first_color BOOL', 'fighter_id INT64', 'fighter_name STRING', 'fighter_name_en STRING',)
         self.fighter_item = tuple([item.split()[0] for item in self.fighter_item_type])
         self.fighter_insert_data = [
-            # (1,	    'ALEX',         False,  79, 'STEVE'),
-            # (2,	    'BANJO',        True,   75, 'BANJO & KAZOOIE'),
-            # (3,	    'BAYONET',      True,   64, 'BAYONETTA'),
-            # (4, 	'BLACKPIT',     True,   33, 'BLACK PIT'),
-            # (5,	    'BRAWLER',      True,   84,	'Mii BRAWLER'),
-            # (6,	    'BYLETH',       True,   77,	'BYLETH'),
-            # (7,	    'CAPTAIN',      True,   12,	'CAPTAIN FALCON'),
-            # (8,	    'CHROM',        True,   29,	'CHROM'),
-            # (9,     'CLOUD',        True,   62,	'CLOUD'),
-            # (10,    'DAISY',        True,   15,	'DAISY'),
-            # (11,	'DARKSAM',      True,   5,  'DARK SAMUS'),
-            # (12,	'DEDEDE',       True,   42,	'DEDEDE'),
-            # (13,	'DIDDYK',       True,   39,	'DIDDY KONG'),
-            # (14,	'DONKEYK',      True,   2,	'DONKEY KONG'),
-            # (15,	'DrMA',         True,   20, 'Dr. MARIO'),
-            # (16,	'DUCKHUNT',     True,   59,	'DUCK HUNT'),
-            # (17,	'ENDERMAN',     False,  79,	'STEVE'),
-            # (18,	'FOX',          True,   8,	'FOX'),
-            # (19,	'GANONDORF',    True,   26, 'GANONDORF'),
-            # (20,	'GAOGAEN',      True,   71,	'GAOGAEN'),
-            # (21,	'GEKKOUGA',     True,   53,	'GEKKOUGA'),
-            # (22,	'GUNNER',       True,   86,	'Mii GUNNER'),
-            # (23,	'HERO',         True,   74,	'HERO'),
-            # (24,	'HIKARI',       True,   81,	'HOMURA / HIKARI'),
-            # (25,	'HOMU',         True,   81,	'HOMURA / HIKARI'),
-            # (26,	'ICECLIMBER',   True,   17,	'ICE CLIMBER'),
-            # (27,	'IGGY',         False,  58,	'KOOPA Jr.'),
-            # (28,	'IKE',          True,   37,	'IKE'),
-            # (29,	'INKLING',      True,   65,	'INKLING'),
-            # (30,	'JOKER',        True,   73,	'JOKER'),
-            # (31,	'KAMUI',        True,   63,	'KAMUI'),
-            # (32,	'KAZUYA',       True,   82,	'KAZUYA'),
-            # (33,	'KEN',          True,   61,	'KEN'),
-            # (34,	'KINGK',        True,   69,	'KING K. ROOL'),
-            # (35,	'KIRBY',        True,   7,	'KIRBY'),
-            # (36,	'KOOPAJr',      True,   58,	'KOOPA Jr.'),
-            # (37,	'LARRY',        False,  58,	'KOOPA Jr.'),
-            # (38,	'LEMMY',        False,  58,	'KOOPA Jr.'),
-            # (39,	'LITTLEMAC',    True,   52, 'LITTLE MAC'),
-            # (40,	'LUCAS',        True,   40,	'LUCAS'),
-            # # (41,	'LUCA',         True,   44,	'LUCARIO'),
-            # (41,	'LUCARI',         True,   44,	'LUCARIO'),
-            # (42,	'LUCINA',       True,   24,	'LUCINA'),
-            # (43,	'LUDWIG',       False,  58,	'KOOPA Jr.'),
-            # (44,	'LUIGI',        True,   10,	'LUIGI'),
-            # (45,	'MARTH',        True,   23,	'MARTH'),
-            # (46,	'META',         True,   31,	'META KNIGHT'),
-            # (47,	'MEWTWO',       True,   27,	'MEWTWO'),
-            # (48,	'MINMIN',       True,   78,	'MINMIN'),
-            # (49,	'MORTON',       False,  58,	'KOOPA Jr.'),
-            # (50,	'MrGAME',       True,   30,	'Mr. GAME & WATCH'),
-            # (51,	'MURABITO',     True,   48,	'MURABITO'),
-            # (52,	'NESS',         True,   11,	'NESS'),
-            # (53,	'PACKUN',       True,   72,	'PACKUN FLOWER'),
-            # (54,	'PACMAN',       True,   55,	'PAC-MAN'),
-            # (55,	'PALUTENA',     True,   54,	'PALUTENA'),
-            # (56,	'PEACH',        True,   14,	'PEACH'),
-            # (57,	'PICHU',        True,   21,	'PICHU'),
-            # (58,	'PIKACHU',      True,   9,	'PIKACHU'),
-            # (59,	'PIKMIN',       True,   43,	'PIKMIN & OLIMAR'),
-            # (60,	'POKEMON',      True,   38,	'POKEMON TRAINER'),
-            # (61,	'PURIN',        True,   13,	'PURIN'),
-            # (62,	'REFLET',       True,   56,	'REFLET'),
-            # (63,	'RICHT',        True,   68,	'RICHTER'),
-            # (64,	'RIDLEY',       True,   66,	'RIDLEY'),
-            # (65,	'ROBOT',        True,   45,	'ROBOT'),
-            # (66,	'ROCKMAN',      True,   49,	'ROCKMAN'),
-            # (67,	'ROSE',         True,   51,	'ROSETTA & CHIKO'),
-            # (68,	'ROY',          True,   28,	'ROY'),
-            # (69,	'RYU',          True,   60,	'RYU'),
-            # (70,	'SEPHIROTH',    True,   80,	'SEPHIROTH'),
-            # (71,	'SHEIK',        True,   18,	'SHEIK'),
-            # (72,	'SHIZUE',       True,   70,	'SHIZUE'),
-            # (73,	'SHULK',        True,   57,	'SHULK'),
-            # (74,	'SIMON',        True,   67,	'SIMON'),
-            # (75,	'SNAKE',        True,   36,	'SNAKE'),
-            # (76,	'SONIC',        True,   41,	'SONIC'),
-            # (77,	'SORA',         True,   83,	'SORA'),
-            # (78,	'STEVE',        True,   79,	'STEVE'),
-            # (79,	'SWORDFIGHTER', True,   85,	'Mii SWORD FIGHTER'),
-            # (80,	'TERRY',        True,   76,	'TERRY'),
-            # (81,	'TOONLI',       True,   46,	'TOON LINK'),
-            # (82,	'WARI',         True,   35,	'WARIO'),
-            # (83,	'WENDY',        False,  58,	'KOOPA Jr.'),
-            # (84,	'WiiFit',       True,   50,	'Wii Fit TRAINER'),
-            # (85,	'WOLF',         True,   47,	'WOLF'),
-            # (86,	'YOSHI',        True,   6,	'YOSHI'),
-            # (87,	'YOUNGLI',      True,   25,	'YOUNG LINK'),
-            # (88,	'ZELDA',        True,   19,	'ZELDA'),
-            # (89,	'ZEROSUIT',     True,   34,	'ZERO SUIT SAMUS'),
-            # (90,	'ZOMBIE',       False,  79,	'STEVE'),
-            # (91,	'FALCO',        True,   22,	'FALCO'),
-            # (92,	'KOOPA',        True,   16,	'KOOPA'),
-            # (93,	'LINK',         True,   3,	'LINK'),
-            # (94,	'MARIO',        True,   1,	'MARIO'),
-            # (95,	'PIT',          True,   32,	'PIT'),
-            # (96,	'SAMUS',        True,   4,	'SAMUS')
-            (1,	    'ALEX',             False,  79, 'STEVE'),
-            (2,	    'BANJOKAZOOIE',     True,   75, 'BANJO & KAZOOIE'),
-            (3,	    'BAYONETTA',        True,   64, 'BAYONETTA'),
-            (4, 	'BLACKPIT',         True,   33, 'BLACK PIT'),
-            (5,	    'BYLETH',           True,   77,	'BYLETH'),
-            (6,	    'CAPTAINFALCON',    True,   12,	'CAPTAIN FALCON'),
-            (7,	    'CHROM',            True,   29,	'CHROM'),
-            (8,     'CLOUD',            True,   62,	'CLOUD'),
-            (9,     'DAISY',            True,   15,	'DAISY'),
-            (10,	'DARKSAMUS',        True,   5,  'DARK SAMUS'),
-            (11,	'DEDEDE',           True,   42,	'DEDEDE'),
-            (12,	'DIDDYKONG',        True,   39,	'DIDDY KONG'),
-            (13,	'DONKEYKONG',       True,   2,	'DONKEY KONG'),
-            (14,	'DrMARIO',          True,   20, 'Dr. MARIO'),
-            (15,	'DUCKHUNT',         True,   59,	'DUCK HUNT'),
-            (16,	'ENDERMAN',         False,  79,	'STEVE'),
-            (17,	'FALCO',            True,   22,	'FALCO'),
-            (18,	'FOX',              True,   8,	'FOX'),
-            (19,	'GANONDORF',        True,   26, 'GANONDORF'),
-            (20,	'GAOGAEN',          True,   71,	'GAOGAEN'),
-            (21,	'GEKKOUGA',         True,   53,	'GEKKOUGA'),
-            (22,	'HERO',             True,   74,	'HERO'),
-            (23,	'HIKARIHOMURA',     True,   81,	'HOMURA / HIKARI'),
-            (24,	'HOMURAHIKARI',     True,   81,	'HOMURA / HIKARI'),
-            (25,	'ICECLIMBER',       True,   17,	'ICE CLIMBER'),
-            (26,	'IGGY',             False,  58,	'KOOPA Jr.'),
-            (27,	'IKE',              True,   37,	'IKE'),
-            (28,	'INKLING',          True,   65,	'INKLING'),
-            (29,	'JOKER',            True,   73,	'JOKER'),
-            (30,	'KAMUI',            True,   63,	'KAMUI'),
-            (31,	'KAZUYA',           True,   82,	'KAZUYA'),
-            (32,	'KEN',              True,   61,	'KEN'),
-            (33,	'KINGKROOL',        True,   69,	'KING K. ROOL'),
-            (34,	'KIRBY',            True,   7,	'KIRBY'),
-            (35,	'KOOPA',            True,   16,	'KOOPA'),
-            (36,	'KOOPAJr',          True,   58,	'KOOPA Jr.'),
-            (37,	'LARRY',            False,  58,	'KOOPA Jr.'),
-            (38,	'LEMMY',            False,  58,	'KOOPA Jr.'),
-            (39,	'LINK',             True,   3,	'LINK'),
-            (40,	'LITTLEMAC',        True,   52, 'LITTLE MAC'),
-            (41,	'LUCAS',            True,   40,	'LUCAS'),
-            (42,	'LUCARIO',          True,   44,	'LUCARIO'),
-            (43,	'LUCINA',           True,   24,	'LUCINA'),
-            (44,	'LUDWIG',           False,  58,	'KOOPA Jr.'),
-            (45,	'LUIGI',            True,   10,	'LUIGI'),
-            (46,	'MARIO',            True,   1,	'MARIO'),
-            (47,	'MARTH',            True,   23,	'MARTH'),
-            (48,	'METAKNIGHT',       True,   31,	'META KNIGHT'),
-            (49,	'MEWTWO',           True,   27,	'MEWTWO'),
-            (50,	'MiiBRAWLER',       True,   84,	'Mii BRAWLER'),
-            (51,	'MiiGUNNER',        True,   86,	'Mii GUNNER'),
-            (52,	'MiiSWORDFIGHTER',  True,   85,	'Mii SWORD FIGHTER'),
-            (53,	'MINMIN',           True,   78,	'MINMIN'),
-            (54,	'MORTON',           False,  58,	'KOOPA Jr.'),
-            (55,	'MrGAMEWATCH',      True,   30,	'Mr. GAME & WATCH'),
-            (56,	'MURABITO',         True,   48,	'MURABITO'),
-            (57,	'NESS',             True,   11,	'NESS'),
-            (58,	'PACKUNFLOWER',     True,   72,	'PACKUN FLOWER'),
-            (59,	'PACMAN',           True,   55,	'PAC-MAN'),
-            (60,	'PALUTENA',         True,   54,	'PALUTENA'),
-            (61,	'PEACH',            True,   14,	'PEACH'),
-            (62,	'PICHU',            True,   21,	'PICHU'),
-            (63,	'PIKACHU',          True,   9,	'PIKACHU'),
-            (64,	'PIKMINOLIMAR',     True,   43,	'PIKMIN & OLIMAR'),
-            (65,	'PIT',              True,   32,	'PIT'),
-            (66,	'POKEMONTRAINER',   True,   38,	'POKEMON TRAINER'),
-            (67,	'PURIN',            True,   13,	'PURIN'),
-            (68,	'REFLET',           True,   56,	'REFLET'),
-            (69,	'RICHT',            True,   68,	'RICHTER'),
-            (70,	'RIDLEY',           True,   66,	'RIDLEY'),
-            (71,	'ROBOT',            True,   45,	'ROBOT'),
-            (72,	'ROCKMAN',          True,   49,	'ROCKMAN'),
-            (73,	'ROSETTACHIKO',     True,   51,	'ROSETTA & CHIKO'),
-            (74,	'ROY',              True,   28,	'ROY'),
-            (75,	'RYU',              True,   60,	'RYU'),
-            (76,	'SAMUS',            True,   4,	'SAMUS'),
-            (77,	'SEPHIROTH',        True,   80,	'SEPHIROTH'),
-            (78,	'SHEIK',            True,   18,	'SHEIK'),
-            (79,	'SHIZUE',           True,   70,	'SHIZUE'),
-            (80,	'SHULK',            True,   57,	'SHULK'),
-            (81,	'SIMON',            True,   67,	'SIMON'),
-            (82,	'SNAKE',            True,   36,	'SNAKE'),
-            (83,	'SONIC',            True,   41,	'SONIC'),
-            (84,	'SORA',             True,   83,	'SORA'),
-            (85,	'STEVE',            True,   79,	'STEVE'),
-            (86,	'TERRY',            True,   76,	'TERRY'),
-            (87,	'TOONLINK',         True,   46,	'TOON LINK'),
-            (88,	'WARI',             True,   35,	'WARIO'),
-            (89,	'WENDY',            False,  58,	'KOOPA Jr.'),
-            (90,	'WiiFitTRAINER',    True,   50,	'Wii Fit TRAINER'),
-            (91,	'WOLF',             True,   47,	'WOLF'),
-            (92,	'YOSHI',            True,   6,	'YOSHI'),
-            (93,	'YOUNGLINK',        True,   25,	'YOUNG LINK'),
-            (94,	'ZELDA',            True,   19,	'ZELDA'),
-            (95,	'ZEROSUITSAMUS',    True,   34,	'ZERO SUIT SAMUS'),
-            (96,	'ZOMBIE',           False,  79,	'STEVE')
+            (1,	    'ALEX',             'ALEX',             False,  79, 'STEVE',                'STEVE'             ),
+            (2,	    'BANJOKAZOOIE',     'BANJOKAZOOIE',     True,   75, 'BANJO & KAZOOIE',      'BANJO & KAZOOIE'   ),
+            (3,	    'BAYONETTA',        'BAYONETTA',        True,   64, 'BAYONETTA',            'BAYONETTA'         ),
+            (4, 	'BLACKPIT',         'DARKPIT',          True,   33, 'BLACK PIT',            'DARK PIT'          ),
+            (5,	    'BYLETH',           'BYLETH',           True,   77,	'BYLETH',               'BYLETH'            ),
+            (6,	    'CAPTAINFALCON',    'CAPTAINFALCON',    True,   12,	'CAPTAIN FALCON',       'CAPTAIN FALCON'    ),
+            (7,	    'CHROM',            'CHROM',            True,   29,	'CHROM',                'CHROM'             ),
+            (8,     'CLOUD',            'CLOUD',            True,   62,	'CLOUD',                'CLOUD'             ),
+            (9,     'DAISY',            'DAISY',            True,   15,	'DAISY',                'DAISY'             ),
+            (10,	'DARKSAMUS',        'DARKSAMUS',        True,   5,  'DARK SAMUS',           'DARK SAMUS'        ),
+            (11,	'DEDEDE',           'KINGDEDEDE',       True,   42,	'DEDEDE',               'KING DEDEDE'       ),
+            (12,	'DIDDYKONG',        'DIDDYKONG',        True,   39,	'DIDDY KONG',           'DIDDY KONG'        ),
+            (13,	'DONKEYKONG',       'DONKEYKONG',       True,   2,	'DONKEY KONG',          'DONKEY KONG'       ),
+            (14,	'DrMARIO',          'DrMARIO',          True,   20, 'Dr. MARIO',            'Dr. MARIO'         ),
+            (15,	'DUCKHUNT',         'DUCKHUNT',         True,   59,	'DUCK HUNT',            'DUCK HUNT'         ),
+            (16,	'ENDERMAN',         'ENDERMAN',         False,  79,	'STEVE',                'STEVE'             ),
+            (17,	'FALCO',            'FALCO',            True,   22,	'FALCO',                'FALCO'             ),
+            (18,	'FOX',              'FOX',              True,   8,	'FOX',                  'FOX'               ),
+            (19,	'GANONDORF',        'GANONDORF',        True,   26, 'GANONDORF',            'GANONDORF'         ),
+            (20,	'GAOGAEN',          'INCINEROAR',       True,   71,	'GAOGAEN',              'INCINEROAR'        ),
+            (21,	'GEKKOUGA',         'GRENINJA',         True,   53,	'GEKKOUGA',             'GRENINJA'          ),
+            (22,	'HERO',             'HERO',             True,   74,	'HERO',                 'HERO'              ),
+            (23,	'HIKARIHOMURA',     'MYTHRAPYRA',       True,   81,	'HOMURA / HIKARI',      'PYRA / MYTHRA'     ),
+            (24,	'HOMURAHIKARI',     'PYRAMYTHRA',       True,   81,	'HOMURA / HIKARI',      'PYRA / MYTHRA'     ),
+            (25,	'ICECLIMBER',       'ICECLIMBER',       True,   17,	'ICE CLIMBER',          'ICE CLIMBER'       ),
+            (26,	'IGGY',             'IGGY',             False,  58,	'KOOPA Jr.',            'BOWSER Jr.'        ),
+            (27,	'IKE',              'IKE',              True,   37,	'IKE',                  'IKE'               ),
+            (28,	'INKLING',          'INKLING',          True,   65,	'INKLING',              'INKLING'           ),
+            (29,	'JOKER',            'JOKER',            True,   73,	'JOKER',                'JOKER'             ),
+            (30,	'KAMUI',            'CORRIN',           True,   63,	'KAMUI',                'CORRIN'            ),
+            (31,	'KAZUYA',           'KAZUYA',           True,   82,	'KAZUYA',               'KAZUYA'            ),
+            (32,	'KEN',              'KEN',              True,   61,	'KEN',                  'KEN'               ),
+            (33,	'KINGKROOL',        'KINGKROOL',        True,   69,	'KING K. ROOL',         'KING K. ROOL'      ),
+            (34,	'KIRBY',            'KIRBY',            True,   7,	'KIRBY',                'KIRBY'             ),
+            (35,	'KOOPA',            'BOWSER',           True,   16,	'KOOPA',                'BOWSER'            ),
+            (36,	'KOOPAJr',          'BOWSERJr',         True,   58,	'KOOPA Jr.',            'BOWSER Jr.'        ),
+            (37,	'LARRY',            'LARRY',            False,  58,	'KOOPA Jr.',            'BOWSER Jr.'        ),
+            (38,	'LEMMY',            'LEMMY',            False,  58,	'KOOPA Jr.',            'BOWSER Jr.'        ),
+            (39,	'LINK',             'LINK',             True,   3,	'LINK',                 'LINK'              ),
+            (40,	'LITTLEMAC',        'LITTLEMAC',        True,   52, 'LITTLE MAC',           'LITTLE MAC'        ),
+            (41,	'LUCAS',            'LUCAS',            True,   40,	'LUCAS',                'LUCAS'             ),
+            (42,	'LUCARIO',          'LUCARIO',          True,   44,	'LUCARIO',              'LUCARIO'           ),
+            (43,	'LUCINA',           'LUCINA',           True,   24,	'LUCINA',               'LUCINA'            ),
+            (44,	'LUDWIG',           'LUDWIG',           False,  58,	'KOOPA Jr.',            'BOWSER Jr.'        ),
+            (45,	'LUIGI',            'LUIGI',            True,   10,	'LUIGI',                'LUIGI'             ),
+            (46,	'MARIO',            'MARIO',            True,   1,	'MARIO',                'MARIO'             ),
+            (47,	'MARTH',            'MARTH',            True,   23,	'MARTH',                'MARTH'             ),
+            (48,	'METAKNIGHT',       'METAKNIGHT',       True,   31,	'META KNIGHT',          'META KNIGHT'       ),
+            (49,	'MEWTWO',           'MEWTWO',           True,   27,	'MEWTWO',               'MEWTWO'            ),
+            (50,	'MiiBRAWLER',       'MiiBRAWLER',       True,   84,	'Mii BRAWLER',          'Mii BRAWLER'       ),
+            (51,	'MiiGUNNER',        'MiiGUNNER',        True,   86,	'Mii GUNNER',           'Mii GUNNER'        ),
+            (52,	'MiiSWORDFIGHTER',  'MiiSWORDFIGHTER',  True,   85,	'Mii SWORD FIGHTER',    'Mii SWORD FIGHTER' ),
+            (53,	'MINMIN',           'MINMIN',           True,   78,	'MINMIN',               'MINMIN'            ),
+            (54,	'MORTON',           'MORTON',           False,  58,	'KOOPA Jr.',            'KOOPA Jr.'         ),
+            (55,	'MrGAMEWATCH',      'MRGAMEWATCH',      True,   30,	'Mr. GAME & WATCH',     'MR. GAME & WATCH'  ),
+            (56,	'MURABITO',         'VILLAGER',         True,   48,	'MURABITO',             'VILLAGER'          ),
+            (57,	'NESS',             'NESS',             True,   11,	'NESS',                 'NESS'              ),
+            (58,	'PACKUNFLOWER',     'PIRANHAPLANT',     True,   72,	'PACKUN FLOWER',        'PIRANHA PLANT'     ),
+            (59,	'PACMAN',           'PACMAN',           True,   55,	'PAC-MAN',              'PAC-MAN'           ),
+            (60,	'PALUTENA',         'PALUTENA',         True,   54,	'PALUTENA',             'PALUTENA'          ),
+            (61,	'PEACH',            'PEACH',            True,   14,	'PEACH',                'PEACH'             ),
+            (62,	'PICHU',            'PICHU',            True,   21,	'PICHU',                'PICHU'             ),
+            (63,	'PIKACHU',          'PIKACHU',          True,   9,	'PIKACHU',              'PIKACHU'           ),
+            (64,	'PIKMINALPH',       'ALPH',             False,  43,	'PIKMIN & OLIMAR',      'OLIMAR'            ),
+            (65,	'PIKMINOLIMAR',     'OLIMAR',           True,   43,	'PIKMIN & OLIMAR',      'OLIMAR'            ),
+            (66,	'PIT',              'PIT',              True,   32,	'PIT',                  'PIT'               ),
+            (67,	'POKEMONTRAINER',   'POKEMONTRAINER',   True,   38,	'POKEMON TRAINER',      'POKEMON TRAINER'   ),
+            (68,	'PURIN',            'JIGGLYPUFF',       True,   13,	'PURIN',                'JIGGLYPUFF'        ),
+            (69,	'REFLET',           'ROBIN',            True,   56,	'REFLET',               'ROBIN'             ),
+            (70,	'RICHTER',          'RICHTER',          True,   68,	'RICHTER',              'RICHTER'           ),
+            (71,	'RIDLEY',           'RIDLEY',           True,   66,	'RIDLEY',               'RIDLEY'            ),
+            (72,	'ROBOT',            'ROB',              True,   45,	'ROBOT',                'R.O.B.'            ),
+            (73,	'ROCKMAN',          'MEGAMAN',          True,   49,	'ROCKMAN',              'MEGA MAN'          ),
+            (74,	'ROSETTACHIKO',     'ROSALINALUMA',     True,   51,	'ROSETTA & CHIKO',      'ROSALINA & LUMA'   ),
+            (75,	'ROY',              'ROY',              True,   28,	'ROY',                  'ROY'               ),
+            (76,	'RYU',              'RYU',              True,   60,	'RYU',                  'RYU'               ),
+            (77,	'SAMUS',            'SAMUS',            True,   4,	'SAMUS',                'SAMUS'             ),
+            (78,	'SEPHIROTH',        'SEPHIROTH',        True,   80,	'SEPHIROTH',            'SEPHIROTH'         ),
+            (79,	'SHEIK',            'SHEIK',            True,   18,	'SHEIK',                'SHEIK'             ),
+            (80,	'SHIZUE',           'ISABELLE',         True,   70,	'SHIZUE',               'ISABELLE'          ),
+            (81,	'SHULK',            'SHULK',            True,   57,	'SHULK',                'SHULK'             ),
+            (82,	'SIMON',            'SIMON',            True,   67,	'SIMON',                'SIMON'             ),
+            (83,	'SNAKE',            'SNAKE',            True,   36,	'SNAKE',                'SNAKE'             ),
+            (84,	'SONIC',            'SONIC',            True,   41,	'SONIC',                'SONIC'             ),
+            (85,	'SORA',             'SORA',             True,   83,	'SORA',                 'SORA'              ),
+            (86,	'STEVE',            'STEVE',            True,   79,	'STEVE',                'STEVE'             ),
+            (87,	'TERRY',            'TERRY',            True,   76,	'TERRY',                'TERRY'             ),
+            (88,	'TOONLINK',         'TOONLINK',         True,   46,	'TOON LINK',            'TOON LINK'         ),
+            (89,	'WARIO',            'WARIO',            True,   35,	'WARIO',                'WARIO'             ),
+            (90,	'WENDY',            'WENDY',            False,  58,	'KOOPA Jr.',            'KOOPA Jr.'         ),
+            (91,	'WiiFitTRAINER',    'WiiFitTRAINER',    True,   50,	'Wii Fit TRAINER',      'Wii Fit TRAINER'   ),
+            (92,	'WOLF',             'WOLF',             True,   47,	'WOLF',                 'WOLF'              ),
+            (93,	'YOSHI',            'YOSHI',            True,   6,	'YOSHI',                'YOSHI'             ),
+            (94,	'YOUNGLINK',        'YOUNGLINK',        True,   25,	'YOUNG LINK',           'YOUNG LINK'        ),
+            (95,	'ZELDA',            'ZELDA',            True,   19,	'ZELDA',                'ZELDA'             ),
+            (96,	'ZEROSUITSAMUS',    'ZEROSUITSAMUS',    True,   34,	'ZERO SUIT SAMUS',      'ZERO SUIT SAMUS'   ),
+            (97,	'ZOMBIE',           'ZOMBIE',           False,  79,	'STEVE',                'STEVE'             )
         ]
         self.analysis_item_type = (
-            'id INT64', 'fighter_id_1p INT64', 'fighter_name_1p STRING', 'fighter_id_2p INT64', 'fighter_name_2p STRING', 
+            # 'id INT64', 'fighter_id_1p INT64', 'fighter_name_1p STRING', 'fighter_id_2p INT64', 'fighter_name_2p STRING', 
+            'id INT64', 'fighter_id_1p INT64', 'fighter_name_1p STRING', 'fighter_name_1p_en STRING',
+                        'fighter_id_2p INT64', 'fighter_name_2p STRING', 'fighter_name_2p_en STRING', 
             'target_player_name STRING', 'target_player_is_1p BOOL', 'target_player_is_win BOOL', 
             'game_start_datetime DATETIME', 'game_start_url STRING','game_end_datetime DATETIME', 'game_end_url STRING', 
             'title STRING', 'category STRING',
         )
         self.analysis_item = tuple([item.split()[0] for item in self.analysis_item_type])
-        self.drop_analysis_item = self.analysis_item[0:10]+self.analysis_item[12:]
+        self.drop_analysis_item = self.analysis_item[0:12]+self.analysis_item[14:]
     
     def create_fighter_table_data(self):
         super().create_my_table('fighter_table', self.fighter_item_type)
@@ -316,7 +223,7 @@ class SmashDatabase(BigqueryDatabase):
         super().create_my_table('analysis_table', self.analysis_item_type)
     
     def insert_analysis_data(self, insert_data):
-        super().insert_my_data('analysis_table', self.analysis_item, insert_data, 9)
+        super().insert_my_data('analysis_table', self.analysis_item, insert_data, 11)
     
     def select_fighter_data(self):
         df = super().select_my_data('fighter_table', ('*',))
@@ -334,6 +241,9 @@ class SmashDatabase(BigqueryDatabase):
         df.loc[df["target_player_is_win"]=="False", "target_player_is_win"] = "Lose"
         return df
     
+    def update_analysis_data(self, set_values, where_req):
+        super().update_my_data('analysis_table', set_values, where_req)
+    
 def main2():
     ssbu_db = SmashDatabase()
     ssbu_db.create_my_dataset()
@@ -343,34 +253,42 @@ def main2():
     print(df)
     print(df['title'].value_counts())
 
+# def ssbu_bq_sel():
+#     ssbu_db = BigqueryDatabase('ssbu_dataset')
+    
+#     #print(ssbu_db.select_my_data('analysis_table', ('MAX(id)',)).iloc[0,0])
+#     #print(len(ssbu_db.select_my_data('analysis_table', ('*',))))
+    
+#     df = ssbu_db.select_my_data('analysis_table', ('*',))
+#     fighter_list = list(set(df['fighter_name_1p'].to_list()+df['fighter_name_2p'].to_list()))
+#     print(sorted(fighter_list),len(fighter_list))
+    
+#     url_list = df['game_start_url'].to_list()
+#     org_url_list = list(set([url[:43] for url in url_list]))
+#     org_url_list.remove('https://www.youtube.com/watch?v=P7Olxt1_tG0')
+#     org_url_list.remove('https://www.youtube.com/watch?v=dqs-pK0JhuI')
+#     org_url_list.insert(0, 'https://www.youtube.com/watch?v=P7Olxt1_tG0')
+#     org_url_list.insert(0, 'https://www.youtube.com/watch?v=dqs-pK0JhuI')
+#     fighter_2p_list = df['fighter_name_2p'].to_list()
+#     rm_fighter_list = []
+#     for org_url in org_url_list:
+#         fighter_each_url = []
+#         for url, fighter_2p in zip(url_list, fighter_2p_list):
+#             if org_url in url: fighter_each_url.append(fighter_2p)
+#         if ('P7Olxt1_tG0' or 'dqs-pK0JhuI') in org_url: 
+#             rm_fighter_list += list(set(fighter_each_url)) 
+#         else: 
+#             #fighter_set = set([fighter for fighter in fighter_each_url if fighter not in rm_fighter_list])
+#             fighter_set = set(fighter_each_url)
+#             print(org_url, ":", len(fighter_set), ":", fighter_set)
+            
 def ssbu_bq_sel():
-    ssbu_db = BigqueryDatabase('ssbu_dataset')
-    
-    #print(ssbu_db.select_my_data('analysis_table', ('MAX(id)',)).iloc[0,0])
-    #print(len(ssbu_db.select_my_data('analysis_table', ('*',))))
-    
-    df = ssbu_db.select_my_data('analysis_table', ('*',))
-    fighter_list = list(set(df['fighter_name_1p'].to_list()+df['fighter_name_2p'].to_list()))
-    print(sorted(fighter_list),len(fighter_list))
-    
-    url_list = df['game_start_url'].to_list()
-    org_url_list = list(set([url[:43] for url in url_list]))
-    org_url_list.remove('https://www.youtube.com/watch?v=P7Olxt1_tG0')
-    org_url_list.remove('https://www.youtube.com/watch?v=dqs-pK0JhuI')
-    org_url_list.insert(0, 'https://www.youtube.com/watch?v=P7Olxt1_tG0')
-    org_url_list.insert(0, 'https://www.youtube.com/watch?v=dqs-pK0JhuI')
-    fighter_2p_list = df['fighter_name_2p'].to_list()
-    rm_fighter_list = []
-    for org_url in org_url_list:
-        fighter_each_url = []
-        for url, fighter_2p in zip(url_list, fighter_2p_list):
-            if org_url in url: fighter_each_url.append(fighter_2p)
-        if ('P7Olxt1_tG0' or 'dqs-pK0JhuI') in org_url: 
-            rm_fighter_list += list(set(fighter_each_url)) 
-        else: 
-            #fighter_set = set([fighter for fighter in fighter_each_url if fighter not in rm_fighter_list])
-            fighter_set = set(fighter_each_url)
-            print(org_url, ":", len(fighter_set), ":", fighter_set)
+    df = SmashDatabase().select_analysis_data().sort_values('fighter_id_2p')
+    df = df.drop_duplicates(subset=['fighter_id_1p', 'fighter_id_2p', 'title'])
+    # pd.options.display.max_columns = None
+    # pd.set_option('display.width', 1000)
+    pd.set_option('display.max_rows', len(df))
+    print(df[['fighter_name_1p', 'fighter_name_2p', 'game_start_url']])
     
 def ssbu_bq_del():
     ssbu_db = BigqueryDatabase('ssbu_dataset')
@@ -398,7 +316,7 @@ def check_fighter_table():
 if __name__ == '__main__':
     #BigqueryDatabase("ssbu_dataset")
     #ssbu_bq()
-    #ssbu_bq_sel()
+    # ssbu_bq_sel()
     #ssbu_bq_del()
     #ssbu_bq_upd()
     main2()

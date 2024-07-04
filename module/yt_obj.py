@@ -32,7 +32,7 @@ class YoutubeInformation:
         self.title = info['title']
         self.duration = info['duration']
         self.channel = info['channel']
-        self.release_timestamp = info['release_timestamp']
+        self.release_timestamp = info['timestamp'] if info['release_timestamp']==None else info['release_timestamp']
         self.original_url = info['original_url']
         self.fps = info['fps']
         self.cap = info['cap']
@@ -58,6 +58,7 @@ class GetYoutube:
             infos = ydl.extract_info(self.input_url, download=False)
         if 'entries' in infos.keys(): infos = infos['entries']
         else: infos = [infos]
+        # print(infos)
         for self.info in infos:
             self.get_yt_streams()
             self.get_yt_caps()

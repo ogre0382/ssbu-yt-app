@@ -22,8 +22,10 @@ class GameData:
     id: int = -1
     fighter_id_1p: int = -1
     fighter_name_1p: str = None
+    fighter_name_1p_en: str = None
     fighter_id_2p: int = -1
     fighter_name_2p: str = None
+    fighter_name_2p_en: str = None
     target_player_name: str = None
     target_player_is_1p: bool = None
     target_player_is_win: str = None
@@ -34,7 +36,7 @@ class GameData:
     title: str = None
     category: str = None
     
-    def __init__(self, inputs, index, categories={'VIP':['VIP'], 'smashmate':['めいと', 'メイト','レート', 'レーティング']},):
+    def __init__(self, inputs, index, categories={'smashmate':['めいと', 'メイト','レート', 'レーティング'], 'VIP':['VIP']}):
         self.target_player_name = inputs["yt_infos"][index]["channel"] if inputs["target_player_name"]=="auto" else inputs["target_player_name"]
         self.title = inputs["yt_infos"][index]["title"]
         self.category = self.get_category(categories) if inputs["target_category"]=="auto" else inputs["target_category"]
@@ -51,6 +53,7 @@ class Parameter:
     yt_info: list = field(default_factory=list)
     crop: dict = field(default_factory=dict)
     target_1p_fighters: list = field(default_factory=list)
+    target_lang: str = None
     fighter_lists: list = field(default_factory=list)
     
     initial: int = 0
@@ -84,7 +87,15 @@ class Parameter:
         self.yt_info = inputs["yt_infos"][index]
         self.crop = inputs["crop"]
         self.target_1p_fighters = inputs["target_1p_fighters"]
-        self.fighter_lists = [inputs["fighter_df"]['recog_name'].to_list(), inputs["fighter_df"]['fighter_id'].to_list(), inputs["fighter_df"]['fighter_name'].to_list()]
+        self.target_lang = inputs["target_lang"]
+        lang_suf = '' if self.target_lang=="jp" else '_en'
+        lang_suf2 = '' if self.target_lang=="en" else '_en'
+        self.fighter_lists = [
+            inputs["fighter_df"][f'recog_name{lang_suf}'].to_list(),
+            inputs["fighter_df"]['fighter_id'].to_list(),
+            inputs["fighter_df"][f'fighter_name{lang_suf}'].to_list(),
+            inputs["fighter_df"][f'fighter_name{lang_suf2}'].to_list()
+        ]
         
         self.initial = self.get_start_sec(initial) if initial==0 else initial
         self.duration = self.yt_info["duration"] if duration==0 else duration
@@ -115,8 +126,13 @@ class Parameter:
                     "crop_2p": {"crop1": {'pt1':[int(dsize[1][0]*0.60),int(dsize[1][1]*0.02)], 'pt2':[int(dsize[1][0]*0.93),int(dsize[1][1]*0.15)]}}
                 },
                 "g_finish": {
-                    "img": None, "temp_img": "gameset.png", "temp_match_val": 0.474, "dsize": dsize[2],
-                    "crop": {"crop1": {'pt1':[int(dsize[2][0]*0.21),int(dsize[2][1]*0.16)], 'pt2':[int(dsize[2][0]*0.79),int(dsize[2][1]*0.64)]}}
+                    "img": None, "temp_img": "gameset.png" if self.target_lang=="jp" else "game.png", "temp_match_val": 0.463, "dsize": dsize[2], #match_val=0.474
+                    "crop": {
+                        "crop1": {
+                            'pt1':[int(dsize[2][0]*0.21), int(dsize[2][1]*0.16)] if self.target_lang=="jp" else [int(dsize[2][0]*0.18),int(dsize[2][1]*0.27)], 
+                            'pt2':[int(dsize[2][0]*0.79), int(dsize[2][1]*0.64)] if self.target_lang=="jp" else [int(dsize[2][0]*0.81),int(dsize[2][1]*0.52)]
+                        }
+                    }
                 },
                 "g_result": {
                     "img_1p": None, "img_2p": None, "img_rs": None, "dsize": dsize[3],
@@ -142,11 +158,11 @@ class Parameter:
         return temp_img
                 
 class EsportsAnalysis:
-    def __init__(self, param:Parameter, sec={"interval":28, "game":56}):
+    def __init__(self, param:Parameter, sec={"interval":10, "game":40}):
         self.param = param
         self.count = 0
-        self.states = {'skip_interval':True, 'skip_game':False, 'find_game_start':False, 'get_fighter_name':False, 'find_game_finish': False, 'get_game_result':False}
-        self.state = 'skip_interval'
+        self.states = {'skip_interval':False, 'skip_game':False, 'find_game_start':True, 'get_fighter_name':False, 'find_game_finish': False, 'get_game_result':False}
+        self.state = None
         self.img = None
         self.sec = sec
 
@@ -192,7 +208,7 @@ class EsportsAnalysis:
         img_copy = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
         # いい感じの直線の数
         line_count = 0
-        print(f"img_lines = {img_lines}")
+        # print(f"img_lines = {img_lines}")
         for line in img_lines:
             rho, theta = line[0]
             # いい感じの角度の直線ならカウントして描画する
@@ -219,81 +235,34 @@ class EsportsAnalysis:
         # 直線を描画
         return cv2.line(img_copy, (x1, y1), (x2, y2), color, 2)
 
-    def temp_match(self, img, temp_img, match_val): #match_val=0.474
+    def temp_match(self, img, temp_img, match_val): 
         result = cv2.matchTemplate(img, temp_img, cv2.TM_CCOEFF_NORMED)
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
+        self.temp_match_max_val = max_val
         if(match_val<max_val and max_val<1.0):
             return True
         else:
             return False
     
-    # def get_fighter_name(self, img):
-    #     txt = self.easyOCR(img, self.param.easyocr["name_allowlist"])
-    #     name_lists_copy = []
-    #     for start, end in zip(self.param.recog_txt["start"], self.param.recog_txt["end"]):
-    #         name_lists = []
-    #         for recog_name, fighter_id, fighter_name in zip(self.param.fighter_lists[0], self.param.fighter_lists[1], self.param.fighter_lists[2]):
-    #             if (len(recog_name[start:end])>=self.param.recog_txt["range"]) and (recog_name[start:end] in txt): 
-    #                 # print("fighter_id, fighter_name, txt =", fighter_id, fighter_name, txt)
-    #                 # return fighter_id, fighter_name, txt
-    #                 name_lists.append([fighter_id, fighter_name, txt])
-    #         print(f"start, end = {start}, {end}")
-    #         print(f"name_lists = {name_lists}")
-    #         if len(name_lists)==1 and name_lists[0][1] in self.param.target_1p_fighters:
-    #             return name_lists[0]
-    #         # for id, name, t in name_lists:
-    #         #     if name in self.param.inputs['target_1p_fighters'] and self.game_data.fighter_name_1p==None:
-    #         #         print(f"start, end = {start}, {end}")
-    #         #         return id, name, t
-    #         if len(name_lists)>0 and len(name_lists_copy)==0:
-    #             name_lists_copy = name_lists
-    #     print(f"name_lists_copy = {name_lists_copy}")
-    #     if len(name_lists_copy)==0: name_lists_copy = [[0, 'other', txt]]
-    #     name_max = max([name for id, name, t in name_lists_copy])
-    #     for name_list in name_lists_copy:
-    #         if name_max in name_list:
-    #             print(f"name_list = {name_list}")
-    #             return name_list
-    #     # print("fighter_id, fighter_name, txt = 0 other", txt)
-    #     # return 0, 'other', txt
-        
-    # def get_fighter_name(self, img):
-    #     txt = self.easyOCR(img, self.param.easyocr["name_allowlist"])
-    #     name_lists = []
-    #     # for recog_name, fighter_id, fighter_name in zip(self.param.fighter_lists[0], self.param.fighter_lists[1], self.param.fighter_lists[2]):
-    #     for recog_name, fighter_id, fighter_name in zip(self.param.fighter_lists[0], self.param.fighter_lists[1], self.param.fighter_lists[2]):
-    #         if txt==recog_name:
-    #             print(fighter_id, fighter_name, txt)
-    #             return fighter_id, fighter_name, txt
-    #     for recog_name, fighter_id, fighter_name in zip(self.param.fighter_lists[0], self.param.fighter_lists[1], self.param.fighter_lists[2]):
-    #         st_cnt = 0
-    #         for st in txt:
-    #             if st in recog_name: st_cnt+=1
-    #         print(st_cnt, fighter_id, fighter_name, txt)
-    #         if abs(len(txt)-st_cnt)<=1 and len(txt)==len(recog_name): return fighter_id, fighter_name, txt
-    #         name_lists.append([st_cnt, fighter_id, fighter_name, txt])
-    #     # 2次元リストを降順にソートする方法 https://af-e.net/python-two-dimensional-list-sort/#index_id4
-    #     print(name_lists)
-    #     print(sorted(name_lists, key=lambda x: x[0], reverse=True)[0][1:])
-    #     return sorted(name_lists, key=lambda x: x[0], reverse=True)[0][1:]
-    
     def get_fighter_name(self, img):
         txt = self.easyOCR(img, self.param.easyocr["name_allowlist"])
-        for recog_name, fighter_id, fighter_name in zip(self.param.fighter_lists[0], self.param.fighter_lists[1], self.param.fighter_lists[2]):
+        for recog_name, fighter_id, fighter_name, fighter_name_en in zip(self.param.fighter_lists[0], self.param.fighter_lists[1], self.param.fighter_lists[2], self.param.fighter_lists[3]):
             if txt==recog_name:
-                print(fighter_id, fighter_name, txt)
-                return fighter_id, fighter_name, txt
+                print(fighter_id, fighter_name, fighter_name_en, txt)
+                return fighter_id, fighter_name, fighter_name_en, txt
         name_lists = []
-        for recog_name, fighter_id, fighter_name in zip(self.param.fighter_lists[0], self.param.fighter_lists[1], self.param.fighter_lists[2]):
+        for recog_name, fighter_id, fighter_name, fighter_name_en in zip(self.param.fighter_lists[0], self.param.fighter_lists[1], self.param.fighter_lists[2], self.param.fighter_lists[3]):
             st_cnt = 0
             name_txt = recog_name[:len(txt)]
             for st, nst in zip(txt, name_txt):
                 if st==nst: st_cnt+=1
-            if abs(len(txt)-st_cnt)<=1: return fighter_id, fighter_name, txt
+            if abs(len(txt)-st_cnt)<=1: return fighter_id, fighter_name, fighter_name_en, txt
+            st_rcnt = 0
             for rst, rnst in zip(txt[::-1], name_txt[::-1]):
-                if rst==rnst: st_cnt+=1
-            print(st_cnt, fighter_id, fighter_name, txt)
-            name_lists.append([st_cnt, fighter_id, fighter_name, txt])
+                if rst==rnst: st_rcnt+=1
+            if abs(len(txt)-st_rcnt)<=1: return fighter_id, fighter_name, fighter_name_en, txt
+            print(st_cnt+st_rcnt, fighter_id, fighter_name, fighter_name_en, txt)
+            name_lists.append([st_cnt+st_rcnt, fighter_id, fighter_name, fighter_name_en, txt])
         # 2次元リストを降順にソートする方法 https://af-e.net/python-two-dimensional-list-sort/#index_id4
         # print(name_lists)
         print(sorted(name_lists, key=lambda x: x[0], reverse=True)[0][1:])
@@ -317,7 +286,7 @@ class EsportsAnalysis:
             else: self.game_data.target_player_is_win = None
         
     # def get_game_result2(self):
-    #     allowlist = re.sub('[.&/ ]', '', self.game_data.fighter_name_1p+self.game_data.fighter_name_2p)
+    #     allowlist = re.sub('[.&/- ]', '', self.game_data.fighter_name_1p+self.game_data.fighter_name_2p)
     #     target_fighter = self.game_data.fighter_name_1p if self.game_data.fighter_name_1p in self.param.target_1p_fighters else self.game_data.fighter_name_2p
     #     vs_fighter = self.game_data.fighter_name_2p if self.game_data.fighter_name_1p in self.param.target_1p_fighters else self.game_data.fighter_name_1p
     #     st_cnt=0
@@ -331,9 +300,9 @@ class EsportsAnalysis:
     #     if st_cnt<3: self.game_data.target_player_is_win = False
     
     def get_game_result2(self):
-        allowlist = re.sub('[.&/ ]', '', self.game_data.fighter_name_1p+self.game_data.fighter_name_2p)
+        allowlist = re.sub('[.&/ -]', '', self.game_data.fighter_name_1p+self.game_data.fighter_name_2p)
         txt = self.easyOCR(self.param.img["g_result"]["img_rs"], allowlist)
-        target_fighter = self.game_data.fighter_name_1p if self.game_data.fighter_name_1p in self.param.target_1p_fighters else self.game_data.fighter_name_2p
+        target_fighter = re.sub('[.&/ -]', '', self.game_data.fighter_name_1p if self.game_data.fighter_name_1p in self.param.target_1p_fighters else self.game_data.fighter_name_2p)
         st_cnt=0
         for st, tst in zip(txt, target_fighter[:len(txt)]):
             if st==tst: st_cnt+=1
@@ -362,10 +331,10 @@ class EsportsAnalysis:
             )
             # print(f"sec = {sec}")
             if self.find_game():
-                GetYoutube.set_yt_image(
-                    img=self.param.img["g_start"]["img"],
-                    # imw_path=join(self.param.img["imw_path"], f"static/image{index}_{self.param.yt_info['original_url'].split('=')[1]}_{sec}_top.jpg")
-                )
+                # GetYoutube.set_yt_image(
+                #     img=self.param.img["g_start"]["img"],
+                #     # imw_path=join(self.param.img["imw_path"], f"static/image{index}_{self.param.yt_info['original_url'].split('=')[1]}_{sec}_top.jpg")
+                # )
                 self.trans('get_fighter_name')
         if self.states['get_fighter_name']:
             self.param.img["g_fighter"]["img_1p"] = GetYoutube.set_yt_image(
@@ -378,8 +347,8 @@ class EsportsAnalysis:
                 pre_dsize=self.param.img["g_fighter"]["dsize"],
                 # imw_path=join(self.param.img["imw_path"], f"static/image{index}_{self.param.yt_info['original_url'].split('=')[1]}_{sec}_topR.jpg")
             )
-            self.game_data.fighter_id_1p, self.game_data.fighter_name_1p, easyOCR_txt_1p = self.get_fighter_name(self.param.img["g_fighter"]["img_1p"])
-            self.game_data.fighter_id_2p, self.game_data.fighter_name_2p, easyOCR_txt_2p = self.get_fighter_name(self.param.img["g_fighter"]["img_2p"])
+            self.game_data.fighter_id_1p, self.game_data.fighter_name_1p, self.game_data.fighter_name_1p_en, easyOCR_txt_1p = self.get_fighter_name(self.param.img["g_fighter"]["img_1p"])
+            self.game_data.fighter_id_2p, self.game_data.fighter_name_2p, self.game_data.fighter_name_2p_en, easyOCR_txt_2p = self.get_fighter_name(self.param.img["g_fighter"]["img_2p"])
             if ((self.game_data.fighter_name_1p in self.param.target_1p_fighters and self.game_data.fighter_id_2p>0) or 
                 (self.game_data.fighter_id_1p>0 and self.game_data.fighter_name_2p in self.param.target_1p_fighters)):
                 self.count=0
@@ -391,7 +360,7 @@ class EsportsAnalysis:
                 inside_vs = f"{self.game_data.fighter_name_1p} vs {self.game_data.fighter_name_2p}"
                 GetYoutube.get_yt_image(
                     self.param.yt_info, sec, (480,270), 
-                    imw_path=join(self.param.img["imw_path"], f"static/image{index}_{yt_id}_{sec}_{re.sub('[.&/ ]', '', inside_vs)}.jpg")
+                    imw_path=join(self.param.img["imw_path"], f"static/image{index}_{yt_id}_{sec}_{re.sub('[.&/ -]', '', inside_vs)}.jpg")
                 )
             else:
                 self.trans('find_game_start')
@@ -401,14 +370,23 @@ class EsportsAnalysis:
             else: return 0
         if self.states['find_game_finish']:
             self.img = GetYoutube.get_yt_image(self.param.yt_info, sec, gray=True)
+            yt_id = self.param.yt_info['original_url'].split('=')[1]
             self.param.img["g_finish"]["img"] = GetYoutube.set_yt_image(
                 self.param.crop | self.param.img['g_finish']['crop'], self.img, crop=True,
                 pre_dsize=self.param.img["g_finish"]["dsize"],
+                # imw_path="imw_path" if sec!=285 else join(self.param.img["imw_path"], f"static/image{index}_{yt_id}_{self.sec_buf}_{sec}_center.jpg")
             )
+            # fing_game_res = self.find_game()
+            # if sec==285:
+            #     GetYoutube.set_yt_image(
+            #         img=self.param.img["g_finish"]["img"],
+            #         imw_path=join(self.param.img["imw_path"], f"static/image{index}_{yt_id}_{self.sec_buf}_{sec}_{self.temp_match_max_val}.jpg")
+            #     )
+            # if fing_game_res:
             if self.find_game():
                 # GetYoutube.set_yt_image(
                 #     img=self.param.img["g_finish"]["img"],
-                #     imw_path=join(dirname(__file__), f'image{index}_{sec}_center.jpg')
+                #     imw_path=join(self.param.img["imw_path"], f"static/image{index}_{yt_id}_{self.sec_buf}_{sec}_{self.temp_match_max_val}.jpg")
                 # )
                 self.trans('get_game_result')
         if self.states['get_game_result']:
@@ -440,7 +418,8 @@ class EsportsAnalysis:
                 self.get_game_result()
             if self.game_data.target_player_is_win==None:
                 # self.sec_buf+=6
-                self.sec_buf+=6.5
+                self.sec_buf+=6.25
+                # self.sec_buf+=6.5
                 self.img = GetYoutube.get_yt_image(self.param.yt_info, self.sec_buf, gray=True)
                 self.param.img["g_result"]["img_rs"] = GetYoutube.set_yt_image(
                     self.param.crop | self.param.img['g_result']['crop_rs'], self.img, crop=True,
@@ -451,6 +430,13 @@ class EsportsAnalysis:
             if self.game_data.target_player_is_win!=None:
                 self.game_data.game_finish_datetime = datetime.fromtimestamp(self.param.yt_info['release_timestamp']+self.sec_buf, JST).strftime('%Y-%m-%d %T')
                 self.game_data.game_finish_url = f"{self.param.yt_info['original_url']}&t={self.sec_buf}s"
+                if self.param.target_lang=="en":
+                    tmp = self.game_data.fighter_name_1p
+                    self.game_data.fighter_name_1p = self.game_data.fighter_name_1p_en
+                    self.game_data.fighter_name_1p_en = tmp
+                    tmp = self.game_data.fighter_name_2p
+                    self.game_data.fighter_name_2p = self.game_data.fighter_name_2p_en
+                    self.game_data.fighter_name_2p_en = tmp
                 self.count=0
                 self.trans('skip_interval')
                 yt_id = self.param.yt_info['original_url'].split('=')[1]

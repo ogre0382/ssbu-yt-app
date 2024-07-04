@@ -12,52 +12,34 @@ from time import sleep
 def update(state):
     if state["input"]["lang"]["element"]!=" " and state["input"]["player"]["element"]==" ":
         state["suf"] = "" if state["input"]["lang"]["element"]=="jp" else "_en"
-        state["html"]["inside"] = _get_table(state["df"], state["suf"])
-        _get_options(state, "player", 'target_player_name')
-    
+        state["input"]["player"]["options"] = _get_options(state, "player")
+        _update_visibility(state, ["player"])
     if state["input"]["player"]["element"]!=" " and state["input"]["fighter"]["element"]==" ":
         state["input"]["player"]["buf_element"] = state["input"]["player"]["element"]
-        state["df"] = state["df"].query(f'target_player_name == "{state["input"]["player"]["element"]}"')
-        state["html"]["inside"] = _get_table(state["df"], state["suf"])
-        _get_merge_options(state, "fighter")
-    
+        state["input"]["fighter"]["options"] = _get_options(state, "fighter")
+        _update_visibility(state, ["fighter"])
     if state["input"]["fighter"]["element"]!=" " and state["input"]["vs_fighter"]["element"]==" ":
         state["input"]["fighter"]["buf_element"] = state["input"]["fighter"]["element"]
-        state["df"] = state["df"].query(f'fighter_name_1p{state["suf"]} == "{state["input"]["fighter"]["element"]}" or fighter_name_2p{state["suf"]} == "{state["input"]["fighter"]["element"]}"')
-        state["html"]["inside"] = _get_table(state["df"], state["suf"])
-        _get_merge_options(state, "vs_fighter", False)
-    
+        state["input"]["vs_fighter"]["options"] = _get_options(state, "vs_fighter")
+        _update_visibility(state, ["vs_fighter"])
     if state["input"]["vs_fighter"]["element"]!=" " and state["input"]["category"]["element"]==" ":
         state["input"]["vs_fighter"]["buf_element"] = state["input"]["vs_fighter"]["element"]
-        cond = "and" if state["input"]["fighter"]["element"]==state["input"]["vs_fighter"]["element"] else "or"
-        state["df"] = state["df"].query(f'fighter_name_1p{state["suf"]} == "{state["input"]["vs_fighter"]["element"]}" {cond} fighter_name_2p{state["suf"]} == "{state["input"]["vs_fighter"]["element"]}"')
-        state["html"]["inside"] = _get_table(state["df"], state["suf"])
-        _get_options(state, "category", 'category')
-    
+        state["input"]["category"]["options"] = _get_options(state, "category")
+        _update_visibility(state, ["category"])
     if state["input"]["category"]["element"]!=" " and state["input"]["win_lose"]["element"]==" ":
         state["input"]["category"]["buf_element"] = state["input"]["category"]["element"]
-        state["df"] = state["df"].query(f'category == "{state["input"]["category"]["element"]}"')
-        state["html"]["inside"] = _get_table(state["df"], state["suf"])
-        _get_options(state, "win_lose", 'target_player_is_win')
-    
+        state["input"]["win_lose"]["options"] = _get_options(state, "win_lose")
+        _update_visibility(state, ["win_lose"])
     if state["input"]["win_lose"]["element"]!=" " and state["input"]["datetime"]["element"]==" ":
         state["input"]["win_lose"]["buf_element"] = state["input"]["win_lose"]["element"]
-        state["df"] = state["df"].query(f'target_player_is_win == "{state["input"]["win_lose"]["element"]}"')
-        state["html"]["inside"] = _get_table(state["df"], state["suf"])
-        _get_options(state, "datetime", 'game_start_datetime')
-    
+        state["input"]["datetime"]["options"] = _get_options(state, "datetime")
+        _update_visibility(state, ["datetime"])
     if state["input"]["datetime"]["element"]!=" " and state["input"]["correct_mode"]["element"]=="off":
-        state["df"] = state["df"].query(f'game_start_datetime == "{state["input"]["datetime"]["element"]}"')
-        state["html"]["inside"] = _get_table(state["df"], state["suf"])
-        
-        df = state["sub_df"].sort_values('fighter_id')[[f'fighter_name{state["suf"]}']]
-        df = df[~df.duplicated(keep='first')]
-        df2dict = df[f'fighter_name{state["suf"]}'].to_dict()
-        state["input"]["vs_fighter"]["options"] = state["input"]["fighter"]["options"] = {v: v for v in df2dict.values()}
-        state["input"]["category"]["options"] = {v: v for v in ["smashmate", "other", "VIP"]}
-        state["input"]["win_lose"]["options"] = {v: v for v in ["Lose", "Win"]}
+        state["input"]["fighter"]["options"] = _get_options(state, "all_fighter")
+        state["input"]["vs_fighter"]["options"] = _get_options(state, "all_fighter")
+        state["input"]["category"]["options"] = _get_options(state, "all_category")
+        state["input"]["win_lose"]["options"] = _get_options(state, "all_win_lose")
         _update_visibility(state, ["correct_mode"])
-    
     if state["input"]["correct_mode"]["element"]=="on":
         _update_visibility(state, ["lang", "player", "datetime"], others_off=False)
         for k in init_dict["input"].keys(): 
@@ -113,12 +95,6 @@ def correct(state):
                 set_values.append(set_value3)
     element = state["df"].iat[0, 11]
     SmashDatabase().update_analysis_data(set_values, (f"game_start_url = '{element}'",))
-    _update_visibility(state)
-    state["html"]["inside"] = " "
-    state["html"]["msg_visibility"] = True
-    sleep(2)
-    state["html"]["inside"] = _get_table(_get_df().query(f'game_start_url == "{element}"'), state["suf"])
-    state["html"]["msg_visibility"] = False
 
 # LOAD DATA
 
@@ -140,36 +116,87 @@ def _get_table(df=_get_df(), suf=""):
     # 【CSS/html】table,th,tdの文字色を変える方法 https://csshtml.work/table-color/#spancolor
     return re.sub('</style>', '.link{color: blue;}</style>', table)
 
-def _get_options(state, input_type, df_item):
-    df = state["df"][[df_item]].sort_values(df_item)
-    df = df[~df.duplicated(keep='first')]
-    df2dict = df[df_item].to_dict()
-    state["input"][input_type]["options"] = {v: v for v in df2dict.values()}
-    _update_visibility(state, [input_type])
-
-def _get_merge_options(state, input_type, fighter_query=True):
-    df_1p = state["df"].query(f'target_player_is_1p == {fighter_query}')
-    df_1p = df_1p[['fighter_id_1p', f'fighter_name_1p{state["suf"]}']]
-    df_1p.columns = ['fighter_id', 'fighter_name']
-    df_2p = state["df"].query(f'target_player_is_1p == {not fighter_query}')
-    df_2p = df_2p[['fighter_id_2p', f'fighter_name_2p{state["suf"]}']]
-    df_2p.columns = ['fighter_id', 'fighter_name']
-    df = pd.concat([df_1p, df_2p], axis=0)
-    df = df[['fighter_id', 'fighter_name']].sort_values('fighter_id')
-    df = df[~df.duplicated(keep='first')]
-    df2dict = df['fighter_name'].to_dict()
-    state["input"][input_type]["options"] = {v: v for v in df2dict.values()}
-    _update_visibility(state, [input_type])
-    
+def _get_options(state, options_type):
+    if options_type=="player":
+        state["html"]["inside"] = _get_table(state["df"], state["suf"])
+        df = state["df"][['target_player_name']].sort_values('target_player_name')
+        df = df[~df.duplicated(keep='first')]
+        df2dict = df['target_player_name'].to_dict()
+        values = df2dict.values()
+    if options_type=="fighter":
+        # pandas.DataFrameの行を条件で抽出するquery https://note.nkmk.me/python-pandas-query/#_1
+        state["df"] = state["df"].query(f'target_player_name == "{state["input"]["player"]["element"]}"')
+        state["html"]["inside"] = _get_table(state["df"], state["suf"])
+        df_1p = state["df"].query('target_player_is_1p == True')
+        df_1p = df_1p[['fighter_id_1p', f'fighter_name_1p{state["suf"]}']]
+        df_1p.columns = ['fighter_id', 'fighter_name']
+        df_2p = state["df"].query('target_player_is_1p == False')
+        df_2p = df_2p[['fighter_id_2p', f'fighter_name_2p{state["suf"]}']]
+        df_2p.columns = ['fighter_id', 'fighter_name']
+        df = pd.concat([df_1p, df_2p], axis=0)
+        df = df[['fighter_id', 'fighter_name']].sort_values('fighter_id')
+        df = df[~df.duplicated(keep='first')]
+        df2dict = df['fighter_name'].to_dict()
+        values = df2dict.values()
+    if options_type=="vs_fighter":
+        df1 = state["df"].query(f'fighter_name_1p{state["suf"]} == "{state["input"]["fighter"]["element"]}"')
+        df2 = state["df"].query(f'fighter_name_2p{state["suf"]} == "{state["input"]["fighter"]["element"]}"')
+        state["df"] = pd.concat([df1, df2], axis=0)
+        state["html"]["inside"] = _get_table(state["df"], state["suf"])
+        df_1p = state["df"].query('target_player_is_1p == False')
+        df_1p = df_1p[['fighter_id_1p', f'fighter_name_1p{state["suf"]}']]
+        df_1p.columns = ['fighter_id', 'fighter_name']
+        df_2p = state["df"].query('target_player_is_1p == True')
+        df_2p = df_2p[['fighter_id_2p', f'fighter_name_2p{state["suf"]}']]
+        df_2p.columns = ['fighter_id', 'fighter_name']
+        df = pd.concat([df_1p, df_2p], axis=0)
+        df = df[['fighter_id', 'fighter_name']].sort_values('fighter_id')
+        df = df[~df.duplicated(keep='first')]
+        df2dict = df['fighter_name'].to_dict()
+        values = df2dict.values()
+    if options_type=="category":
+        df1 = state["df"].query(f'fighter_name_2p{state["suf"]} == "{state["input"]["vs_fighter"]["element"]}"')
+        df2 = state["df"].query(f'fighter_name_1p{state["suf"]} == "{state["input"]["vs_fighter"]["element"]}"')
+        state["df"] = pd.concat([df1, df2], axis=0)
+        state["html"]["inside"] = _get_table(state["df"], state["suf"])
+        df = state["df"][['category']].sort_values('category')
+        df = df[~df.duplicated(keep='first')]
+        df2dict = df['category'].to_dict()
+        values = df2dict.values()
+    if options_type=="win_lose":
+        state["df"] = state["df"].query(f'category == "{state["input"]["category"]["element"]}"')
+        state["html"]["inside"] = _get_table(state["df"], state["suf"])
+        df = state["df"][['target_player_is_win']].sort_values('target_player_is_win')
+        df = df[~df.duplicated(keep='first')]
+        df2dict = df['target_player_is_win'].to_dict()
+        values = df2dict.values()
+    if options_type=="datetime":
+        state["df"] = state["df"].query(f'target_player_is_win == "{state["input"]["win_lose"]["element"]}"')
+        state["html"]["inside"] = _get_table(state["df"], state["suf"])
+        df = state["df"][['game_start_datetime']].sort_values('game_start_datetime')
+        df = df[~df.duplicated(keep='first')]
+        df2dict = df['game_start_datetime'].to_dict()
+        values = df2dict.values()
+    if options_type=="all_fighter":
+        state["df"] = state["df"].query(f'game_start_datetime == "{state["input"]["datetime"]["element"]}"')
+        state["html"]["inside"] = _get_table(state["df"], state["suf"])
+        df = state["sub_df"].sort_values('fighter_id')[[f'fighter_name{state["suf"]}']]
+        df = df[~df.duplicated(keep='first')]
+        df2dict = df[f'fighter_name{state["suf"]}'].to_dict()
+        values = df2dict.values()
+    if options_type=="all_category": values = ["smashmate", "other", "VIP"]
+    if options_type=="all_win_lose": values = ["Lose", "Win"]
+    return {v: v for v in values}
 
 # UPDATES
 
-def _update_visibility(state, options_type_list=[], others_off=True):
+def _update_visibility(state, options_type_list, others_off=True):
     for k in init_dict["input"].keys(): 
         if others_off: state["input"][k]["visibility"] = True if k in options_type_list else False
         else: state["input"][k]["visibility"] = True if k not in options_type_list else False
 
 # STATE INIT
+
 
 init_dict = {
     "df": _get_df(),
@@ -226,8 +253,7 @@ init_dict = {
         }   
     },
     "html": {
-        "inside": _get_table(),
-        "msg_visibility": False
+        "inside": _get_table()
     }
 }
 

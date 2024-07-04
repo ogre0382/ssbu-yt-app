@@ -54,9 +54,7 @@
             "content": {
                 "key": "viewer",
                 "pageMode": "",
-                "primaryTextColor": "#125fa8",
-                "separatorColor": "#125fa8",
-                "buttonColor": "#125fa8"
+                "primaryTextColor": "#125fa8"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -68,7 +66,7 @@
             "id": "uojfzy9ieosetokc",
             "type": "header",
             "content": {
-                "text": "SSBU 1on1 DataBase Viewer and Editor APP",
+                "text": "SSBU 1on1 DataBase Viewer APP",
                 "cssClasses": "",
                 "accentColor": "#125FA8"
             },
@@ -83,7 +81,7 @@
             "type": "html",
             "content": {
                 "styles": "{\n  \"padding\": \"16px\",\n  \"min-height\": \"64px\",\n  \"min-width\": \"64px\",\n  \"border-color\": \"red\",\n  \"border-radius\": \"8px\",\n  \"background\": \"linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)\"\n}",
-                "htmlInside": "@{html.inside}"
+                "htmlInside": "@{show_table}"
             },
             "isCodeManaged": false,
             "position": 1,
@@ -133,23 +131,23 @@
             "id": "w1usu619j1zuddwm",
             "type": "column",
             "content": {
-                "width": "1",
-                "title": "Player: @{input.player.element}"
+                "width": "1"
             },
             "isCodeManaged": false,
             "position": 0,
             "parentId": "3t2gnmddugdu8qa4",
-            "handlers": {}
+            "handlers": {},
+            "visible": true
         },
         "dcr79i5kl4p1aw8o": {
             "id": "dcr79i5kl4p1aw8o",
             "type": "selectinput",
             "content": {
-                "label": "",
-                "options": "@{input.player.options}",
+                "label": "Player",
+                "options": "@{player_select}",
                 "accentColor": "#125FA8",
                 "placeholder": "",
-                "maximumCount": ""
+                "separatorColor": "#125FA8"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -157,31 +155,32 @@
             "handlers": {
                 "wf-option-change": "update"
             },
-            "visible": "input.player.visibility",
+            "visible": true,
             "binding": {
                 "eventType": "wf-option-change",
-                "stateRef": "input.player.element"
+                "stateRef": "filter.player"
             }
         },
         "te3vkz69edk70dey": {
             "id": "te3vkz69edk70dey",
             "type": "column",
             "content": {
-                "width": "1",
-                "title": "Fighter: @{input.fighter.element}"
+                "width": "1"
             },
             "isCodeManaged": false,
             "position": 1,
             "parentId": "3t2gnmddugdu8qa4",
-            "handlers": {}
+            "handlers": {},
+            "visible": true
         },
         "wtqhqxczzbnq465e": {
             "id": "wtqhqxczzbnq465e",
             "type": "selectinput",
             "content": {
-                "label": "",
-                "options": "@{input.fighter.options}",
-                "accentColor": "#125fa8"
+                "label": "Fighter",
+                "options": "@{fighter_select}",
+                "accentColor": "#125FA8",
+                "separatorColor": "#125FA8"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -189,18 +188,17 @@
             "handlers": {
                 "wf-option-change": "update"
             },
-            "visible": "input.fighter.visibility",
+            "visible": true,
             "binding": {
                 "eventType": "wf-option-change",
-                "stateRef": "input.fighter.element"
+                "stateRef": "filter.fighter"
             }
         },
         "tr125jpidbhha1xa": {
             "id": "tr125jpidbhha1xa",
             "type": "column",
             "content": {
-                "width": "1",
-                "title": "VS Fighter: @{input.vs_fighter.element}"
+                "width": "1"
             },
             "isCodeManaged": false,
             "position": 2,
@@ -212,9 +210,10 @@
             "id": "ds0cecmh0w7ic784",
             "type": "selectinput",
             "content": {
-                "label": "",
-                "options": "@{input.vs_fighter.options}",
-                "accentColor": "#125FA8"
+                "label": "vs Fighter",
+                "options": "@{vs_fighter_select}",
+                "accentColor": "#125FA8",
+                "separatorColor": "#125FA8"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -222,10 +221,10 @@
             "handlers": {
                 "wf-option-change": "update"
             },
-            "visible": "input.vs_fighter.visibility",
+            "visible": true,
             "binding": {
                 "eventType": "wf-option-change",
-                "stateRef": "input.vs_fighter.element"
+                "stateRef": "filter.vs_fighter"
             }
         },
         "ra8hszfe33jdo857": {
@@ -242,8 +241,7 @@
             "id": "xzbjm0hr9pd8n6k7",
             "type": "column",
             "content": {
-                "width": "1",
-                "title": "Category: @{input.category.element}"
+                "width": "1"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -255,10 +253,11 @@
             "id": "o3sjq2gpnggiz978",
             "type": "selectinput",
             "content": {
-                "label": "",
+                "label": "Category",
                 "accentColor": "#125FA8",
-                "options": "@{input.category.options}",
-                "placeholder": ""
+                "options": "@{category_select}",
+                "placeholder": "",
+                "separatorColor": "#125fa8"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -266,18 +265,17 @@
             "handlers": {
                 "wf-option-change": "update"
             },
-            "visible": "input.category.visibility",
+            "visible": true,
             "binding": {
                 "eventType": "wf-option-change",
-                "stateRef": "input.category.element"
+                "stateRef": "filter.category"
             }
         },
         "taf0oexkvh5lfxgh": {
             "id": "taf0oexkvh5lfxgh",
             "type": "column",
             "content": {
-                "width": "1",
-                "title": "Win or Lose: @{input.win_lose.element}"
+                "width": "1"
             },
             "isCodeManaged": false,
             "position": 1,
@@ -289,9 +287,10 @@
             "id": "5dcuzrn577hmm08g",
             "type": "selectinput",
             "content": {
-                "label": "",
-                "options": "@{input.win_lose.options}",
-                "accentColor": "#125FA8"
+                "label": "Win or Lose",
+                "options": "@{win_lose_select}",
+                "accentColor": "#125FA8",
+                "separatorColor": "#125FA8"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -299,18 +298,17 @@
             "handlers": {
                 "wf-option-change": "update"
             },
-            "visible": "input.win_lose.visibility",
+            "visible": true,
             "binding": {
                 "eventType": "wf-option-change",
-                "stateRef": "input.win_lose.element"
+                "stateRef": "filter.win_lose"
             }
         },
         "9b8nqcqmjp3kteb3": {
             "id": "9b8nqcqmjp3kteb3",
             "type": "column",
             "content": {
-                "width": "1",
-                "title": "Datetime: @{input.datetime.element}"
+                "width": "1"
             },
             "isCodeManaged": false,
             "position": 2,
@@ -322,9 +320,10 @@
             "id": "wex69b6oojf1qa7f",
             "type": "selectinput",
             "content": {
-                "label": "",
-                "options": "@{input.datetime.options}",
-                "accentColor": "#125FA8"
+                "label": "Datetime",
+                "options": "@{datetime_select}",
+                "accentColor": "#125FA8",
+                "separatorColor": "#125FA8"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -332,165 +331,43 @@
             "handlers": {
                 "wf-option-change": "update"
             },
-            "visible": "input.datetime.visibility",
+            "visible": true,
             "binding": {
                 "eventType": "wf-option-change",
-                "stateRef": "input.datetime.element"
+                "stateRef": "filter.datetime"
             }
         },
-        "gyf0zlz0t5s94qw1": {
-            "id": "gyf0zlz0t5s94qw1",
+        "lx7234q4wnvhnldo": {
+            "id": "lx7234q4wnvhnldo",
+            "type": "switchinput",
+            "content": {
+                "label": "Correct mode"
+            },
+            "isCodeManaged": false,
+            "position": 3,
+            "parentId": "t8zr72rdug5o7i00",
+            "handlers": {},
+            "visible": true
+        },
+        "hisac71yj8zeb5zc": {
+            "id": "hisac71yj8zeb5zc",
             "type": "radioinput",
             "content": {
                 "label": "",
-                "options": "{\n  \"on\": \"on\"\n}",
-                "orientation": ""
+                "options": "{\n  \"jp\": \"jp\",\n  \"en\": \"en\"\n}",
+                "orientation": "horizontal"
             },
-            "isCodeManaged": false,
-            "position": 0,
-            "parentId": "488g509w41mhj6na",
-            "handlers": {
-                "wf-option-change": "update"
-            },
-            "binding": {
-                "eventType": "wf-option-change",
-                "stateRef": "input.correct_mode.element"
-            }
-        },
-        "spmvh24fsn94c1gc": {
-            "id": "spmvh24fsn94c1gc",
-            "type": "textinput",
-            "content": {
-                "label": "",
-                "placeholder": ""
-            },
-            "isCodeManaged": false,
-            "position": 1,
-            "parentId": "w1usu619j1zuddwm",
-            "handlers": {
-                "wf-change-finish": "update"
-            },
-            "visible": "input.t_player.visibility",
-            "binding": {
-                "eventType": "wf-change",
-                "stateRef": "input.player.element"
-            }
-        },
-        "b5ha9d1pnq9c6j5w": {
-            "id": "b5ha9d1pnq9c6j5w",
-            "type": "button",
-            "content": {
-                "text": "",
-                "icon": "forward_media",
-                "isDisabled": "@{input.correct_mode.disabled}"
-            },
-            "isCodeManaged": false,
-            "position": 1,
-            "parentId": "488g509w41mhj6na",
-            "handlers": {
-                "wf-click": "correct"
-            },
-            "visible": true
-        },
-        "zyonis4yoaf9fi6x": {
-            "id": "zyonis4yoaf9fi6x",
-            "type": "columns",
-            "content": {},
             "isCodeManaged": false,
             "position": 0,
             "parentId": "t8zr72rdug5o7i00",
-            "handlers": {},
-            "visible": true
-        },
-        "cwdfyhfpzj4zqvr1": {
-            "id": "cwdfyhfpzj4zqvr1",
-            "type": "column",
-            "content": {
-                "title": "Language: @{input.lang.element}",
-                "width": "1"
-            },
-            "isCodeManaged": false,
-            "position": 0,
-            "parentId": "zyonis4yoaf9fi6x",
-            "handlers": {},
-            "visible": true
-        },
-        "095o2fsr50n9ibo7": {
-            "id": "095o2fsr50n9ibo7",
-            "type": "column",
-            "content": {
-                "title": "Correct Mode: @{input.correct_mode.element}",
-                "width": "1"
-            },
-            "isCodeManaged": false,
-            "position": 1,
-            "parentId": "zyonis4yoaf9fi6x",
-            "handlers": {}
-        },
-        "8usjnocnz0mniage": {
-            "id": "8usjnocnz0mniage",
-            "type": "column",
-            "content": {
-                "width": "1"
-            },
-            "isCodeManaged": false,
-            "position": 2,
-            "parentId": "zyonis4yoaf9fi6x",
-            "handlers": {},
-            "visible": true
-        },
-        "488g509w41mhj6na": {
-            "id": "488g509w41mhj6na",
-            "type": "horizontalstack",
-            "content": {},
-            "isCodeManaged": false,
-            "position": 0,
-            "parentId": "095o2fsr50n9ibo7",
-            "handlers": {},
-            "visible": "input.correct_mode.visibility"
-        },
-        "3sjxhzxgzgmgo2mh": {
-            "id": "3sjxhzxgzgmgo2mh",
-            "type": "text",
-            "content": {
-                "text": " "
-            },
-            "isCodeManaged": false,
-            "position": 0,
-            "parentId": "8usjnocnz0mniage",
-            "handlers": {},
-            "visible": true
-        },
-        "clfden52zffgy1as": {
-            "id": "clfden52zffgy1as",
-            "type": "selectinput",
-            "content": {
-                "label": "",
-                "options": "@{input.lang.options}",
-                "accentColor": "#125fa8"
-            },
-            "isCodeManaged": false,
-            "position": 0,
-            "parentId": "cwdfyhfpzj4zqvr1",
-            "handlers": {
-                "wf-option-change": "update"
-            },
-            "visible": "input.lang.visibility",
+            "visible": true,
             "binding": {
                 "eventType": "wf-option-change",
-                "stateRef": "input.lang.element"
-            }
-        },
-        "r9r7mmmqvn49bbxs": {
-            "id": "r9r7mmmqvn49bbxs",
-            "type": "message",
-            "parentId": "t8zr72rdug5o7i00",
-            "content": {
-                "message": "% Now Loading ..."
+                "stateRef": "filter.lang"
             },
-            "handlers": {},
-            "position": 3,
-            "visible": "html.msg_visibility"
+            "handlers": {
+                "wf-option-change": "update"
+            }
         }
     }
 }
