@@ -8,7 +8,6 @@ from glob import glob as _glob
 from os.path import dirname as _dirname
 from os.path import join as _join
 from os import remove as _remove
-from pprint import pprint as _pprint
 from sys import path
 path.append(_join(_dirname('__file__'), '..'))
 from threading import Thread
@@ -20,12 +19,12 @@ from module.yt_obj import GetYoutube
 
 # EVENT HANDLERS
 
-## Input YouTube URL
+## Input YouTube URL：YouTube URLを更新し、検証する
 def yt_url(state):
     _update_yt_url(state)
     _check_yt_url(state)
 
-## Check game screens
+## Check game screens：ゲーム画面を確認する
 def start_game_screen(state):
     _remove_img_file()
     state["yt_url"]["visibility"] = False
@@ -34,7 +33,8 @@ def start_game_screen(state):
     _get_game_screen(state)
     state["game_screen"]["message"]["visibility"] = False
     state["game_screen"]["radio_button"]["visibility"] = True
-    
+
+## Check game screens：ゲーム画面を変更する
 def change_game_screen(state, payload):
     if type(payload)==float:
         state["game_screen"]["radio_button"]["visibility"] = False
@@ -44,7 +44,7 @@ def change_game_screen(state, payload):
         _update_game_screen(state)
         state["game_screen"]["radio_button"]["visibility"] = True
 
-## Crop game screens
+## Check game screens：ゲーム画面をクロップするかどうかを選択する
 def start_stop_crop_3rect(state):
     for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = False
     state["game_screen"]["radio_button"]["visibility"] = False
@@ -53,7 +53,8 @@ def start_stop_crop_3rect(state):
     else:
         _update_proc_game_screen(state, rect=True, var_rect=False)
         state["option"]["visibility"] = True
-    
+
+## Crop game screens：ゲーム画面をクロップする範囲を確認する
 def check_crop(state, payload):
     if type(payload)==float:
         _update_cropper(state)
@@ -63,7 +64,8 @@ def check_crop(state, payload):
         _update_proc_game_screen(state, rect=True)
         state["crop"]["check_button"]["disabled"] = "yes"
         state["crop"]["crop_button"]["disabled"] = "no"
-    
+
+## Crop game screens：ゲーム画面をクロップする
 def execute_crop(state):
     if state["game_screen"]["radio_button"]["state_element"]=="no":
         state["crop"]["visibility"] = False
@@ -73,7 +75,7 @@ def execute_crop(state):
         state["game_screen"]["radio_button"]["state_element"] = None
         state["game_screen"]["radio_button"]["visibility"] = True
 
-## Do you collect data from the following YouTube?
+## Do you collect data from the following YouTube?：オプションを入力する
 def option(state):
     state["game_screen"]["visibility"] = False
     state["option"]["html0_visibility"] = False
@@ -87,7 +89,7 @@ def option(state):
         state["option"]["html1_visibility"] = True
         state["option"]["inputs_visibility"] = False
 
-## 対戦している2キャラとその勝敗結果を取得し、それらに応じて対戦開始画面に飛べるURLをbigqueryに保存する
+## Analyze and Collect：対戦している2キャラとその勝敗結果を取得し、対戦開始画面に飛べるURLをbigqueryに保存する
 def collect(state):
     if state["collect"]["start_button"]["disabled"]=="no":
         state["collect"]["start_button"]["disabled"] = "yes"
@@ -97,25 +99,27 @@ def collect(state):
         state["collect"]["repeater"] = dict()
         state["collect"]["repeater_visibility"] = True
         _remove_img_file()
-        # _generate_message(state, state["collect"].to_dict()["repeater"])
         _generate_message(state)
-        print(state["collect"]["repeater"])
         _generate_insert_data(state)
     if state["collect"]["stop_button"]["disabled"]=="no":
         state["collect"]["start_button"]["disabled"] = "no"
         state["collect"]["stop_button"]["disabled"] = "yes"
         state["collect"]["html_visibility"] = True
         
-#### Event context https://www.streamsync.cloud/repeater.html
+## Analyze and Collect：対戦している2キャラとその勝敗結果を表示
 def view_results(state, payload, context):
+    # Event context https://dev.writer.com/framework/event-handlers#context
     id = context["item"]['id']
     state["collect"]["repeater"][f"message{id}"]["visibility"] = True if "view" in payload else False
 
+
 # LOAD / GENERATE DATA
 
+## 全ファイター名のデータを取得する
 def _get_main_df():
     return SmashDatabase().select_fighter_data()
 
+## 全ファイター名のマルチセレクトボックスのデータを生成取得する
 def _get_select(state=None, main_df=None):
     select_df = main_df.sort_values('fighter_id')
     if state==None: lang_suf = ''
@@ -124,12 +128,13 @@ def _get_select(state=None, main_df=None):
     select_dict = select_df.to_dict()
     return {v: v for v in select_dict.values()}
 
+## YouTubeの情報を取得する
 def _get_main_yt(url):
     return GetYoutube(url).infos
-    
+
+## ゲーム画面を取得する
 def _get_game_screen(state):
     yt_infos = state["inputs"]["yt_infos"] = _get_main_yt(state["yt_url"]["text_input"]["state_element"])
-    print(yt_infos)
     if len(yt_infos)<state["main_yt_num"]: state["main_yt_num"] = len(yt_infos)
     if len(yt_infos)<state["sub_yt_num"]: state["sub_yt_num"] = len(yt_infos)
     for i in range(state["sub_yt_num"]):
@@ -138,7 +143,8 @@ def _get_game_screen(state):
         state["game_screen"][f"html{i}"]["inside"] = f'{yt_infos[i]["original_url"]}&t={0}s'
         state["game_screen"][f"html{i}"]["slider_number"]["max_value"] = yt_infos[i]["duration"]
     for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["visibility"] = True
-    
+
+## クロップする範囲を取得する
 def _get_crop_pt(state):
     px = dict()
     for k in ["left", "top", "width", "height"]: px[k] = int(state["crop"][k]["state_element"])
@@ -149,6 +155,7 @@ def _get_crop_pt(state):
     suffix = f'{px["left"]}_{px["top"]}_{px["width"]}_{px["height"]}'
     return cv2dict, suffix
 
+## 3つの矩形を表示する範囲を取得する
 def _get_3rect_pt():
     cv2dict = dict()
     w,h = 1920,1080
@@ -158,6 +165,7 @@ def _get_3rect_pt():
     suffix = "3rect"
     return cv2dict, suffix
 
+## 処理メッセージを生成する
 def _generate_message(state, collect_repeater=dict()):
     for i in range(state["main_yt_num"]):
         collect_repeater.update({
@@ -170,6 +178,7 @@ def _generate_message(state, collect_repeater=dict()):
         })
     state["collect"]["repeater"] = collect_repeater
 
+## 処理結果のビューを生成する
 def _generate_view_results(state, message_repeater=dict(), index=0, res_num=0):
     message_repeater.update({
         f"images{res_num}": {
@@ -188,83 +197,15 @@ def _generate_view_results(state, message_repeater=dict(), index=0, res_num=0):
     if res_num>0: state["collect"]["repeater"][f"message{index}"]["repeater"] = message_repeater
     return message_repeater
 
-# 【Python】threadingによるマルチスレッド処理の基本 | 入れ子のロック取得 RLock 
-# https://tech.nkhn37.net/python-threading-multithread/#_RLock
-lock = threading.RLock()
+## 動画毎に並行(並列)処理してBigqueryへ挿入するデータを生成する準備
 def _generate_insert_data(state):
     inputs = state["inputs"]
-    category = {'VIP':['VIP'], 'smashmate':['めいと', 'メイト','レート', 'レーティング']}
-    dsize = [(1024,576), (448*2,252*2), (448,252), (1280,720)]
-    img = {
-        "g_start": {
-            "img": None,
-            "temp_img": None,
-            "temp_match_val": -1,
-            "dsize": dsize[0],
-            "crop": {"crop1": {'pt1': [0,0], 'pt2': [dsize[0][0],int(dsize[0][1]*0.2)]}}
-        },
-        "g_fighter": {
-            "img_1p": None,
-            "img_2p": None,
-            "dsize": dsize[1],
-            "crop_1p": {"crop1": {'pt1': [int(dsize[1][0]*0.10),int(dsize[1][1]*0.02)], 'pt2': [int(dsize[1][0]*0.43),int(dsize[1][1]*0.13)]}},
-            "crop_2p": {"crop1": {'pt1':[int(dsize[1][0]*0.60),int(dsize[1][1]*0.02)], 'pt2':[int(dsize[1][0]*0.93),int(dsize[1][1]*0.13)]}}
-        },
-        "g_finish": {
-            "img": None,
-            "temp_img": "gameset.png",
-            "temp_match_val": 0.474,
-            "dsize": dsize[2],
-            "crop": {"crop1": {'pt1':[int(dsize[2][0]*0.21),int(dsize[2][1]*0.16)], 'pt2':[int(dsize[2][0]*0.79),int(dsize[2][1]*0.64)]}}
-        },
-        "g_result": {
-            "img_1p": None,
-            "img_2p": None,
-            "img_rs": None,
-            "dsize": dsize[3],
-            "crop_1p": {"crop1": {'pt1':[int(dsize[3][0]*0.266),int(dsize[3][1]*0.847)], 'pt2':[int(dsize[3][0]*0.343),int(dsize[3][1]*0.927)]}},
-            "crop_2p": {"crop1": {'pt1':[int(dsize[3][0]*0.651),int(dsize[3][1]*0.847)], 'pt2':[int(dsize[3][0]*0.728),int(dsize[3][1]*0.927)]}},
-            "crop_rs": {"crop1": {'pt1':[int(dsize[3][0]*0.000),int(dsize[3][1]*0.600)], 'pt2':[int(dsize[3][0]*0.500),int(dsize[3][1]*1.000)]}}
-        },
-        "imw_path": _dirname('__file__')
-    }
-    #  動画毎に並行(並列)処理
     fighter_df = inputs["fighter_df"]
     inputs_dict = inputs.to_dict()
     inputs_dict["fighter_df"] = fighter_df
-    
-    # ini_dur_dict = {
-    #     # "EJdt-sWDhMU": [2333, 15800], 9
-    #     "3h94qbZLS7E": [12504, 12620], 39 OK
-    #     # "3h94qbZLS7E": [12654, 12716], 39 
-    #     # "AEsMop2CT6U": [560, 5090], 23
-    #     # "GPvZuZCVMmc": [1847, 2530], 34 OK
-    #     "d7Kq6YuNiwY": [2146, 2349], 20
-    #     "F1pFuBy0WEI": [11112, 11263], 33 OK 
-    #     "3F0t_gQ0TqA": [14138, 14233], 51 OK
-    #     # "87jIYtfEIPQ": [5928, 6222], 21
-    #       "UFmLvDP-ICw": [0,0] 38 OK
-    # }
-    
-    # ini_dur_dict = {
-    #     "HCqSYGQRRXo": [4719, 4800],
-    #     "FyQtFT2X1Jg": [13707, 14051]
-    # }
-    
     tasks = []
     for i in range(state["main_yt_num"]):
-        # for k in ini_dur_dict.keys():
-        #     if k in state["inputs"]["yt_infos"][i]['original_url']:
-        #         initial = ini_dur_dict[k][0]-30
-        #         duration = ini_dur_dict[k][1]+5
-        # task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i, initial, duration))
-        # task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i), kwargs=dict(initial=1))
-        # task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i), kwargs=dict(initial=100))
         task = Thread(target=_generate_analysis_data, args=(state, inputs_dict, i,))
-        # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param, initial-30, duration),))
-        # task = Thread(target=_generate_yt_image, args=(state, i, EsportsAnalysis(i, param, 1),))
-        # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param, 1),))
-        # task = Thread(target=_generate_analysis_data, args=(state, i, EsportsAnalysis(i, param),))
         task.start()
         tasks.append(task)
     for t in tasks:
@@ -272,25 +213,18 @@ def _generate_insert_data(state):
     state["collect"]["stop_button"]["disabled"] = "yes"
     state["collect"]["html_visibility"] = True
 
-# def _generate_analysis_data(state, index, analysis:EsportsAnalysis):
+## 動画解析した結果からデータを生成する
 def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
-    print(_dirname('__file__'))
     analysis = EsportsAnalysis(Parameter(inputs, index, initial, duration, imw_path=_dirname('__file__')), )
     bar = tqdm(total=analysis.param.duration, leave=False, disable=False, initial=analysis.param.initial)
     game_data_list = []
     analysis.set_game_data(inputs, index)
     yt_id = analysis.param.yt_info['original_url'].split('=')[1]
     for sec in range(analysis.param.initial, analysis.param.duration):
-    # for sec in range(660, 905):
         if state["collect"]["stop_button"]["disabled"]=="yes":
             state["collect"]["repeater"][f"message{index}"]["text"] = f"!Stopped{text[7:]}"
             break
-        # lock_state = False
-        # if analysis.states['find_game_start']:
-        #     lock_state = lock.acquire()
-        #     print(f"lock_state = {lock_state}")
         analysis.execute_analysis(index, sec)
-        # if lock_state: lock.release()
         bar_text = f"Started image processing | {yt_id} -> {analysis.state}"
         bar.set_description(bar_text)
         bar.update(1)
@@ -308,7 +242,6 @@ def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
             if state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_url"]==None:
                 state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_url"] = inside_url
             if state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_vs"]==None:
-                print(f'state["collect"]["repeater"][f"message{index}"]["repeater"] = {state["collect"]["repeater"][f"message{index}"]["repeater"]}')
                 state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["start_html"]["inside_vs"] = inside_vs
             if analysis.game_data.target_player_is_win!=None:
                 inside_url = analysis.game_data.game_finish_url
@@ -317,7 +250,6 @@ def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
                 state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["end_html"]["image_source"] = image_source
                 state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["end_html"]["inside_url"] = inside_url
                 state["collect"]["repeater"][f"message{index}"]["repeater"][f"images{len(game_data_list)}"]["end_html"]["inside_res"] = inside_res
-                print(f'state["collect"]["repeater"][f"message{index}"]["repeater"]= {state["collect"]["repeater"][f"message{index}"]["repeater"]}')
                 game_data_list.append(analysis.game_data)
                 analysis.set_game_data(inputs, index)
                 _generate_view_results(state, state["collect"].to_dict()["repeater"][f"message{index}"]["repeater"], index, len(game_data_list))
@@ -325,10 +257,7 @@ def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
     time.sleep(0.1*(1+index))
     smash_db = SmashDatabase()
     data_id = len(smash_db.select_analysis_data()) + 1
-    # print(f"game_data_list (before) = {game_data_list}")
     for i in range(len(game_data_list)): game_data_list[i].id = data_id+i
-    # print(f"game_data_list (after) = {game_data_list}")
-    # print([astuple(data) for data in game_data_list])
     # データクラスと辞書型の相互変換: asdict()とastuple()関数の使い方 https://ya6mablog.com/how-to-use-dataclass/#index_id8
     smash_db.insert_analysis_data([astuple(data) for data in game_data_list])
     if "Stopped" not in state["collect"]["repeater"][f"message{index}"]["text"]:
@@ -337,24 +266,17 @@ def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
     # 【Python】オブジェクトを削除してメモリを解放する https://yumarublog.com/python/del/
     del analysis
     gc.collect()
-        
-def _generate_yt_image(state, index, analysis:EsportsAnalysis):
-    bar = tqdm(total=analysis.yt_info['duration'], leave=False, disable=False, initial=analysis.initial)
-    for sec in range(analysis.initial, analysis.yt_info['duration']):
-        if state["collect"]["stop_button"]["disabled"]=="yes":
-            state["collect"]["repeater"][f"message{index}"]["text"] = f"!Stopped"
-            break
-        analysis.test_get_yt_image(index, sec)
-        bar.update(1)
 
 
 # UPDATES
 
+## YouTube URLのタイプを更新する
 def _update_yt_url(state):
     playlist = "https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf"
     watch = "https://www.youtube.com/watch?v=My3gyDHoGAs"
     state["yt_url"]["text_input"]["place_holder"] = playlist if "playlist" in state["yt_url"]["check_box_state_element"] else watch
 
+## 入力されたYouTube URLを検証する
 def _check_yt_url(state):
     if len(state["yt_url"]["text_input"]["place_holder"])==len(state["yt_url"]["text_input"]["state_element"]):
         state["yt_url"]["button_visibility"] = True
@@ -363,6 +285,7 @@ def _check_yt_url(state):
         state["yt_url"]["button_visibility"] = False
         state["yt_url"]["text_visibility"] = True
 
+## ゲーム画面のスライダー番号を更新する
 def _update_game_screen_secnum(state):
     for i in range(state["sub_yt_num"]):
         num = state["game_screen"][f"html{i}"]["slider_number"]["state_element"]
@@ -374,6 +297,7 @@ def _update_game_screen_secnum(state):
         else:
             state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = False
 
+## ゲーム画面を更新する
 def _update_game_screen(state):
     ch = state["game_screen"]["ch"]
     _remove(_join(_dirname('__file__'), state["game_screen"][f"html{ch}"]["image_source"]))
@@ -389,6 +313,7 @@ def _update_game_screen(state):
     state["game_screen"][f"html{ch}"]["inside"] = f'{yt_infos[ch]["original_url"]}&t={sec}s'
     for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = True
 
+## クロップする範囲座標を更新する
 def _update_cropper(state):
     num = dict()
     bnum = dict()
@@ -399,7 +324,8 @@ def _update_cropper(state):
             if k=="height": state["crop"]["width"]["buf_state_element"] = state["crop"]["width"]["state_element"] = int(num["height"]*16/9)
             if k=="width": state["crop"]["height"]["buf_state_element"] = state["crop"]["height"]["state_element"] = int(num["width"]*9/16)
             state["crop"][k]["buf_state_element"] = state["crop"][k]["state_element"]
-        
+
+## ゲーム画面をクロップした結果か矩形を描画した結果の表示を更新する
 def _update_proc_game_screen(state, rect=False, crop=False, ch=4, var_rect=True):
     state["crop"]["crop_button"]["disabled"] = "yes"
     cv2dict, suffix = _get_crop_pt(state) if var_rect else _get_3rect_pt()
@@ -417,7 +343,8 @@ def _update_proc_game_screen(state, rect=False, crop=False, ch=4, var_rect=True)
         if state["game_screen"][f"html{i}"]["image_source"]!=f'static/image{i}_{sec}.jpg' and ch==4:
             _remove(_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]))
         state["game_screen"][f"html{i}"]["image_source"] = imw_file
-        
+
+## オプションを更新する
 def _update_option(state):
     ## Input player name
     if "auto" in state["option"]["text_input"]["check_box_state_element"]:
@@ -445,52 +372,24 @@ def _update_option(state):
     else:
         state["collect"]["visibility"] = True
 
+## 画像ファイルを削除する
+def _remove_img_file():
+    for file in _glob(_join(_dirname('__file__'),'static/image*.jpg')): _remove(file)
+
 
 # STATE INIT
 
-rel = True
-full_gs = True
-jp = True
-
-if not rel:
-    if full_gs:
-        target_1p_fighters = ['KAMUI'] if jp else ['CORRIN']
-        playlist_id = "PLxWXI3TDg12zrFRN6cl_z5qCHF-VTbhdZ" if jp else "PLxWXI3TDg12wt42UpVkbz4WyJp17SNrDl"
-        # yt_infos = _get_main_yt("https://www.youtube.com/playlist?list=PLxWXI3TDg12wDTFFBiYvWBdkjrn9OPsCY")
-        yt_infos = _get_main_yt(f"https://www.youtube.com/playlist?list={playlist_id}")
-        # yt_infos = _get_main_yt("https://www.youtube.com/watch?v=MlPDNrRCv5M") # 英語テスト
-        if jp:
-            yt_infos = [info for info in yt_infos for yt_id in [ # https://www.youtube.com/playlist?list=PLxWXI3TDg12zrFRN6cl_z5qCHF-VTbhdZ
-            # "EJdt-sWDhMU",
-            "3h94qbZLS7E",
-            # "AEsMop2CT6U",
-            "GPvZuZCVMmc",
-            # "d7Kq6YuNiwY",
-            "F1pFuBy0WEI",
-            "3F0t_gQ0TqA",
-            # "87jIYtfEIPQ"
-        ] if yt_id in info['original_url']]
-        crop = {'crop0': {'pt1': [0,0], 'pt2': [1920,1080]}}
-        target_lang = 'jp' if jp else 'en'
-    else:
-        target_1p_fighters = ['KAMUI']
-        # yt_infos = _get_main_yt("https://www.youtube.com/playlist?list=PLxWXI3TDg12ynGyOqMitigy6a8JgkyYwY")
-        # yt_infos = _get_main_yt("https://www.youtube.com/watch?v=mIzS8ek44v8")
-        crop = {'crop0': {'pt1': [0, 0], 'pt2': [1585, 891]}}
-        target_lang = 'jp'
-        # target_lang = 'en'
-
 state_dict = {
-    "main_yt_num": 10 if rel else len(yt_infos),
+    "main_yt_num": 10,
     "sub_yt_num": 4,
     "inputs": {
-        "target_player_name": None if rel else 'auto',
-        "target_category": None if rel else 'auto',
-        "target_1p_fighters": None if rel else target_1p_fighters,
-        "target_lang": None if rel else target_lang,
+        "target_player_name": None,
+        "target_category": None,
+        "target_1p_fighters": None,
+        "target_lang": None,
         "fighter_df": _get_main_df(),
-        "yt_infos": None if rel else yt_infos,
-        "crop": {'crop0': {'pt1': [0,0], 'pt2': [1920,1080]}} if rel else crop
+        "yt_infos": None,
+        "crop": {'crop0': {'pt1': [0,0], 'pt2': [1920,1080]}}
     },
     "yt_url": {
         "text_input": {
@@ -500,7 +399,7 @@ state_dict = {
         "check_box_state_element": [None],
         "text_visibility": False,
         "button_visibility": False,
-        "visibility": True if rel else False
+        "visibility": True
     },
     "game_screen": {
         "message": {
@@ -623,30 +522,10 @@ state_dict = {
         "html_visibility": False,
         "repeater": dict(),
         "repeater_visibility": False,
-        "visibility": False if rel else True
+        "visibility": False
     }
 }
 
 initial_state = wf.init_state(state_dict)
-
-# _pprint(state_dict)
-# print("-"*20)
-print(state_dict)
-
-def _remove_img_file():
-    file_list = _glob(_join(_dirname('__file__'),'static/image*.jpg'))
-    for file in file_list: _remove(file)
     
-def _init_app(state=None):
-    _remove_img_file()
-    if state!=None:
-        print(state_dict)
-        # state["page"]["visibility"] = False
-        # state.open_url("http://127.0.0.1:382/")
-        # state.set_page("top")
-        # state.user_state.state = {}
-        # state.user_state.ingest(state_dict)
-        # wf.init_state(state_dict)
-    # initial_state.user_state.ingest(state_dict)
-    
-_init_app()
+_remove_img_file()

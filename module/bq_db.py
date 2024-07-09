@@ -1,30 +1,14 @@
 import itertools
-import time
 import os
-import numpy as np
-import pandas as pd
-import string
 import sys
-# import warnings
-# warnings.simplefilter('ignore', FutureWarning)
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta, timezone
 JST = timezone(timedelta(hours=+9), 'JST')
 from dotenv import load_dotenv
-from functools import wraps
 from google.oauth2 import service_account
 from google.cloud import bigquery
 from os.path import join, dirname
 
-def stop_watch(func):
-    @wraps(func)
-    def wrapper(*args, **kargs) :
-        start = time.perf_counter()
-        result = func(*args,**kargs)
-        elapsed_time =  time.perf_counter() - start
-        print(f"{func.__name__}は{elapsed_time}秒かかりました")
-        return result
-    return wrapper
-
+# BigQueryのデータベース操作を行うクラス
 class BigqueryDatabase:
     def __init__(self, dataset_name):
         self.client = self.get_my_client()
@@ -50,16 +34,19 @@ class BigqueryDatabase:
         credentials = service_account.Credentials.from_service_account_info(account)
         return bigquery.Client(credentials=credentials)
     
+    # BigQueryのデータセットを作成する
     def create_my_dataset(self):
         if self.dataset_name not in [obj.dataset_id for obj in self.client.list_datasets()]:
             dataset = bigquery.Dataset(self.dataset_ref)
             dataset.location = "US"
             self.client.create_dataset(dataset)
 
+    # BigQueryのテーブルを作成する
     def create_my_table(self, table_name=None, table_item=None):
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
         if table_item!=None: self.client.query(f"CREATE TABLE IF NOT EXISTS `{table_ref}` ({', '.join(table_item)});")
 
+    # BigQueryのテーブルにデータを挿入する
     def insert_my_data(self, table_name=None, insert_item=[], insert_data=[], main_data_index=-1):
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
         if len(insert_item)>0 and len(insert_data)>0: # 重複データが無いか確認
@@ -79,30 +66,30 @@ class BigqueryDatabase:
         else:
             print("登録するデータが無いか、データ型が指定されていません")
 
+    # BigQueryのテーブルからデータを取得する
     def select_my_data(self, table_name=None, select_item=None, where_req=None):
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
         query = f"SELECT {', '.join(select_item)} FROM `{table_ref}`;"
         if where_req!=None: query=query[:-1]+f" WHERE {' AND '.join(where_req)};"
-        #print(query)
         return self.client.query(query).to_dataframe()
-         
+    
+    # BigQueryのテーブルからデータを削除する
     def delete_my_data(self, table_name=None, where_req=None):
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
         if where_req!=None:
-            #print(f"DELETE FROM `{table_ref}` WHERE {' AND '.join(where_req)};")
             self.client.query(f"DELETE FROM `{table_ref}` WHERE {' AND '.join(where_req)};")
     
+    # BigQueryのテーブルのデータを更新する
     def update_my_data(self, table_name=None, set_values=None, where_req=None):
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
         if set_values!=None and where_req!=None:
             print(f"UPDATE `{table_ref}` SET {', '.join(set_values)} WHERE {' AND '.join(where_req)};")
             self.client.query(f"UPDATE `{table_ref}` SET {', '.join(set_values)} WHERE {' AND '.join(where_req)};")
 
-# 【Python】クラスの継承・オーバーライドをしっかりと理解する https://note.com/keyma4note/n/ne62443307140
+# BigQueryのデータベース(スマブラ)操作を行うクラス：【Python】クラスの継承・オーバーライドをしっかりと理解する https://note.com/keyma4note/n/ne62443307140
 class SmashDatabase(BigqueryDatabase):
     def __init__(self):
         super().__init__('ssbu_dataset')
-        # self.fighter_item_type = ('id INT64', 'recog_name STRING', 'first_color BOOL', 'fighter_id INT64', 'fighter_name STRING',)
         self.fighter_item_type = ('id INT64', 'recog_name STRING', 'recog_name_en STRING', 'first_color BOOL', 'fighter_id INT64', 'fighter_name STRING', 'fighter_name_en STRING',)
         self.fighter_item = tuple([item.split()[0] for item in self.fighter_item_type])
         self.fighter_insert_data = [
@@ -205,7 +192,6 @@ class SmashDatabase(BigqueryDatabase):
             (97,	'ZOMBIE',           'ZOMBIE',           False,  79,	'STEVE',                'STEVE'             )
         ]
         self.analysis_item_type = (
-            # 'id INT64', 'fighter_id_1p INT64', 'fighter_name_1p STRING', 'fighter_id_2p INT64', 'fighter_name_2p STRING', 
             'id INT64', 'fighter_id_1p INT64', 'fighter_name_1p STRING', 'fighter_name_1p_en STRING',
                         'fighter_id_2p INT64', 'fighter_name_2p STRING', 'fighter_name_2p_en STRING', 
             'target_player_name STRING', 'target_player_is_1p BOOL', 'target_player_is_win BOOL', 
@@ -215,20 +201,25 @@ class SmashDatabase(BigqueryDatabase):
         self.analysis_item = tuple([item.split()[0] for item in self.analysis_item_type])
         self.drop_analysis_item = self.analysis_item[0:12]+self.analysis_item[14:]
     
+    # ファイター名のデータセットを作成する
     def create_fighter_table_data(self):
         super().create_my_table('fighter_table', self.fighter_item_type)
         super().insert_my_data('fighter_table', self.fighter_item, self.fighter_insert_data)
-        
+    
+    # 分析結果のデータセットを作成する
     def create_analysis_table(self):
         super().create_my_table('analysis_table', self.analysis_item_type)
     
+    # 分析結果のデータを挿入する
     def insert_analysis_data(self, insert_data):
         super().insert_my_data('analysis_table', self.analysis_item, insert_data, 11)
     
+    # ファイター名のデータを取得する
     def select_fighter_data(self):
         df = super().select_my_data('fighter_table', ('*',))
         return df.sort_values('id')
     
+    # 分析結果のデータを取得する
     def select_analysis_data(self, drop=False):
         df = super().select_my_data('analysis_table', ('*',))
         df = df.sort_values('game_start_datetime')
@@ -241,10 +232,11 @@ class SmashDatabase(BigqueryDatabase):
         df.loc[df["target_player_is_win"]=="False", "target_player_is_win"] = "Lose"
         return df
     
+    # 分析結果のデータを更新する
     def update_analysis_data(self, set_values, where_req):
         super().update_my_data('analysis_table', set_values, where_req)
-    
-def main2():
+
+if __name__ == '__main__':
     ssbu_db = SmashDatabase()
     ssbu_db.create_my_dataset()
     ssbu_db.create_fighter_table_data()
@@ -252,76 +244,4 @@ def main2():
     df = ssbu_db.select_analysis_data()
     print(df)
     print(df['title'].value_counts())
-
-# def ssbu_bq_sel():
-#     ssbu_db = BigqueryDatabase('ssbu_dataset')
-    
-#     #print(ssbu_db.select_my_data('analysis_table', ('MAX(id)',)).iloc[0,0])
-#     #print(len(ssbu_db.select_my_data('analysis_table', ('*',))))
-    
-#     df = ssbu_db.select_my_data('analysis_table', ('*',))
-#     fighter_list = list(set(df['fighter_name_1p'].to_list()+df['fighter_name_2p'].to_list()))
-#     print(sorted(fighter_list),len(fighter_list))
-    
-#     url_list = df['game_start_url'].to_list()
-#     org_url_list = list(set([url[:43] for url in url_list]))
-#     org_url_list.remove('https://www.youtube.com/watch?v=P7Olxt1_tG0')
-#     org_url_list.remove('https://www.youtube.com/watch?v=dqs-pK0JhuI')
-#     org_url_list.insert(0, 'https://www.youtube.com/watch?v=P7Olxt1_tG0')
-#     org_url_list.insert(0, 'https://www.youtube.com/watch?v=dqs-pK0JhuI')
-#     fighter_2p_list = df['fighter_name_2p'].to_list()
-#     rm_fighter_list = []
-#     for org_url in org_url_list:
-#         fighter_each_url = []
-#         for url, fighter_2p in zip(url_list, fighter_2p_list):
-#             if org_url in url: fighter_each_url.append(fighter_2p)
-#         if ('P7Olxt1_tG0' or 'dqs-pK0JhuI') in org_url: 
-#             rm_fighter_list += list(set(fighter_each_url)) 
-#         else: 
-#             #fighter_set = set([fighter for fighter in fighter_each_url if fighter not in rm_fighter_list])
-#             fighter_set = set(fighter_each_url)
-#             print(org_url, ":", len(fighter_set), ":", fighter_set)
-            
-def ssbu_bq_sel():
-    df = SmashDatabase().select_analysis_data().sort_values('fighter_id_2p')
-    df = df.drop_duplicates(subset=['fighter_id_1p', 'fighter_id_2p', 'title'])
-    # pd.options.display.max_columns = None
-    # pd.set_option('display.width', 1000)
-    pd.set_option('display.max_rows', len(df))
-    print(df[['fighter_name_1p', 'fighter_name_2p', 'game_start_url']])
-    
-def ssbu_bq_del():
-    ssbu_db = BigqueryDatabase('ssbu_dataset')
-    #ssbu_db.delete_my_data('fighter_table', ('id > -1',))
-    #ssbu_db.delete_my_data('analysis_table', ('title = "2200を目指すスマメイト2095～"',))
-    ssbu_db.delete_my_data('analysis_table', ('id > -1',))
-    
-def ssbu_bq_upd():
-    ssbu_db = BigqueryDatabase('ssbu_dataset')
-    ssbu_db.update_my_data('analysis_table', ("target_player_is_win_lose_draw = 'win'",) ,('fighter_id_1p = 46',))
-
-def check_fighter_table():
-    ssbu_db = SmashDatabase()
-    df =ssbu_db.select_fighter_data()
-    fighter_lists = df['recog_name'].to_list(), df['fighter_id'].to_list(), df['fighter_name'].to_list()
-    for start, end in zip([-4,-5,-3,-5,-4], [None,-1,None,-2,-1]):
-        print(start, end)
-        dup_id_list = []
-        for recog_name_0, fighter_id_0, fighter_name_0 in zip(fighter_lists[0], fighter_lists[1], fighter_lists[2]):
-            for recog_name_1, fighter_id_1, fighter_name_1 in zip(fighter_lists[0], fighter_lists[1], fighter_lists[2]):
-                if recog_name_0[start:end]==recog_name_1[start:end] and fighter_id_0!=fighter_id_1 and fighter_id_0 not in dup_id_list: 
-                    print([recog_name_1[start:end], f"{recog_name_0}|{recog_name_1}", f"{fighter_id_0}|{fighter_id_1}", f"{fighter_name_0}|{fighter_name_1}"])
-                    dup_id_list.append(fighter_id_1)
-
-if __name__ == '__main__':
-    #BigqueryDatabase("ssbu_dataset")
-    #ssbu_bq()
-    # ssbu_bq_sel()
-    #ssbu_bq_del()
-    #ssbu_bq_upd()
-    main2()
-    # inputs = {"fighter_df": SmashDatabase().select_fighter_data()}
-    # df_sorted = inputs["fighter_df"].sort_values(by='id')
-    # print(df_sorted)
-    # check_fighter_table()
     

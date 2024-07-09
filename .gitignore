@@ -5,8 +5,9 @@ hello/
 old/
 *.jpg
 *_bk.py
-*images/
+*.jpg
 *_copy.py
+*_images/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
