@@ -1,7 +1,6 @@
 import gc
 import re
 import writer as wf
-import threading
 import time
 from dataclasses import astuple
 from glob import glob as _glob
@@ -12,7 +11,7 @@ from sys import path
 path.append(_join(_dirname('__file__'), '..'))
 from threading import Thread
 from tqdm import tqdm
-from module.esports_analysis import EsportsAnalysis,Parameter #NewThread, get_charalists, get_templater, get_category, ssbu_each_analysis
+from module.esports_analysis import EsportsAnalysis,Parameter
 from module.bq_db import SmashDatabase
 from module.yt_obj import GetYoutube
 

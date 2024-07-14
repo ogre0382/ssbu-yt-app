@@ -9,6 +9,7 @@ from time import sleep
 
 # EVENT HANDLERS
 
+# 【配布用】Python スクリプトを実行ファイル化する PyInstaller を徹底解説！ https://www.cfxlog.com/python-pyinstaller/
 def update(state):
     if state["input"]["lang"]["element"]!=" " and state["input"]["player"]["element"]==" ":
         state["suf"] = "" if state["input"]["lang"]["element"]=="jp" else "_en"
@@ -59,66 +60,76 @@ def update(state):
         _update_visibility(state, ["correct_mode"])
     
     if state["input"]["correct_mode"]["element"]=="on":
-        _update_visibility(state, ["lang", "player", "datetime"], others_off=False)
+        state["input"]["correct_mode"]["visibility2"] = True
+        if 'delete' in state["input"]["correct_mode"]["element2"]:
+            state["input"]["correct_mode"]["disabled"] = "no"
+            _update_visibility(state, ["correct_mode"])
+        else:
+            _update_visibility(state, ["lang", "player", "datetime"], others_off=False)
         for k in init_dict["input"].keys(): 
             if "buf_element" in init_dict["input"][k].keys():
                 if state["input"][k]["element"]!=state["input"][k]["buf_element"]:
                     state["set_values_type"].append(k)
                     state["input"]["correct_mode"]["disabled"] = "no"
+        print(f'state["input"]["correct_mode"]["element2"] = {state["input"]["correct_mode"]["element2"]}')
     
 def correct(state):
-    set_values = []
-    for k in state["set_values_type"]:
-        if k=="player":
-            element = state["input"]["player"]["element"]
-            set_value = (f"target_player_name = '{element}'")
-        if k=="fighter":
-            y = 5 if state["suf"]=="_en" else 6
-            suf2 = "" if state["suf"]=="_en" else "_en"
-            element = state["input"]["fighter"]["element"]
-            element2 = state["sub_df"].query(f'fighter_name{state["suf"]} == "{element}"').iat[0, 4]
-            element3 = state["sub_df"].query(f'fighter_name{state["suf"]} == "{element}"').iat[0, y]
-            if state["input"]["fighter"]["buf_element"]==state["df"][[f'fighter_name_1p{state["suf"]}']].iat[0, 0]:
-                set_value = (f"fighter_name_1p{state['suf']} = '{element}'")    
-                set_value2 = (f"fighter_id_1p = {element2}")
-                set_value3 = (f"fighter_name_1p{suf2} = '{element3}'")
-            else:
-                set_value = (f"fighter_name_2p{state['suf']} = '{element}'")
-                set_value2 = (f"fighter_id_2p = {element2}")
-                set_value3 = (f"fighter_name_2p{suf2} = '{element3}'")
-        if k=="vs_fighter":
-            y = 5 if state["suf"]=="_en" else 6
-            suf2 = "" if state["suf"]=="_en" else "_en"
-            element = state["input"]["vs_fighter"]["element"]
-            element2 = state["sub_df"].query(f'fighter_name{state["suf"]} == "{element}"').iat[0, 4]
-            element3 = state["sub_df"].query(f'fighter_name{state["suf"]} == "{element}"').iat[0, y]
-            if state["input"]["vs_fighter"]["buf_element"]==state["df"][[f'fighter_name_1p{state["suf"]}']].iat[0, 0]:
-                set_value = (f"fighter_name_1p{state['suf']} = '{element}'")
-                set_value2 = (f"fighter_id_1p = {element2}")
-                set_value3 = (f"fighter_name_1p{suf2} = '{element3}'")
-            else:
-                set_value = (f"fighter_name_2p{state['suf']} = '{element}'")
-                set_value2 = (f"fighter_id_2p = {element2}")
-                set_value3 = (f"fighter_name_2p{suf2} = '{element3}'")
-        if k=="category":
-            element = state["input"]["category"]["element"]
-            set_value = (f"category = '{element}'")
-        if k=="win_lose":
-            element = True if state["input"]["category"]["element"]=="Win" else False
-            set_value = (f"target_player_is_win = {element}")
-        if set_value not in set_values:
-            set_values.append(set_value)
-            if k in ["fighter", "vs_fighter"]:
-                set_values.append(set_value2)
-                set_values.append(set_value3)
-    element = state["df"].iat[0, 11]
-    SmashDatabase().update_analysis_data(set_values, (f"game_start_url = '{element}'",))
+    game_start_url = state["df"].iat[0, 11]
+    if 'delete' in state["input"]["correct_mode"]["element2"]:
+        SmashDatabase().delete_analysis_data((f"game_start_url = '{game_start_url}'",))
+    else:
+        set_values = []
+        for k in state["set_values_type"]:
+            if k=="player":
+                element = state["input"]["player"]["element"]
+                set_value = (f"target_player_name = '{element}'")
+            if k=="fighter":
+                y = 5 if state["suf"]=="_en" else 6
+                suf2 = "" if state["suf"]=="_en" else "_en"
+                element = state["input"]["fighter"]["element"]
+                element2 = state["sub_df"].query(f'fighter_name{state["suf"]} == "{element}"').iat[0, 4]
+                element3 = state["sub_df"].query(f'fighter_name{state["suf"]} == "{element}"').iat[0, y]
+                if state["input"]["fighter"]["buf_element"]==state["df"][[f'fighter_name_1p{state["suf"]}']].iat[0, 0]:
+                    set_value = (f"fighter_name_1p{state['suf']} = '{element}'")    
+                    set_value2 = (f"fighter_id_1p = {element2}")
+                    set_value3 = (f"fighter_name_1p{suf2} = '{element3}'")
+                else:
+                    set_value = (f"fighter_name_2p{state['suf']} = '{element}'")
+                    set_value2 = (f"fighter_id_2p = {element2}")
+                    set_value3 = (f"fighter_name_2p{suf2} = '{element3}'")
+            if k=="vs_fighter":
+                y = 5 if state["suf"]=="_en" else 6
+                suf2 = "" if state["suf"]=="_en" else "_en"
+                element = state["input"]["vs_fighter"]["element"]
+                element2 = state["sub_df"].query(f'fighter_name{state["suf"]} == "{element}"').iat[0, 4]
+                element3 = state["sub_df"].query(f'fighter_name{state["suf"]} == "{element}"').iat[0, y]
+                if state["input"]["vs_fighter"]["buf_element"]==state["df"][[f'fighter_name_1p{state["suf"]}']].iat[0, 0]:
+                    set_value = (f"fighter_name_1p{state['suf']} = '{element}'")
+                    set_value2 = (f"fighter_id_1p = {element2}")
+                    set_value3 = (f"fighter_name_1p{suf2} = '{element3}'")
+                else:
+                    set_value = (f"fighter_name_2p{state['suf']} = '{element}'")
+                    set_value2 = (f"fighter_id_2p = {element2}")
+                    set_value3 = (f"fighter_name_2p{suf2} = '{element3}'")
+            if k=="category":
+                element = state["input"]["category"]["element"]
+                set_value = (f"category = '{element}'")
+            if k=="win_lose":
+                element = True if state["input"]["category"]["element"]=="Win" else False
+                set_value = (f"target_player_is_win = {element}")
+            if set_value not in set_values:
+                set_values.append(set_value)
+                if k in ["fighter", "vs_fighter"]:
+                    set_values.append(set_value2)
+                    set_values.append(set_value3)
+        SmashDatabase().update_analysis_data(set_values, (f"game_start_url = '{game_start_url}'",))
     _update_visibility(state)
     state["html"]["inside"] = " "
     state["html"]["msg_visibility"] = True
-    sleep(2)
-    state["html"]["inside"] = _get_table(_get_df().query(f'game_start_url == "{element}"'), state["suf"])
+    sleep(5)
+    state["html"]["inside"] = _get_table(_get_df().query(f'game_start_url == "{game_start_url}"'), state["suf"])
     state["html"]["msg_visibility"] = False
+
 
 # LOAD DATA
 
@@ -183,8 +194,10 @@ init_dict = {
         },
         "correct_mode": {
             "element": "off",
+            "element2": [],
             "disabled": "yes",
-            "visibility": False
+            "visibility": False,
+            "visibility2": False
         },
         "player": {
             "options": {"":""},

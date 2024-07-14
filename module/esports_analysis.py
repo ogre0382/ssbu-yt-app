@@ -4,13 +4,10 @@ import easyocr
 import numpy as np
 import re
 import string
-
 from .bq_db import SmashDatabase
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from os.path import dirname, join
-from threading import Thread
-from tqdm import tqdm
 from .yt_obj import GetYoutube
 JST = timezone(timedelta(hours=+9), 'JST')
 

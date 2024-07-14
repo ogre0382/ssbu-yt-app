@@ -77,6 +77,7 @@ class BigqueryDatabase:
     def delete_my_data(self, table_name=None, where_req=None):
         if table_name!=None: table_ref = f'{self.dataset_ref}.{table_name}'
         if where_req!=None:
+            print(f"DELETE FROM `{table_ref}` WHERE {' AND '.join(where_req)};")
             self.client.query(f"DELETE FROM `{table_ref}` WHERE {' AND '.join(where_req)};")
     
     # BigQueryのテーブルのデータを更新する
@@ -231,6 +232,9 @@ class SmashDatabase(BigqueryDatabase):
         df.loc[df["target_player_is_win"]=="True", "target_player_is_win"] = "Win"
         df.loc[df["target_player_is_win"]=="False", "target_player_is_win"] = "Lose"
         return df
+    
+    def delete_analysis_data(self, where_req):
+        super().delete_my_data('analysis_table', where_req)
     
     # 分析結果のデータを更新する
     def update_analysis_data(self, set_values, where_req):

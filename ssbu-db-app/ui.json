@@ -1,6 +1,6 @@
 {
     "metadata": {
-        "writer_version": "0.6.0"
+        "writer_version": "0.6.1"
     },
     "components": {
         "root": {
@@ -147,7 +147,6 @@
             "content": {
                 "label": "",
                 "options": "@{input.player.options}",
-                "accentColor": "#125FA8",
                 "placeholder": "",
                 "maximumCount": ""
             },
@@ -180,8 +179,7 @@
             "type": "selectinput",
             "content": {
                 "label": "",
-                "options": "@{input.fighter.options}",
-                "accentColor": "#125fa8"
+                "options": "@{input.fighter.options}"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -213,8 +211,7 @@
             "type": "selectinput",
             "content": {
                 "label": "",
-                "options": "@{input.vs_fighter.options}",
-                "accentColor": "#125FA8"
+                "options": "@{input.vs_fighter.options}"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -256,7 +253,6 @@
             "type": "selectinput",
             "content": {
                 "label": "",
-                "accentColor": "#125FA8",
                 "options": "@{input.category.options}",
                 "placeholder": ""
             },
@@ -290,8 +286,7 @@
             "type": "selectinput",
             "content": {
                 "label": "",
-                "options": "@{input.win_lose.options}",
-                "accentColor": "#125FA8"
+                "options": "@{input.win_lose.options}"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -323,8 +318,7 @@
             "type": "selectinput",
             "content": {
                 "label": "",
-                "options": "@{input.datetime.options}",
-                "accentColor": "#125FA8"
+                "options": "@{input.datetime.options}"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -385,7 +379,7 @@
                 "isDisabled": "@{input.correct_mode.disabled}"
             },
             "isCodeManaged": false,
-            "position": 1,
+            "position": 2,
             "parentId": "488g509w41mhj6na",
             "handlers": {
                 "wf-click": "correct"
@@ -466,8 +460,7 @@
             "type": "selectinput",
             "content": {
                 "label": "",
-                "options": "@{input.lang.options}",
-                "accentColor": "#125fa8"
+                "options": "@{input.lang.options}"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -484,13 +477,33 @@
         "r9r7mmmqvn49bbxs": {
             "id": "r9r7mmmqvn49bbxs",
             "type": "message",
-            "parentId": "t8zr72rdug5o7i00",
             "content": {
                 "message": "% Now Loading ..."
             },
-            "handlers": {},
+            "isCodeManaged": false,
             "position": 3,
+            "parentId": "t8zr72rdug5o7i00",
+            "handlers": {},
             "visible": "html.msg_visibility"
+        },
+        "5mrha9qpj5y15m6w": {
+            "id": "5mrha9qpj5y15m6w",
+            "type": "checkboxinput",
+            "content": {
+                "label": "",
+                "options": "{\n  \"delete\": \"delete\"\n}"
+            },
+            "isCodeManaged": false,
+            "position": 1,
+            "parentId": "488g509w41mhj6na",
+            "visible": "input.correct_mode.visibility2",
+            "binding": {
+                "eventType": "wf-options-change",
+                "stateRef": "input.correct_mode.element2"
+            },
+            "handlers": {
+                "wf-options-change": "update"
+            }
         }
     }
 }

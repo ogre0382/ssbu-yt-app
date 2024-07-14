@@ -6,7 +6,7 @@ old/
 *.jpg
 *_bk.py
 *.jpg
-*_copy.py
+*_copy.*
 *_images/
 
 # Byte-compiled / optimized / DLL files
