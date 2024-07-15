@@ -12,8 +12,9 @@ from time import sleep
 # 【配布用】Python スクリプトを実行ファイル化する PyInstaller を徹底解説！ https://www.cfxlog.com/python-pyinstaller/
 def update(state):
     if state["input"]["lang"]["element"]!=" " and state["input"]["player"]["element"]==" ":
+        state["df"] = _get_df()
         state["suf"] = "" if state["input"]["lang"]["element"]=="jp" else "_en"
-        state["html"]["inside"] = _get_table(suf=state["suf"])
+        state["html"]["inside"] = _get_table(state["df"], state["suf"])
         _get_options(state, "player", 'target_player_name')
     
     if state["input"]["player"]["element"]!=" " and state["input"]["fighter"]["element"]==" ":
@@ -179,6 +180,7 @@ def _update_visibility(state, options_type_list=[], others_off=True):
     for k in init_dict["input"].keys(): 
         if others_off: state["input"][k]["visibility"] = True if k in options_type_list else False
         else: state["input"][k]["visibility"] = True if k not in options_type_list else False
+
 
 # STATE INIT
 
