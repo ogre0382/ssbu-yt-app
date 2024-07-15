@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from google.oauth2 import service_account
 from google.cloud import bigquery
 from os.path import join, dirname
+from time import sleep
 
 # BigQueryのデータベース操作を行うクラス
 class BigqueryDatabase:
@@ -240,12 +241,20 @@ class SmashDatabase(BigqueryDatabase):
     def update_analysis_data(self, set_values, where_req):
         super().update_my_data('analysis_table', set_values, where_req)
 
-if __name__ == '__main__':
-    ssbu_db = SmashDatabase()
+def main_create(ssbu_db:SmashDatabase):
     ssbu_db.create_my_dataset()
     ssbu_db.create_fighter_table_data()
     ssbu_db.create_analysis_table()
-    df = ssbu_db.select_analysis_data()
-    print(df)
-    print(df['title'].value_counts())
-    
+    print(f"作成したデータベース: {ssbu_db.select_fighter_data()}")
+    print(f"作成したデータベース: {ssbu_db.select_analysis_data()}")
+
+def main_delete(ssbu_db:SmashDatabase, where_req):
+    print(f"削除前のデータベース: {ssbu_db.select_analysis_data()}")
+    ssbu_db.delete_analysis_data(where_req)
+    sleep(5)
+    print(f"削除後のデータベース: {ssbu_db.select_analysis_data()}")    
+
+if __name__ == '__main__':
+    ssbu_db = SmashDatabase()
+    main_create(ssbu_db)
+    main_delete(ssbu_db, (f"REGEXP_CONTAINS(target_player_name, r'向井田可夢')",))

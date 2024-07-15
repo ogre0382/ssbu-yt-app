@@ -13,7 +13,7 @@ from time import sleep
 def update(state):
     if state["input"]["lang"]["element"]!=" " and state["input"]["player"]["element"]==" ":
         state["suf"] = "" if state["input"]["lang"]["element"]=="jp" else "_en"
-        state["html"]["inside"] = _get_table(state["df"], state["suf"])
+        state["html"]["inside"] = _get_table(suf=state["suf"])
         _get_options(state, "player", 'target_player_name')
     
     if state["input"]["player"]["element"]!=" " and state["input"]["fighter"]["element"]==" ":

@@ -98,7 +98,7 @@
             "content": {
                 "element": "",
                 "styles": "{\n  \"padding\": \"16px\",\n  \"min-height\": \"64px\",\n  \"min-width\": \"64px\",\n  \"border-color\": \"red\",\n  \"border-radius\": \"8px\",\n  \"background\": \"linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 100%)\"\n}",
-                "htmlInside": "<style>.link{color: blue;}</style>\n<span class='link'><a href=https://ssbu-db-app.onrender.com/>SSBU 1on1 YouTube Collection APP</a></span>",
+                "htmlInside": "<style>.link{color: blue;}</style>\n<span class='link'><a href=https://drive.google.com/drive/folders/1nlqUkbqYVUFpeEnHeySiGEgM115PzVKC?usp=sharing target='_blank'>SSBU 1on1 YouTube Collection APP</a></span>",
                 "cssClasses": ""
             },
             "isCodeManaged": false,
