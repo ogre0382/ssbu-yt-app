@@ -56,7 +56,8 @@
                 "pageMode": "",
                 "primaryTextColor": "#125fa8",
                 "separatorColor": "#125fa8",
-                "buttonColor": "#125fa8"
+                "buttonColor": "#125fa8",
+                "accentColor": "#c8c8c8"
             },
             "isCodeManaged": false,
             "position": 0,
@@ -496,13 +497,13 @@
             "isCodeManaged": false,
             "position": 1,
             "parentId": "488g509w41mhj6na",
+            "handlers": {
+                "wf-options-change": "update"
+            },
             "visible": "input.correct_mode.visibility2",
             "binding": {
                 "eventType": "wf-options-change",
                 "stateRef": "input.correct_mode.element2"
-            },
-            "handlers": {
-                "wf-options-change": "update"
             }
         }
     }
