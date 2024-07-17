@@ -96,7 +96,7 @@ class GetYoutube:
 
     # YouTubeの画像を取得する：スタティックメソッド https://qiita.com/cardene/items/14d300c1b46371e74a38
     @staticmethod
-    def get_yt_image(info, sec_pos=0, dsize=(1920,1080), gray=False, imw_path="imw_path", ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}):
+    def get_yt_image(info, sec_pos=0, dsize=(1920,1080), gray=False, imw_path="imw_path", ydl_opts={'verbose':True, 'format':'best'}):
         cap = cv2.VideoCapture(info["cap"])
         cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
         ret, img = cap.read()
@@ -131,6 +131,7 @@ class GetYoutube:
 
 if __name__ == '__main__':
     url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf'
+    # 'cookiesfrombrowser': ('chrome',) -> メンバーシップ限定アーカイブ動画用オプション
     ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}
     yt_infos = GetYoutube(url, ydl_opts=ydl_opts).infos
     print(yt_infos)
