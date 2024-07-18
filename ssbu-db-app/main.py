@@ -7,9 +7,9 @@ sys.path.append(os.path.join(os.path.dirname('__file__'), '..'))
 from module.bq_db import SmashDatabase
 from time import sleep
 
+
 # EVENT HANDLERS
 
-# 【配布用】Python スクリプトを実行ファイル化する PyInstaller を徹底解説！ https://www.cfxlog.com/python-pyinstaller/
 def update(state):
     if state["input"]["lang"]["element"]!=" " and state["input"]["player"]["element"]==" ":
         state["df"] = _get_df()
@@ -72,8 +72,7 @@ def update(state):
                 if state["input"][k]["element"]!=state["input"][k]["buf_element"]:
                     state["set_values_type"].append(k)
                     state["input"]["correct_mode"]["disabled"] = "no"
-        print(f'state["input"]["correct_mode"]["element2"] = {state["input"]["correct_mode"]["element2"]}')
-    
+
 def correct(state):
     game_start_url = state["df"].iat[0, 11]
     if 'delete' in state["input"]["correct_mode"]["element2"]:
@@ -116,7 +115,7 @@ def correct(state):
                 element = state["input"]["category"]["element"]
                 set_value = (f"category = '{element}'")
             if k=="win_lose":
-                element = True if state["input"]["category"]["element"]=="Win" else False
+                element = "true" if state["input"]["win_lose"]["element"]=="Win" else "false"
                 set_value = (f"target_player_is_win = {element}")
             if set_value not in set_values:
                 set_values.append(set_value)
