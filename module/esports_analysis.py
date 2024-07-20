@@ -230,9 +230,7 @@ class EsportsAnalysis:
     def get_fighter_name(self, img):
         txt = self.easyOCR(img, self.param.easyocr["name_allowlist"])
         for recog_name, fighter_id, fighter_name, fighter_name_en in zip(self.param.fighter_lists[0], self.param.fighter_lists[1], self.param.fighter_lists[2], self.param.fighter_lists[3]):
-            if txt==recog_name:
-                print(fighter_id, fighter_name, fighter_name_en, txt)
-                return fighter_id, fighter_name, fighter_name_en, txt
+            if txt==recog_name: return fighter_id, fighter_name, fighter_name_en, txt
         name_lists = []
         for recog_name, fighter_id, fighter_name, fighter_name_en in zip(self.param.fighter_lists[0], self.param.fighter_lists[1], self.param.fighter_lists[2], self.param.fighter_lists[3]):
             st_cnt = 0
@@ -244,18 +242,14 @@ class EsportsAnalysis:
             for rst, rnst in zip(txt[::-1], name_txt[::-1]):
                 if rst==rnst: st_rcnt+=1
             if abs(len(txt)-st_rcnt)<=1: return fighter_id, fighter_name, fighter_name_en, txt
-            print(st_cnt+st_rcnt, fighter_id, fighter_name, fighter_name_en, txt)
             name_lists.append([st_cnt+st_rcnt, fighter_id, fighter_name, fighter_name_en, txt])
         # 2次元リストを降順にソートする方法 https://af-e.net/python-two-dimensional-list-sort/#index_id4
-        print(sorted(name_lists, key=lambda x: x[0], reverse=True)[0][1:])
         return sorted(name_lists, key=lambda x: x[0], reverse=True)[0][1:]
     
     # ゲーム結果取得
     def get_game_result(self):
         damage_1p = self.easyOCR(self.param.img["g_result"]["img_1p"], self.param.easyocr["num_allowlist"])
         damage_2p = self.easyOCR(self.param.img["g_result"]["img_2p"], self.param.easyocr["num_allowlist"])
-        print("damage_1p:", damage_1p)
-        print("damage_2p:", damage_2p)
         if self.game_data.fighter_name_1p in self.param.target_1p_fighters:
             self.game_data.target_player_is_1p = True
             if re.compile('\d').search(damage_1p) and damage_2p=='': self.game_data.target_player_is_win = True
@@ -275,7 +269,6 @@ class EsportsAnalysis:
         st_cnt=0
         for st, tst in zip(txt, target_fighter[:len(txt)]):
             if st==tst: st_cnt+=1
-        print(st_cnt, target_fighter, txt)
         self.game_data.target_player_is_win = True if abs(len(target_fighter)-st_cnt)<=3 else False
     
     # OCRでファイター名検出
@@ -295,7 +288,6 @@ class EsportsAnalysis:
             else: return 0
         # ゲーム開始画面検出処理
         if self.states['find_game_start']:
-            print(f"sec = {sec}")
             self.img = GetYoutube.get_yt_image(self.param.yt_info, sec, gray=True)
             self.param.img["g_start"]["img"] = GetYoutube.set_yt_image(
                 self.param.crop | self.param.img['g_start']['crop'], self.img, crop=True,
@@ -321,7 +313,6 @@ class EsportsAnalysis:
                 self.game_data.game_start_datetime = datetime.fromtimestamp(self.param.yt_info["release_timestamp"]+sec, JST).strftime('%Y-%m-%d %T')
                 self.game_data.game_start_url = f'{self.param.yt_info["original_url"]}&t={sec}s'
                 yt_id = self.param.yt_info['original_url'].split('=')[1]
-                print(f"success get_fighter_name in {sec}s in with {yt_id}")
                 inside_vs = f"{self.game_data.fighter_name_1p} vs {self.game_data.fighter_name_2p}"
                 GetYoutube.get_yt_image(
                     self.param.yt_info, sec, (480,270), 
@@ -388,7 +379,6 @@ class EsportsAnalysis:
                 self.count=0
                 self.trans('skip_interval')
                 yt_id = self.param.yt_info['original_url'].split('=')[1]
-                print(f"success get_game_result in {self.sec_buf}s in with {yt_id}")
                 inside_res = "WIN" if self.game_data.target_player_is_win else "LOSE"
                 GetYoutube.get_yt_image(
                     self.param.yt_info, self.sec_buf, (480,270), 

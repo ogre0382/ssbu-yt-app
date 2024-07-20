@@ -30,4 +30,5 @@ def asgi_app(is_yt_app=True, mode="run"):
 # PyInstaller+multiprocessingをWindows上で動かす時のメモ https://qiita.com/npkk/items/cc4c46181c06ff41bdf3
 if __name__ == '__main__':
     mp.freeze_support()
-    asgi_app()
+    # asgi_app()
+    asgi_app(is_yt_app=False, mode="edit")
