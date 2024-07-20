@@ -14,7 +14,7 @@ def gen_exe():
     pac_cmd = [f"{pac_opt}="+package for package in PACKAGENAME]
     
     cmd = ["pyinstaller", "--onefile"] + name_cmd + mod_cmd + pac_cmd +  ["serve.py"]
-    print(cmd)
+    print(" ".join(cmd))
     subprocess.run(cmd)
     
 if __name__ == '__main__':
