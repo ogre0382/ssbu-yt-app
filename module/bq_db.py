@@ -257,4 +257,4 @@ def main_delete(ssbu_db:SmashDatabase, where_req):
 if __name__ == '__main__':
     ssbu_db = SmashDatabase()
     main_create(ssbu_db)
-    main_delete(ssbu_db, (f"REGEXP_CONTAINS(target_player_name, r'向井田可夢')",))
+    main_delete(ssbu_db, (f"REGEXP_CONTAINS(target_player_name, r'Ly')",))
