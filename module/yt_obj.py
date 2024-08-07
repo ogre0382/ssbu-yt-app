@@ -41,7 +41,7 @@ class YoutubeInformation:
 
 # YouTubeから情報を取得して画像処理するためのクラス
 class GetYoutube:
-    def __init__(self, input_url, resolution='best', ydl_opts={'verbose':True}, ):
+    def __init__(self, input_url, resolution='best', ydl_opts={'verbose':True}):
         self.input_url = input_url
         self.resolution = resolution
         self.ydl_opts = ydl_opts
@@ -130,8 +130,10 @@ class GetYoutube:
         return img
 
 if __name__ == '__main__':
-    url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf'
+    # url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf'
+    url = 'https://www.youtube.com/watch?v=PXAbkNA4mW4'
     # 'cookiesfrombrowser': ('chrome',) -> メンバーシップ限定アーカイブ動画用オプション
-    ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}
+    # ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}
+    ydl_opts={'verbose':True, 'cookiesfrombrowser': ('chrome',)}
     yt_infos = GetYoutube(url, ydl_opts=ydl_opts).infos
     print(yt_infos)
