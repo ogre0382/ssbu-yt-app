@@ -41,7 +41,7 @@ class YoutubeInformation:
 
 # YouTubeから情報を取得して画像処理するためのクラス
 class GetYoutube:
-    def __init__(self, input_url, resolution='best', ydl_opts={'verbose':True}):
+    def __init__(self, input_url, resolution='best', ydl_opts={'verbose':True, 'username':'dr141stone', 'password':'141=stone'}):
         self.input_url = input_url
         self.resolution = resolution
         self.ydl_opts = ydl_opts
@@ -96,7 +96,7 @@ class GetYoutube:
 
     # YouTubeの画像を取得する：スタティックメソッド https://qiita.com/cardene/items/14d300c1b46371e74a38
     @staticmethod
-    def get_yt_image(info, sec_pos=0, dsize=(1920,1080), gray=False, imw_path="imw_path", ydl_opts={'verbose':True}):
+    def get_yt_image(info, sec_pos=0, dsize=(1920,1080), gray=False, imw_path="imw_path", ydl_opts={'verbose':True, 'username':'dr141stone', 'password':'141=stone'}):
         cap = cv2.VideoCapture(info["cap"])
         cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
         ret, img = cap.read()
@@ -134,6 +134,7 @@ if __name__ == '__main__':
     url = 'https://www.youtube.com/watch?v=PXAbkNA4mW4'
     # 'cookiesfrombrowser': ('chrome',) -> メンバーシップ限定アーカイブ動画用オプション
     # ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}
-    ydl_opts={'verbose':True, 'cookiesfrombrowser': ('chrome',)}
+    # ydl_opts={'verbose':True, 'cookiesfrombrowser': ('chrome',)}
+    ydl_opts={'verbose':True, 'username':'dr141stone', 'password':'141=stone'}
     yt_infos = GetYoutube(url, ydl_opts=ydl_opts).infos
     print(yt_infos)
