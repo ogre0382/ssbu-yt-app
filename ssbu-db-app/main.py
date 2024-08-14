@@ -1,6 +1,7 @@
 import pandas as pd
 import writer as wf
 import os
+import plotly.express as px
 import re
 import sys
 sys.path.append(os.path.join(os.path.dirname('__file__'), '..'))
@@ -18,6 +19,7 @@ def update(state):
         state["suf"] = "" if state["input"]["lang"]["element"]=="jp" else "_en"
         state["html"]["inside"] = _get_table(state["df"], state["suf"])
         _get_options(state, "player", 'target_player_name')
+        _get_chart(state)
     
     # Player：プレイヤー名 を選択
     if state["input"]["player"]["element"]!=" " and state["input"]["fighter"]["element"]==" ":
@@ -25,6 +27,7 @@ def update(state):
         state["df"] = state["df"].query(f'target_player_name == "{state["input"]["player"]["element"]}"')
         state["html"]["inside"] = _get_table(state["df"], state["suf"])
         _get_merge_options(state, "fighter")
+        _get_chart(state)
     
     # Fighter：プレイヤーの ファイター名 を選択
     if state["input"]["fighter"]["element"]!=" " and state["input"]["vs_fighter"]["element"]==" ":
@@ -32,21 +35,34 @@ def update(state):
         state["df"] = state["df"].query(f'fighter_name_1p{state["suf"]} == "{state["input"]["fighter"]["element"]}" or fighter_name_2p{state["suf"]} == "{state["input"]["fighter"]["element"]}"')
         state["html"]["inside"] = _get_table(state["df"], state["suf"])
         _get_merge_options(state, "vs_fighter", False)
+        _get_chart(state)
     
-    # Vs Fighter：対戦相手の ファイター名 を選択
+    # vs Fighter：対戦相手の ファイター名 を選択
     if state["input"]["vs_fighter"]["element"]!=" " and state["input"]["category"]["element"]==" ":
         state["input"]["vs_fighter"]["buf_element"] = state["input"]["vs_fighter"]["element"]
         cond = "and" if state["input"]["fighter"]["element"]==state["input"]["vs_fighter"]["element"] else "or"
         state["df"] = state["df"].query(f'fighter_name_1p{state["suf"]} == "{state["input"]["vs_fighter"]["element"]}" {cond} fighter_name_2p{state["suf"]} == "{state["input"]["vs_fighter"]["element"]}"')
         state["html"]["inside"] = _get_table(state["df"], state["suf"])
         _get_options(state, "category", 'category')
+        _get_chart(state)
     
     # Category：カテゴリー を選択
-    if state["input"]["category"]["element"]!=" " and state["input"]["win_lose"]["element"]==" ":
+    if state["input"]["category"]["element"]!=" " and state["input"]["date"]["element"]==" ":
         state["input"]["category"]["buf_element"] = state["input"]["category"]["element"]
         state["df"] = state["df"].query(f'category == "{state["input"]["category"]["element"]}"')
         state["html"]["inside"] = _get_table(state["df"], state["suf"])
+        _get_options(state, "date", 'game_start_datetime')
+        _get_chart(state)
+    
+    # Date：日付 を選択
+    if state["input"]["date"]["element"]!=" " and state["input"]["win_lose"]["element"]==" ":
+        state["input"]["date"]["buf_element"] = state["input"]["date"]["element"]
+        # state["df"] = state["df"].query(f'game_start_datetime == "{state["input"]["date"]["element"]}"')
+        df = state["df"]
+        state["df"] = df[df['game_start_datetime'].str.contains(f'{state["input"]["date"]["element"]}')]
+        state["html"]["inside"] = _get_table(state["df"], state["suf"])
         _get_options(state, "win_lose", 'target_player_is_win')
+        _get_chart(state)
     
     # Win or Lose：勝敗 を選択
     if state["input"]["win_lose"]["element"]!=" " and state["input"]["datetime"]["element"]==" ":
@@ -54,6 +70,7 @@ def update(state):
         state["df"] = state["df"].query(f'target_player_is_win == "{state["input"]["win_lose"]["element"]}"')
         state["html"]["inside"] = _get_table(state["df"], state["suf"])
         _get_options(state, "datetime", 'game_start_datetime')
+        _get_chart(state)
     
     # Datetime：日時 を選択
     if state["input"]["datetime"]["element"]!=" " and state["input"]["correct_mode"]["element"]=="off":
@@ -172,12 +189,21 @@ def _get_table(df=_get_df(), suf=""):
     # 【CSS/html】table,th,tdの文字色を変える方法 https://csshtml.work/table-color/#spancolor
     return re.sub('</style>', '.link{color: blue;}</style>', table)
 
+# 日時用フォーマット関数
+def _format_df(datetime_str):
+    return datetime_str[:10]
+
 # 選択肢を取得
 def _get_options(state, input_type, df_item):
     df = state["df"][[df_item]].sort_values(df_item)
-    df = df[~df.duplicated(keep='first')]
+    if input_type=="date":
+        # df = df.to_string(formatters={'game_start_datetime': _format_df})
+        df_list = [st[:10] for st in df[df_item].to_list()]
+        df = pd.DataFrame(df_list, columns=['game_start_datetime'])
+    # df.drop_duplicates(df_item)
     df2dict = df[df_item].to_dict()
     state["input"][input_type]["options"] = {v: v for v in df2dict.values()}
+    print(state["input"][input_type]["options"])
     _update_visibility(state, [input_type])
 
 # データをマージして選択肢を取得
@@ -195,6 +221,46 @@ def _get_merge_options(state, input_type, fighter_query=True):
     state["input"][input_type]["options"] = {v: v for v in df2dict.values()}
     _update_visibility(state, [input_type])
     
+def _get_chart(state=None, is_wl=False):
+    if state!=None:
+        df = state["df"]
+        suf = state["suf"]
+    else:
+        df = _get_df()
+        suf = ""
+    if is_wl:
+        pass
+    df_1p = df.query('target_player_is_1p == False')
+    df_1p = df_1p[['fighter_id_1p', f'fighter_name_1p{suf}', 'target_player_is_win']]
+    df_1p.columns = ['fighter_id', 'fighter_name', 'target_player_is_win']
+    df_2p = df.query('target_player_is_1p == True')
+    df_2p = df_2p[['fighter_id_2p', f'fighter_name_2p{suf}', 'target_player_is_win']]
+    df_2p.columns = ['fighter_id', 'fighter_name', 'target_player_is_win']
+    df = pd.concat([df_1p, df_2p], axis=0)
+    df = df.sort_values('fighter_id')
+    
+    # 1. 各ファイターの試合数をカウント
+    total_counts = df['fighter_name'].value_counts().reset_index()
+    total_counts.columns = ['fighter_name', 'total_matches']
+
+    # 2. 各ファイターの勝利数をカウント
+    win_counts = df.query('target_player_is_win == "Win"')['fighter_name'].value_counts().reset_index()
+    win_counts.columns = ['fighter_name', 'win_matches']
+
+    # 3. 試合数と勝利数をマージ
+    merged_counts = pd.merge(total_counts, win_counts, on='fighter_name', how='left')
+
+    # 4. 勝率を計算
+    merged_counts['win_rate'] = merged_counts['win_matches'] / merged_counts['total_matches']
+
+    # NaNを0に置き換え（勝利数が0のファイターのため）
+    merged_counts['win_rate'] = merged_counts['win_rate'].fillna(0)
+    
+    win_rate = merged_counts[['fighter_name','win_rate']].sort_values('fighter_name')
+    fig = px.bar(win_rate, x='fighter_name', y='win_rate')
+    
+    if state!=None: state["chart"] = fig
+    else: return fig
 
 # UPDATES
 
@@ -211,6 +277,7 @@ init_dict = {
     "df": _get_df(),
     "sub_df": SmashDatabase().select_fighter_data(),
     "set_values_type": [],
+    "chart": _get_chart(),
     "input":{
         "lang": {
             "options": {"jp":"jp", "en":"en"},
@@ -230,9 +297,6 @@ init_dict = {
             "buf_element": " ",
             "visibility": False
         },
-        "t_player": {
-            "visibility": False
-        },
         "fighter": {
             "options": {"":""},
             "element": " ",
@@ -249,6 +313,11 @@ init_dict = {
             "options": {"":""},
             "element": " ",
             "buf_element": " ",
+            "visibility": False
+        },
+        "date": {
+            "options": {"":""},
+            "element": " ",
             "visibility": False
         },
         "win_lose": {

@@ -418,7 +418,7 @@
                 "width": "1"
             },
             "isCodeManaged": false,
-            "position": 1,
+            "position": 2,
             "parentId": "zyonis4yoaf9fi6x",
             "handlers": {}
         },
@@ -426,10 +426,11 @@
             "id": "8usjnocnz0mniage",
             "type": "column",
             "content": {
-                "width": "1"
+                "width": "1",
+                "title": "Date: @{input.date.element}"
             },
             "isCodeManaged": false,
-            "position": 2,
+            "position": 1,
             "parentId": "zyonis4yoaf9fi6x",
             "handlers": {},
             "visible": true
@@ -443,18 +444,6 @@
             "parentId": "095o2fsr50n9ibo7",
             "handlers": {},
             "visible": "input.correct_mode.visibility"
-        },
-        "3sjxhzxgzgmgo2mh": {
-            "id": "3sjxhzxgzgmgo2mh",
-            "type": "text",
-            "content": {
-                "text": " "
-            },
-            "isCodeManaged": false,
-            "position": 0,
-            "parentId": "8usjnocnz0mniage",
-            "handlers": {},
-            "visible": true
         },
         "clfden52zffgy1as": {
             "id": "clfden52zffgy1as",
@@ -504,6 +493,36 @@
             "binding": {
                 "eventType": "wf-options-change",
                 "stateRef": "input.correct_mode.element2"
+            }
+        },
+        "sq1jhh7ta6glbzxa": {
+            "id": "sq1jhh7ta6glbzxa",
+            "type": "plotlygraph",
+            "content": {
+                "spec": "@{chart}"
+            },
+            "isCodeManaged": false,
+            "position": 4,
+            "parentId": "t8zr72rdug5o7i00",
+            "handlers": {}
+        },
+        "913usf0y90z1lhm2": {
+            "id": "913usf0y90z1lhm2",
+            "type": "selectinput",
+            "content": {
+                "label": "",
+                "options": "@{input.date.options}"
+            },
+            "isCodeManaged": false,
+            "position": 0,
+            "parentId": "8usjnocnz0mniage",
+            "handlers": {
+                "wf-option-change": "update"
+            },
+            "visible": "input.date.visibility",
+            "binding": {
+                "eventType": "wf-option-change",
+                "stateRef": "input.date.element"
             }
         }
     }
