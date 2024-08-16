@@ -100,14 +100,15 @@ class GetYoutube:
         cap = cv2.VideoCapture(info["cap"])
         cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
         ret, img = cap.read()
-        loop_cnt = 0
-        while not ret:
-            loop_cnt+=1
-            print(f'Fail to do "cap.read()" with {info["original_url"]} ({loop_cnt} loop)')
-            info = GetYoutube(info["original_url"], ydl_opts=ydl_opts).infos[0]
-            cap = cv2.VideoCapture(info["cap"])
-            cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
-            ret, img = cap.read()
+        if not ret: return None
+        # loop_cnt = 0
+        # while not ret:
+        #     loop_cnt+=1
+        #     print(f'Fail to do "cap.read()" with {info["original_url"]} in {sec_pos}s ({loop_cnt} loop)')
+        #     info = GetYoutube(info["original_url"], ydl_opts=ydl_opts).infos[0]
+        #     cap = cv2.VideoCapture(info["cap"])
+        #     cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
+        #     ret, img = cap.read()
         img = cv2.resize(img, dsize=dsize)
         if gray: img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         if ('.jpg' in imw_path) or ('.png' in imw_path): cv2.imwrite(imw_path, img)

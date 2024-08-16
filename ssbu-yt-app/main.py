@@ -220,10 +220,13 @@ def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
     analysis.set_game_data(inputs, index)
     yt_id = analysis.param.yt_info['original_url'].split('=')[1]
     for sec in range(analysis.param.initial, analysis.param.duration):
+        if analysis.execute_analysis(index, sec)==1:
+            state["collect"]["start_button"]["disabled"] = "no"
+            state["collect"]["stop_button"]["disabled"] = "yes"
+            state["collect"]["html_visibility"] = True
         if state["collect"]["stop_button"]["disabled"]=="yes":
             state["collect"]["repeater"][f"message{index}"]["text"] = f"!Stopped{text[7:]}"
             break
-        analysis.execute_analysis(index, sec)
         bar_text = f"Started image processing | {yt_id} -> {analysis.state}"
         bar.set_description(bar_text)
         bar.update(1)

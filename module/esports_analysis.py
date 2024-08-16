@@ -289,6 +289,7 @@ class EsportsAnalysis:
         # ゲーム開始画面検出処理
         if self.states['find_game_start']:
             self.img = GetYoutube.get_yt_image(self.param.yt_info, sec, gray=True)
+            if self.img is None: return 1
             self.param.img["g_start"]["img"] = GetYoutube.set_yt_image(
                 self.param.crop | self.param.img['g_start']['crop'], self.img, crop=True,
                 pre_dsize=self.param.img["g_start"]["dsize"],
@@ -318,6 +319,7 @@ class EsportsAnalysis:
                     self.param.yt_info, sec, (480,270), 
                     imw_path=join(self.param.img["imw_path"], f"static/image{index}_{yt_id}_{sec}_{re.sub('[.&/ -]', '', inside_vs)}.jpg")
                 )
+                if self.img is None: return 1
             else:
                 self.trans('find_game_start')
         # ゲーム開始画面～ゲーム終了画面までの間隔をスキップ
@@ -328,6 +330,7 @@ class EsportsAnalysis:
         # ゲーム終了画面検出処理
         if self.states['find_game_finish']:
             self.img = GetYoutube.get_yt_image(self.param.yt_info, sec, gray=True)
+            if self.img is None: return 1
             yt_id = self.param.yt_info['original_url'].split('=')[1]
             self.param.img["g_finish"]["img"] = GetYoutube.set_yt_image(
                 self.param.crop | self.param.img['g_finish']['crop'], self.img, crop=True,
@@ -349,6 +352,7 @@ class EsportsAnalysis:
             if self.game_data.target_player_is_win==None:
                 self.sec_buf+=1
                 self.img = GetYoutube.get_yt_image(self.param.yt_info, self.sec_buf, gray=True)
+                if self.img is None: return 1
                 self.param.img["g_result"]["img_1p"] = GetYoutube.set_yt_image(
                     self.param.crop | self.param.img['g_result']['crop_1p'], self.img, crop=True,
                     pre_dsize=self.param.img["g_result"]["dsize"],
@@ -361,6 +365,7 @@ class EsportsAnalysis:
             if self.game_data.target_player_is_win==None:
                 self.sec_buf+=6.25
                 self.img = GetYoutube.get_yt_image(self.param.yt_info, self.sec_buf, gray=True)
+                if self.img is None: return 1
                 self.param.img["g_result"]["img_rs"] = GetYoutube.set_yt_image(
                     self.param.crop | self.param.img['g_result']['crop_rs'], self.img, crop=True,
                     pre_dsize=self.param.img["g_result"]["dsize"],
@@ -384,6 +389,7 @@ class EsportsAnalysis:
                     self.param.yt_info, self.sec_buf, (480,270), 
                     imw_path=join(self.param.img["imw_path"], f"static/image{index}_{yt_id}_{self.sec_buf}_{inside_res}.jpg")
                 )
+                if self.img is None: return 1
             else:
                 self.trans('get_game_result')
         # 現在の処理状態を更新
