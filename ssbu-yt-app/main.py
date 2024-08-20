@@ -224,9 +224,6 @@ def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
             state["collect"]["start_button"]["disabled"] = "no"
             state["collect"]["stop_button"]["disabled"] = "yes"
             state["collect"]["html_visibility"] = True
-        if state["collect"]["stop_button"]["disabled"]=="yes":
-            state["collect"]["repeater"][f"message{index}"]["text"] = f"!Stopped{text[7:]}"
-            break
         bar_text = f"Started image processing | {yt_id} -> {analysis.state}"
         bar.set_description(bar_text)
         bar.update(1)
@@ -255,6 +252,9 @@ def _generate_analysis_data(state, inputs, index, initial=0, duration=0):
                 game_data_list.append(analysis.game_data)
                 analysis.set_game_data(inputs, index)
                 _generate_view_results(state, state["collect"].to_dict()["repeater"][f"message{index}"]["repeater"], index, len(game_data_list))
+        if state["collect"]["stop_button"]["disabled"]=="yes":
+            state["collect"]["repeater"][f"message{index}"]["text"] = f"!Stopped{text[7:]}"
+            break
     
     time.sleep(0.1*(1+index))
     smash_db = SmashDatabase()

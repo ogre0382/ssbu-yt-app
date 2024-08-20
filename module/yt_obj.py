@@ -41,7 +41,7 @@ class YoutubeInformation:
 
 # YouTubeから情報を取得して画像処理するためのクラス
 class GetYoutube:
-    def __init__(self, input_url, resolution='best', ydl_opts={'verbose':True, 'username':'dr141stone', 'password':'141=stone'}):
+    def __init__(self, input_url, resolution='best', ydl_opts={'verbose':True, 'cookiefile':'cookies.txt'}):
         self.input_url = input_url
         self.resolution = resolution
         self.ydl_opts = ydl_opts
@@ -96,19 +96,13 @@ class GetYoutube:
 
     # YouTubeの画像を取得する：スタティックメソッド https://qiita.com/cardene/items/14d300c1b46371e74a38
     @staticmethod
-    def get_yt_image(info, sec_pos=0, dsize=(1920,1080), gray=False, imw_path="imw_path", ydl_opts={'verbose':True, 'username':'dr141stone', 'password':'141=stone'}):
+    def get_yt_image(info, sec_pos=0, dsize=(1920,1080), gray=False, imw_path="imw_path", ydl_opts={'verbose':True, 'cookiefile':'cookies.txt'}):
         cap = cv2.VideoCapture(info["cap"])
         cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
         ret, img = cap.read()
-        if not ret: return None
-        # loop_cnt = 0
-        # while not ret:
-        #     loop_cnt+=1
-        #     print(f'Fail to do "cap.read()" with {info["original_url"]} in {sec_pos}s ({loop_cnt} loop)')
-        #     info = GetYoutube(info["original_url"], ydl_opts=ydl_opts).infos[0]
-        #     cap = cv2.VideoCapture(info["cap"])
-        #     cap.set(cv2.CAP_PROP_POS_FRAMES, info["fps"]*sec_pos)
-        #     ret, img = cap.read()
+        if not ret: 
+            print(f'Fail to do "cap.read()" with {info["original_url"]} in {sec_pos}')
+            return None
         img = cv2.resize(img, dsize=dsize)
         if gray: img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         if ('.jpg' in imw_path) or ('.png' in imw_path): cv2.imwrite(imw_path, img)
@@ -130,12 +124,18 @@ class GetYoutube:
         if ('.jpg' in imw_path) or ('.png' in imw_path): cv2.imwrite(imw_path, img)
         return img
 
-if __name__ == '__main__':
-    # url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf'
-    url = 'https://www.youtube.com/watch?v=PXAbkNA4mW4'
-    # 'cookiesfrombrowser': ('chrome',) -> メンバーシップ限定アーカイブ動画用オプション
-    # ydl_opts={'verbose':True, 'format':'best', 'cookiesfrombrowser': ('chrome',)}
-    # ydl_opts={'verbose':True, 'cookiesfrombrowser': ('chrome',)}
-    ydl_opts={'verbose':True, 'username':'dr141stone', 'password':'141=stone'}
+def save_cookies_txt():
+    with yt_dlp.YoutubeDL({'verbose':True, 'cookiesfrombrowser': ('chrome',), 'cookiefile':'cookies.txt'}) as ydl:
+        ydl.save_cookies()
+
+def test_yt_infos(url):
+    ydl_opts={'verbose':True, 'cookiefile':'cookies.txt'}
     yt_infos = GetYoutube(url, ydl_opts=ydl_opts).infos
     print(yt_infos)
+    
+
+if __name__ == '__main__':
+    # save_cookies_txt()
+    # url = 'https://www.youtube.com/playlist?list=PLxWXI3TDg12zJpAiXauddH_Mn8O9fUhWf'
+    url = 'https://www.youtube.com/watch?v=PXAbkNA4mW4'
+    test_yt_infos(url)
