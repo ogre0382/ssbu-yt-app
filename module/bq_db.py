@@ -19,7 +19,8 @@ class BigqueryDatabase:
     # PythonからGCPへ接続するときの認証設定 https://qiita.com/R_plapla/items/a228c76cdf39456fd262
     # python-dotenvを使って環境変数を設定する https://qiita.com/harukikaneko/items/b004048f8d1eca44cba9
     def get_my_client(self):
-        if sys.platform in ('win32', 'cygwin'): load_dotenv(join(dirname(__file__), '.env'))
+        # if sys.platform in ('win32', 'cygwin'): load_dotenv(join(dirname(__file__), '.env'))
+        load_dotenv(join(dirname(__file__), '.env'))
         account = {
             "type": "service_account",
             "project_id": os.environ.get("GCP_PROJECT_ID"),

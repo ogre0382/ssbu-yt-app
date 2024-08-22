@@ -2,6 +2,7 @@
 hello/
 *.jpg
 *.bak*
+desktop.ini
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
