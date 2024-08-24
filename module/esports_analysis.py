@@ -101,7 +101,7 @@ class Parameter:
     def get_start_sec(self, initial):
         for game_end_url in SmashDatabase().select_analysis_data()['game_end_url'].to_list():
             if self.yt_info['original_url'] in game_end_url:
-                initial = max([initial, int(re.findall(r'\d+',game_end_url)[-1])])
+                initial = max([initial]+[int(sec) for sec in re.findall(r'\d+',game_end_url)])
         return initial
         
     def get_img(self, img, imw_path, dsize):
