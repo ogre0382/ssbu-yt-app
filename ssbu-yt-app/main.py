@@ -137,8 +137,8 @@ def _get_game_screen(state):
     if len(yt_infos)<state["main_yt_num"]: state["main_yt_num"] = len(yt_infos)
     if len(yt_infos)<state["sub_yt_num"]: state["sub_yt_num"] = len(yt_infos)
     for i in range(state["sub_yt_num"]):
-        GetYoutube.get_yt_image(yt_infos[i], sec_pos=0, imw_path=_join(_dirname('__file__'), f'static/image{i}_0.jpg'))
-        state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_0.jpg'
+        GetYoutube.get_yt_image(yt_infos[i], sec_pos=0, imw_path=_join(_dirname('__file__'), f'static/image{i}_0_check.jpg'))
+        state["game_screen"][f"html{i}"]["image_source"] = f'static/image{i}_0_check.jpg'
         state["game_screen"][f"html{i}"]["inside"] = f'{yt_infos[i]["original_url"]}&t={0}s'
         state["game_screen"][f"html{i}"]["slider_number"]["max_value"] = yt_infos[i]["duration"]
     for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["visibility"] = True
@@ -306,12 +306,12 @@ def _update_game_screen(state):
     state["game_screen"][f"html{ch}"]["button_disabled"] = "yes"
     sec = int(state["game_screen"][f"html{ch}"]["slider_number"]["state_element"])
     yt_infos = state["inputs"]["yt_infos"]
-    GetYoutube.get_yt_image(yt_infos[ch], sec_pos=sec, imw_path=_join(_dirname('__file__'), f'static/image{ch}_{sec}.jpg'))
+    GetYoutube.get_yt_image(yt_infos[ch], sec_pos=sec, imw_path=_join(_dirname('__file__'), f'static/image{ch}_{sec}_check.jpg'))
     if "crop" in state["game_screen"][f"html{ch}"]["image_source"]:
         _remove(_join(_dirname('__file__'), f'{state["game_screen"][f"html{ch}"]["image_source"][:-9]}.jpg'))
         _update_proc_game_screen(state, crop=True, ch=ch)
     else:
-        state["game_screen"][f"html{ch}"]["image_source"] = f'static/image{ch}_{sec}.jpg'
+        state["game_screen"][f"html{ch}"]["image_source"] = f'static/image{ch}_{sec}_check.jpg'
     state["game_screen"][f"html{ch}"]["inside"] = f'{yt_infos[ch]["original_url"]}&t={sec}s'
     for i in range(state["sub_yt_num"]): state["game_screen"][f"html{i}"]["slider_number"]["visibility"] = True
 
@@ -335,14 +335,14 @@ def _update_proc_game_screen(state, rect=False, crop=False, ch=4, var_rect=True)
     ch_range = range(state["sub_yt_num"]) if ch==4 else range(ch,ch+1)
     for i in ch_range:
         sec = int(state["game_screen"][f"html{i}"]["slider_number"]["state_element"])
-        imr_file = f'static/image{i}_{sec}.jpg' if var_rect else state["game_screen"][f"html{i}"]["image_source"]
-        imw_file = f'static/image{i}_{sec}_{suffix}.jpg' if var_rect else f'{state["game_screen"][f"html{i}"]["image_source"][:-4]}_{suffix}.jpg'
+        imr_file = f'static/image{i}_{sec}_check.jpg' if var_rect else state["game_screen"][f"html{i}"]["image_source"]
+        imw_file = f'static/image{i}_{sec}_{suffix}_check.jpg' if var_rect else f'{state["game_screen"][f"html{i}"]["image_source"][:-10]}_{suffix}_check.jpg'
         GetYoutube.set_yt_image(
             cv2dict, rect=rect, crop=crop, post_dsize=(1920,1080),
             imr_path=_join(_dirname('__file__'), imr_file),
             imw_path=_join(_dirname('__file__'), imw_file),
         )
-        if state["game_screen"][f"html{i}"]["image_source"]!=f'static/image{i}_{sec}.jpg' and ch==4:
+        if state["game_screen"][f"html{i}"]["image_source"]!=f'static/image{i}_{sec}_check.jpg' and ch==4:
             _remove(_join(_dirname('__file__'), state["game_screen"][f"html{i}"]["image_source"]))
         state["game_screen"][f"html{i}"]["image_source"] = imw_file
 
@@ -376,7 +376,7 @@ def _update_option(state):
 
 ## 画像ファイルを削除する
 def _remove_img_file():
-    for file in _glob(_join(_dirname('__file__'),'static/image*.jpg')): _remove(file)
+    for file in _glob(_join(_dirname('__file__'),'static/*_check.jpg')): _remove(file)
 
 
 # STATE INIT
